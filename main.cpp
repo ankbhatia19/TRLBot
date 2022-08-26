@@ -4,7 +4,7 @@
 #include "src/include/Commands.h"
 #include "src/include/CommandProcessor.h"
 
-const std::string    BOT_TOKEN    = "MTAxMjE4NDUxNTkxOTIyMDgxNg.GjTW6e.e4nRnuHTOE-ZynIT4OMdNZ0LeChxcIp1qGJ6Ks";
+const std::string    BOT_TOKEN    = ":)";
 
 int main() {
     dpp::cluster bot(BOT_TOKEN);
