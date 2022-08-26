@@ -4,7 +4,7 @@
 #include "src/include/Commands.h"
 #include "src/include/CommandProcessor.h"
 
-const std::string    BOT_TOKEN    = ":)";
+const std::string    BOT_TOKEN    = "MTAxMjE4NDUxNTkxOTIyMDgxNg.GjTW6e.e4nRnuHTOE-ZynIT4OMdNZ0LeChxcIp1qGJ6Ks";
 
 int main() {
     dpp::cluster bot(BOT_TOKEN);
@@ -16,7 +16,7 @@ int main() {
         dpp::command_interaction cmd_data = interaction.get_command_interaction();
 
         if (interaction.get_command_name() == "ping") {
-            event.reply(dpp::message(event.command.channel_id, CommandProcessor::teamCommand(interaction)));
+            event.reply(dpp::message(event.command.channel_id, CommandProcessor::pingCommand(interaction)));
         }
         else if (interaction.get_command_name() == "match"){
             event.reply(dpp::message(event.command.channel_id, CommandProcessor::matchCommand(interaction)));
@@ -30,7 +30,6 @@ int main() {
         else if (interaction.get_command_name() == "player"){
             event.reply(dpp::message(event.command.channel_id, CommandProcessor::playerCommand(interaction)));
         }
-
     });
 
     bot.on_ready([&bot](const dpp::ready_t& event) {

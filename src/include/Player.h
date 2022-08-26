@@ -7,16 +7,18 @@
 
 #include <vector>
 #include <string>
+#include <dpp/dpp.h>
 #include "Match.h"
 using namespace std;
+using namespace dpp;
 
 class Player {
 
 public:
-    Player();
+    Player(user profile);
     vector<string> aliases;
 
-    string token;
+    user profile;
 };
 
 

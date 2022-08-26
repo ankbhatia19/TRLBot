@@ -4,6 +4,6 @@
 
 #include "include/Player.h"
 
-Player::Player() {
-
+Player::Player(user profile) {
+    Player::profile = profile;
 }

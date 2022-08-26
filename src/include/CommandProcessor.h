@@ -6,9 +6,13 @@
 #define TRLBOT_COMMANDPROCESSOR_H
 #include <dpp/dpp.h>
 #include <iostream>
+#include <string>
+
 #include "Embeds.h"
 #include "Schedule.h"
 #include "Match.h"
+#include "Player.h"
+#include "Team.h"
 
 using namespace std;
 using namespace dpp;
