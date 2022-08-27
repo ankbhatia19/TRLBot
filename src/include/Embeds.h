@@ -14,14 +14,39 @@ using namespace dpp;
 
 class Embeds {
 public:
-    static embed matchEmbed(int matchID, string home, string away, vector<Player> homePlayers, vector<Player> awayPlayers);
-    static embed errorEmbed(string msg);
+    /* <Match Embeds> */
+
+    static embed matchCreatedEmbed(int matchID, string home, string away, vector<Player> homePlayers, vector<Player> awayPlayers);
+
+    /* </Match Embeds> */
+
+    /* <Team Embeds> */
+
+    // On Error
     static embed teamUnregisteredEmbed(role home, role away);
     static embed teamUnregisteredEmbed(role team);
+    static embed teamPlayerAlreadyRegisteredEmbed(user player, role team);
+    static embed teamPlayerUnregisteredEmbed(user player, role team);
+
+    // On Success
     static embed teamRegisteredEmbed(role team);
     static embed teamDelistedEmbed(role team);
     static embed teamAddedPlayerEmbed(user player, role team);
+    static embed teamRemovedPlayerEmbed(user player, role team);
+    static embed teamViewAllEmbed(vector<Team> teams);
+    static embed teamViewRoleEmbed(role team);
+
+    /* </Team Embeds> */
+
+    /* <Miscellaneous Embeds> */
+
+    static embed errorEmbed(string msg);
     static embed testEmbed();
+
+    /* </Miscellaneous Embeds> */
+
+private:
+    static embed embedTemplate();
 };
 
 

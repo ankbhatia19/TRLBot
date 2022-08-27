@@ -17,7 +17,7 @@ bool Schedule::hasMatch(int id) {
 
 int Schedule::getTeam(snowflake id) {
     for (int i = 0; i < teams.size(); i++){
-        if (id == teams[i].id){
+        if (id == teams[i].team.id){
             return i;
         }
     }

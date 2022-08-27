@@ -17,15 +17,18 @@ class Match;
 
 class Team {
 public:
-    Team(snowflake id);
+    Team(role team);
     ~Team();
     vector<Player> players;
     vector<Match> matches;
-    int wins, losses, draws;
-    snowflake id;
+    int wins, losses;
+    int differential;
+    role team;
 
-    bool hasPlayer(Player player);
-    bool hasMatch(Match match);
+    int getPlayer(snowflake id);
+    int getMatch(int id);
+    bool hasPlayer(snowflake id);
+    bool hasMatch(int id);
 };
 
 

@@ -68,13 +68,22 @@ slashcommand Commands::scheduleCommand(snowflake botID) {
 
     schedcmd.add_option(
             /* Create a subcommand type option for "view". */
-            command_option(dpp::co_sub_command, "view", "View all scheduled matches")
-                .add_option(command_option(dpp::co_number, "id", "The match ID to view", true))
+            command_option(
+                    dpp::co_sub_command, "view", "View all scheduled matches or the indicated match")
+                        .add_option(
+                                command_option(dpp::co_integer, "id", "The match ID to view", false)
+                                    .set_min_value(0)
+                                    .set_max_value(100000)
+                        )
     );
     schedcmd.add_option(
             /* Create another subcommand type option for "edit". */
             command_option(dpp::co_sub_command, "edit", "Edit a match")
-                    .add_option(command_option(dpp::co_number, "id", "The match to edit", true))
+                    .add_option(
+                            command_option(dpp::co_integer, "id", "The match ID to edit", true)
+                                    .set_min_value(0)
+                                    .set_max_value(100000)
+                    )
                     .add_option(command_option(dpp::co_string, "date", "The date to schedule this match", true))
                     .add_option(command_option(dpp::co_string, "time", "The time to schedule this match", true))
     );
@@ -91,7 +100,7 @@ slashcommand Commands::playerCommand(snowflake botID) {
                     .add_option(command_option(dpp::co_user, "user", "The username to view", false))
     );
     playercmd.add_option(
-            /* Create a subcommand type option for "info". */
+            /* Create a subcommand type option for "register". */
             command_option(dpp::co_sub_command, "register", "Register a new Rocket League username")
                     .add_option(command_option(dpp::co_string, "name", "The username to add", true))
     );
