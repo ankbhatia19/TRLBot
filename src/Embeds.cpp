@@ -177,7 +177,7 @@ embed Embeds::teamViewAllEmbed(vector<Team> teams) {
 
     embed embed = embedTemplate()
             .set_title("__Registered Teams__")
-            .add_field(playerList.str(), teamList.str());
+            .add_field(teamList.str(), playerList.str());
 
     return embed;
 }

@@ -3,6 +3,21 @@
 #include "src/include/CommandProcessor.h"
 
 const std::string    BOT_TOKEN    = ":)";
+using EventParameter = std::variant<monostate, basic_string<char>, int64_t, bool, snowflake, double>;
+
+struct EventParameterGet {
+    std::string operator()(bool value) { return value ? "true" : "false"; }
+    std::string operator()(monostate value) { return std::string("No conversion for monostate afaik"); }
+    std::string operator()(int64_t value) { return std::to_string(value); }
+    std::string operator()(snowflake value) { return std::to_string(value); }
+    std::string operator()(double value) { return std::to_string(value); }
+    std::string operator()(const std::string& value) { return value; }
+};
+
+std::string to_string(const EventParameter& input) {
+    return std::visit(EventParameterGet{}, input);
+}
+
 
 int main() {
     dpp::cluster bot(BOT_TOKEN);
@@ -23,6 +38,10 @@ int main() {
             event.reply(dpp::message(event.command.channel_id, CommandProcessor::teamCommand(interaction)));
         }
         else if (interaction.get_command_name() == "schedule"){
+            command_interaction cmd_data = interaction.get_command_interaction();
+            auto subcommand = cmd_data.options[0];
+            if (subcommand.options.size() == 1)
+                cout << "Parameter variant: " << event.get_parameter("id").index();
             event.reply(dpp::message(event.command.channel_id, CommandProcessor::scheduleCommand(interaction)));
         }
         else if (interaction.get_command_name() == "player"){
