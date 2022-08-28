@@ -11,7 +11,7 @@ vector<int> Match::allIDs;
 int generateID(){
     time_t lt = time(NULL);
     srand(lt);
-    return (rand() % 100000);
+    return (rand() % 90000) + 10000; // always return a 5 digit random id
 }
 
 Match::Match(Team* home, Team* away){

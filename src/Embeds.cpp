@@ -14,29 +14,37 @@ embed Embeds::embedTemplate() {
     return embed;
 }
 
-embed Embeds::matchCreatedEmbed(int matchID, string home, string away, vector<Player> homePlayers, vector<Player> awayPlayers){
+embed Embeds::matchCreatedEmbed(Match match, role home, role away){
     std::ostringstream matchIDstr;
     std::ostringstream homeTeamStr, homeTeamPlayers;
     std::ostringstream awayTeamStr, awayTeamPlayers;
 
-    matchIDstr << "Match ID: " << matchID;
-    homeTeamStr << "Home: " << home;
-    awayTeamStr << "Away: " << away;
+    matchIDstr << "Match ID: " << match.id;
+    homeTeamStr << "Home: " << home.name;
+    awayTeamStr << "Away: " << away.name;
 
-    if (homePlayers.empty()){ homeTeamPlayers << "None\n"; }
-    if (awayPlayers.empty()){ awayTeamPlayers << "None\n"; }
-    for (auto member : homePlayers){
-        homeTeamPlayers << member.profile.username << "\n";
-    }
-    for (auto member : awayPlayers){
-        awayTeamPlayers << member.profile.username << "\n";
-    }
+    if (Schedule::teams[Schedule::getTeam(home.id)].players.empty())
+        homeTeamPlayers << "None\n";
+
+    if (Schedule::teams[Schedule::getTeam(away.id)].players.empty())
+        awayTeamPlayers << "None\n";
+
+    for (auto member : Schedule::teams[Schedule::getTeam(home.id)].players)
+        homeTeamPlayers << member.profile.get_mention() << "\n";
+
+    for (auto member : Schedule::teams[Schedule::getTeam(away.id)].players)
+        awayTeamPlayers << member.profile.get_mention() << "\n";
 
     embed embed = embedTemplate()
             .set_title(matchIDstr.str())
             .add_field(
                     homeTeamStr.str(),
                     homeTeamPlayers.str(),
+                    true
+            )
+            .add_field(
+                    "_          _",
+                    "_          _",
                     true
             )
             .add_field(
@@ -58,18 +66,19 @@ embed Embeds::errorEmbed(string msg) {
 
 embed Embeds::teamUnregisteredEmbed(role home, role away) {
     std::ostringstream unregistered;
-    unregistered << "These team(s) have not been registered: ";
+
     if (!Schedule::hasTeam(home.id)){
-        unregistered << "[" << home.name << "] ";
+        unregistered << home.get_mention() << "\n";
     }
     if (!Schedule::hasTeam(away.id)){
-        unregistered << "[" << away.name << "] ";
+        unregistered << away.get_mention() << " \n";
     }
+
     embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
-                    unregistered.str(),
-                    "Use `/team register` to create a team."
+                    "These team(s) have not been registered: ",
+                    unregistered.str() + "Use `/team register` to create a team."
             );
 
     return embed;
@@ -77,15 +86,16 @@ embed Embeds::teamUnregisteredEmbed(role home, role away) {
 
 embed Embeds::teamUnregisteredEmbed(role team) {
     std::ostringstream unregistered;
-    unregistered << "These team(s) have not been registered: ";
+    unregistered << "";
     if (!Schedule::hasTeam(team.id)){
-        unregistered << "[" << team.name << "] ";
+        unregistered << team.get_mention();
     }
+    unregistered << "\n";
     embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
-                    unregistered.str(),
-                    "Use `/team register` to create a team."
+                    "These team(s) have not been registered: ",
+                    unregistered.str() + "Use `/team register` to create a team."
             );
 
     return embed;
@@ -96,8 +106,8 @@ embed Embeds::teamRegisteredEmbed(role team) {
     embed embed = embedTemplate()
             .set_title("Team Created")
             .add_field(
-                    "Added team [" + team.name + "]",
-                    "Use `/team add` to fill the team roster."
+                    "Registered team: ",
+                    team.get_mention() + "\nUse `/team add` to fill the team roster."
             );
 
     return embed;
@@ -106,7 +116,11 @@ embed Embeds::teamRegisteredEmbed(role team) {
 embed Embeds::teamDelistedEmbed(role team) {
 
     embed embed = embedTemplate()
-            .set_title("Delisted team [" + team.name + "]");
+            .set_title("Team Removed")
+            .add_field(
+                    "Delisted team: ",
+                    team.get_mention() + "\nUse `/team register` to re-register this team."
+            );
 
     return embed;
 }
@@ -116,33 +130,8 @@ embed Embeds::teamAddedPlayerEmbed(user player, role team) {
     embed embed = embedTemplate()
             .set_title("Player Added")
             .add_field(
-                    "Added player [" + player.username + "] to [" + team.name + "]",
-                    "Use `/player info` to view this player."
-            );
-
-    return embed;
-}
-
-
-embed Embeds::teamPlayerAlreadyRegisteredEmbed(user player, role team) {
-
-    embed embed = embedTemplate()
-            .set_title("Error")
-            .add_field(
-                    "Player " + player.username + "is already registered to [" + team.name + "]" ,
-                    "Use `/team view` to view this team."
-            );
-
-    return embed;
-}
-
-embed Embeds::teamPlayerUnregisteredEmbed(user player, role team) {
-
-    embed embed = embedTemplate()
-            .set_title("Error")
-            .add_field(
-                    "Player " + player.username + "is not registered to [" + team.name + "]" ,
-                    "Use `/team view` to view this team."
+                    "Registered player: ",
+                    player.get_mention() + " to " + team.get_mention() + "\nUse `/player info` to view this player."
             );
 
     return embed;
@@ -153,8 +142,32 @@ embed Embeds::teamRemovedPlayerEmbed(user player, role team) {
     embed embed = embedTemplate()
             .set_title("Player Removed")
             .add_field(
-                    "Player " + player.username + "has been removed from [" + team.name + "]" ,
-                    "Use `/team view` to view this team."
+                    "Unregistered player: ",
+                    player.get_mention() + " from " + team.get_mention() + "\nUse `/player info` to view this player."
+            );
+
+    return embed;
+}
+
+embed Embeds::teamPlayerAlreadyRegisteredEmbed(user player, role team) {
+
+    embed embed = embedTemplate()
+            .set_title("Error")
+            .add_field(
+                    "Player already registered: " ,
+                    player.get_mention() + "is a member of " + team.get_mention() + "\nUse `/team view` to view this team."
+            );
+
+    return embed;
+}
+
+embed Embeds::teamPlayerUnregisteredEmbed(user player, role team) {
+
+    embed embed = embedTemplate()
+            .set_title("Error")
+            .add_field(
+                    "Player not registered: " ,
+                    player.get_mention() + "is not a member of " + team.get_mention() + "\nUse `/team view` to view this team."
             );
 
     return embed;
@@ -163,21 +176,19 @@ embed Embeds::teamRemovedPlayerEmbed(user player, role team) {
 embed Embeds::teamViewAllEmbed(vector<Team> teams) {
 
     std::ostringstream teamList;
-    std::ostringstream playerList;
-    int playerCount = 0;
+    std::ostringstream teamCount;
 
     if (teams.empty())
         teamList << "No registered teams.";
 
     for (auto team : teams){
-        teamList << team.team.get_mention();
-        playerCount += team.players.size();
+        teamList << team.team.get_mention() << "\n";
     }
-    playerList << "Registered Players: " << playerCount;
+    teamCount << "Registered Teams: " << teams.size();
 
     embed embed = embedTemplate()
-            .set_title("__Registered Teams__")
-            .add_field(teamList.str(), playerList.str());
+            .set_title("__Teams__")
+            .add_field(teamCount.str(), teamList.str());
 
     return embed;
 }
@@ -192,7 +203,7 @@ embed Embeds::teamViewRoleEmbed(role team) {
         players << "None\n";
     }
     for (auto member : thisTeam.players){
-        players << member.profile.username << "\n";
+        players << member.profile.get_mention() << "\n";
     }
 
     stats << "Wins: " << thisTeam.wins << "\n";

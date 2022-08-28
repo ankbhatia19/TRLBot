@@ -8,6 +8,7 @@
 #include <dpp/dpp.h>
 #include <string>
 #include "Player.h"
+#include "Match.h"
 #include "Schedule.h"
 using namespace std;
 using namespace dpp;
@@ -16,7 +17,7 @@ class Embeds {
 public:
     /* <Match Embeds> */
 
-    static embed matchCreatedEmbed(int matchID, string home, string away, vector<Player> homePlayers, vector<Player> awayPlayers);
+    static embed matchCreatedEmbed(Match matchID, role home, role away);
 
     /* </Match Embeds> */
 
