@@ -46,3 +46,30 @@ int RecordBook::getPlayer(snowflake id) {
     }
     return -1;
 }
+
+string RecordBook::getBotToken() {
+    std::ifstream f("config.json");
+    json data = json::parse(f);
+    string token = data["bot_token"];
+    f.close();
+
+    return token;
+}
+
+string RecordBook::getBallchasingToken() {
+    std::ifstream f("config.json");
+    json data = json::parse(f);
+    string token = data["ballchasing_token"];
+    f.close();
+
+    return token;
+}
+
+string RecordBook::getBallchasingURL() {
+    std::ifstream f("config.json");
+    json data = json::parse(f);
+    string token = data["ballchasing_url"];
+    f.close();
+
+    return token;
+}

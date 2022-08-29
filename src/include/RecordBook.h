@@ -6,10 +6,15 @@
 #define TRLBOT_RECORDBOOK_H
 
 #include <vector>
+#include <fstream>
+#include <nlohmann/json.hpp>
+
 #include "Match.h"
 #include "Player.h"
 #include "Team.h"
 using namespace std;
+using json = nlohmann::json;
+
 
 class Match;
 class Team;
@@ -27,6 +32,10 @@ public:
     static int getMatch(int id);
     static bool hasPlayer(snowflake id);
     static int getPlayer(snowflake id);
+
+    static string getBotToken();
+    static string getBallchasingToken();
+    static string getBallchasingURL();
 };
 
 

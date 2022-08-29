@@ -4,6 +4,9 @@
 
 #include "include/MatchCommand.h"
 
+string MatchCommand::token = RecordBook::getBallchasingToken();
+string MatchCommand::url = RecordBook::getBallchasingURL();
+
 slashcommand MatchCommand::cmd(snowflake botID) {
 
     slashcommand matchcmd("match", "Add, remove, or submit a match", botID);
@@ -71,15 +74,34 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
             filename << matchID << "_Game" << i << ".replay";
             string replayName = filename.str();
 
-            bot.request(replay.url, http_method::m_get, [replayName](const http_request_completion_t& response) {
+            bot.request(replay.url, http_method::m_get, [&bot, replayName](const http_request_completion_t& response) {
 
                 std::filesystem::path path{ "Replays" }; // creates a local replays folder
                 path /= replayName; // Add a replay file
                 std::filesystem::create_directories(path.parent_path()); // add directories based on the object path
 
-                std::ofstream ofs(path);
+                std::ofstream ofs(path, std::ios::out | std::ios::binary);
                 ofs << response.body;
                 ofs.close();
+
+                std::ifstream ifs(path, std::ios::in | std::ios::binary);
+
+                // Obtain the size of the file.
+                const auto sz = std::filesystem::file_size(path);
+
+                // Create a buffer.
+                std::string result(sz, '\0');
+
+                // Read the whole file into the buffer.
+                ifs.read(result.data(), sz);
+
+                string uploadURL = MatchCommand::url + "v2/upload?visibility=public";
+                bot.request(uploadURL, http_method::m_post, [](const http_request_completion_t& response) {
+
+                    cout << "Server response code: " << response.status << endl;
+                    cout << "Ballchasing upload link: " << response.body << endl;
+
+                }, result, "multipart/form-data", {{"Authorization", MatchCommand::token}});
             });
         }
     }

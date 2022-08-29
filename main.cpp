@@ -6,7 +6,7 @@
 #include "src/commands/include/PlayerCommand.h"
 #include "src/commands/include/ScheduleCommand.h"
 
-const std::string    BOT_TOKEN    = ":)";
+const std::string    BOT_TOKEN    = RecordBook::getBotToken();
 
 int main() {
     dpp::cluster bot(BOT_TOKEN);

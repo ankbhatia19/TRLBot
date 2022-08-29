@@ -6,11 +6,14 @@
 #define TRLBOT_MATCHCOMMAND_H
 
 #include <dpp/dpp.h>
-#include "../../include/Embeds.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <filesystem>
+
+
+#include "../../include/Embeds.h"
+#include "../../include/RecordBook.h"
 
 using namespace dpp;
 
@@ -18,6 +21,10 @@ class MatchCommand {
 public:
     static slashcommand cmd(snowflake botID);
     static message msg(const slashcommand_t& response, cluster& bot);
+
+private:
+    static string token;
+    static string url;
 };
 
 
