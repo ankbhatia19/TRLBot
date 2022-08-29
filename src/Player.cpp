@@ -6,4 +6,7 @@
 
 Player::Player(user profile) {
     Player::profile = profile;
+
+    seasonGoals = 0, seasonAssists = 0, seasonSaves = 0;
+    seasonAvgMVPR = 0;
 }

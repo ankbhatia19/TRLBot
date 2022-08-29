@@ -6,7 +6,6 @@
 #include "src/commands/include/PlayerCommand.h"
 #include "src/commands/include/ScheduleCommand.h"
 
-
 const std::string    BOT_TOKEN    = ":)";
 
 int main() {

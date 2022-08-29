@@ -9,7 +9,7 @@ add_executable(${PROJECT_NAME}
         main.cpp
         src/Player.cpp src/include/Player.h
         src/Match.cpp src/include/Match.h
-        src/Schedule.cpp src/include/Schedule.h
+        src/RecordBook.cpp src/include/RecordBook.h
         src/Team.cpp src/include/Team.h
         src/Embeds.cpp src/include/Embeds.h
         src/commands/TeamCommand.cpp src/commands/include/TeamCommand.h

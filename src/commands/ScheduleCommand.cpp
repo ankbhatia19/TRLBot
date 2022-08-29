@@ -14,7 +14,7 @@ slashcommand ScheduleCommand::cmd(snowflake botID) {
                     .add_option(
                             command_option(dpp::co_integer, "id", "The match ID to view", false)
                                     .set_min_value(10000)
-                                    .set_max_value(100000)
+                                    .set_max_value(99999)
                     )
     );
     schedcmd.add_option(
@@ -22,8 +22,8 @@ slashcommand ScheduleCommand::cmd(snowflake botID) {
             command_option(dpp::co_sub_command, "edit", "Edit a match")
                     .add_option(
                             command_option(dpp::co_integer, "id", "The match ID to edit", true)
-                                    .set_min_value(0)
-                                    .set_max_value(100000)
+                                    .set_min_value(10000)
+                                    .set_max_value(99999)
                     )
                     .add_option(command_option(dpp::co_string, "date", "The date to schedule this match", true))
                     .add_option(command_option(dpp::co_string, "time", "The time to schedule this match", true))
@@ -39,14 +39,13 @@ message ScheduleCommand::msg(const slashcommand_t &event) {
 
     if (subcommand.name == "view"){
         if (subcommand.options.empty()){
-            // view all scheduled matches
+            return { event.command.channel_id, Embeds::scheduleViewAllMatches() };
         }
         else {
-            cout << "Subcommand options: " << std::get<int64_t>(subcommand.options[0].value) << endl;
-
-            /* Get the match integer from the parameter */
-            //int msg = std::get<int64_t>(interaction.get_parameter("view"));
-            //cout << "Msg: " << msg.content;
+            int matchID = std::get<int64_t>(subcommand.options[0].value);
+            if (!RecordBook::hasMatch(matchID))
+                return { event.command.channel_id, Embeds::scheduleMatchDoesNotExist(matchID) };
+            return { event.command.channel_id, Embeds::scheduleViewMatch(matchID) };
         }
     }
 

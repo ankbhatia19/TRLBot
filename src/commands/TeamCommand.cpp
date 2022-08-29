@@ -41,7 +41,7 @@ slashcommand TeamCommand::cmd(snowflake botID) {
 }
 
 message TeamCommand::msg(const slashcommand_t& event) {
-    dpp::interaction interaction = event.command;
+    interaction interaction = event.command;
     command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
 
@@ -51,11 +51,11 @@ message TeamCommand::msg(const slashcommand_t& event) {
         role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
-        if (Schedule::hasTeam(role.id))
+        if (RecordBook::hasTeam(role.id))
             return { event.command.channel_id, Embeds::errorEmbed("Team [" + role.name + "] already exists.") };
 
         Team team(role);
-        Schedule::teams.push_back(team);
+        RecordBook::teams.push_back(team);
         return { event.command.channel_id, Embeds::teamRegisteredEmbed(role) };
     }
     else  if (subcommand.name == "delist"){
@@ -65,10 +65,10 @@ message TeamCommand::msg(const slashcommand_t& event) {
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
-        if (!Schedule::hasTeam(role.id))
+        if (!RecordBook::hasTeam(role.id))
             return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
 
-        Schedule::teams.erase(Schedule::teams.begin() + Schedule::getTeam(role.id));
+        RecordBook::teams.erase(RecordBook::teams.begin() + RecordBook::getTeam(role.id));
         return { event.command.channel_id, Embeds::teamDelistedEmbed(role) };
     }
     else if (subcommand.name == "add") {
@@ -78,18 +78,59 @@ message TeamCommand::msg(const slashcommand_t& event) {
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
-        if (!Schedule::hasTeam(role.id))
+        if (!RecordBook::hasTeam(role.id))
             return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
 
-        user profile = interaction.get_resolved_user(
+        user profile1, profile2, profile3;
+
+        profile1 = interaction.get_resolved_user(
                 subcommand.get_value<dpp::snowflake>(1)
         );
-        if (Schedule::teams[Schedule::getTeam(role.id)].hasPlayer(profile.id))
-            return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile, role)};
+        if (!RecordBook::hasPlayer(profile1.id))
+            return { event.command.channel_id, Embeds::playerNotFound(profile1) };
 
-        Player player(profile);
-        Schedule::teams[Schedule::getTeam(role.id)].players.push_back(player);
-        return { event.command.channel_id, Embeds::teamAddedPlayerEmbed(profile, role) };
+        if (RecordBook::teams[RecordBook::getTeam(role.id)].hasPlayer(profile1.id))
+            return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile1, role)};
+
+        RecordBook::teams[RecordBook::getTeam(role.id)].players.push_back(
+                RecordBook::players[RecordBook::getPlayer(profile1.id)]
+        );
+        RecordBook::players[RecordBook::getPlayer(profile1.id)].team = &RecordBook::teams[RecordBook::getTeam(role.id)];
+
+        if (subcommand.options.size() > 2){
+            // Two users specified
+            profile2 = interaction.get_resolved_user(
+                    subcommand.get_value<dpp::snowflake>(2)
+            );
+            if (!RecordBook::hasPlayer(profile2.id))
+                return { event.command.channel_id, Embeds::playerNotFound(profile2) };
+
+            if (RecordBook::teams[RecordBook::getTeam(role.id)].hasPlayer(profile2.id))
+                return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile2, role)};
+
+            RecordBook::teams[RecordBook::getTeam(role.id)].players.push_back(
+                    RecordBook::players[RecordBook::getPlayer(profile2.id)]
+            );
+            RecordBook::players[RecordBook::getPlayer(profile2.id)].team = &RecordBook::teams[RecordBook::getTeam(role.id)];
+        }
+        if (subcommand.options.size() > 3){
+            // Three users specified
+            profile3 = interaction.get_resolved_user(
+                    subcommand.get_value<dpp::snowflake>(3)
+            );
+            if (!RecordBook::hasPlayer(profile3.id))
+                return { event.command.channel_id, Embeds::playerNotFound(profile3) };
+
+            if (RecordBook::teams[RecordBook::getTeam(role.id)].hasPlayer(profile3.id))
+                return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile3, role)};
+
+            RecordBook::teams[RecordBook::getTeam(role.id)].players.push_back(
+                    RecordBook::players[RecordBook::getPlayer(profile3.id)]
+            );
+            RecordBook::players[RecordBook::getPlayer(profile3.id)].team = &RecordBook::teams[RecordBook::getTeam(role.id)];
+        }
+
+        return { event.command.channel_id, Embeds::teamAddedPlayersEmbed(profile1, profile2, profile3, role) };
     }
     else if (subcommand.name == "remove"){
         /* Get the team role from the parameter */
@@ -97,23 +138,24 @@ message TeamCommand::msg(const slashcommand_t& event) {
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
-        if (!Schedule::hasTeam(role.id))
+        if (!RecordBook::hasTeam(role.id))
             return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
 
         user profile = interaction.get_resolved_user(
                 subcommand.get_value<dpp::snowflake>(1)
         );
-        Team team = Schedule::teams[Schedule::getTeam(role.id)];
+
+        Team team = RecordBook::teams[RecordBook::getTeam(role.id)];
         if (!team.hasPlayer(profile.id))
             return { event.command.channel_id, Embeds::teamPlayerUnregisteredEmbed(profile, role) };
 
-        team.players.erase(team.players.begin() + team.getPlayer(role.id));
+        team.players.erase(team.players.begin() + team.getPlayer(profile.id));
 
         return { event.command.channel_id, Embeds::teamRemovedPlayerEmbed(profile, role)};
     }
     else if (subcommand.name == "view"){
         if (subcommand.options.empty()){
-            return { event.command.channel_id, Embeds::teamViewAllEmbed(Schedule::teams) };
+            return { event.command.channel_id, Embeds::teamViewAllEmbed(RecordBook::teams) };
         }
         else {
             /* Get the team role from the parameter */
@@ -121,7 +163,7 @@ message TeamCommand::msg(const slashcommand_t& event) {
                     subcommand.get_value<dpp::snowflake>(0)
             );
 
-            if (!Schedule::hasTeam(role.id)) {
+            if (!RecordBook::hasTeam(role.id)) {
                 return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
             }
             return { event.command.channel_id, Embeds::teamViewRoleEmbed(role) };

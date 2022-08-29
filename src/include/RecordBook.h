@@ -2,26 +2,32 @@
 // Created by ankit on 8/24/22.
 //
 
-#ifndef TRLBOT_SCHEDULE_H
-#define TRLBOT_SCHEDULE_H
+#ifndef TRLBOT_RECORDBOOK_H
+#define TRLBOT_RECORDBOOK_H
 
 #include <vector>
 #include "Match.h"
 #include "Player.h"
+#include "Team.h"
 using namespace std;
 
 class Match;
 class Team;
+class Player;
 
-class Schedule {
+class RecordBook {
 public:
     static vector<Match> schedule;
     static vector<Team> teams;
+    static vector<Player> players;
+
     static bool hasTeam(snowflake id);
     static bool hasMatch(int id);
     static int getTeam(snowflake id);
     static int getMatch(int id);
+    static bool hasPlayer(snowflake id);
+    static int getPlayer(snowflake id);
 };
 
 
-#endif //TRLBOT_SCHEDULE_H
+#endif //TRLBOT_RECORDBOOK_H

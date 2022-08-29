@@ -5,6 +5,7 @@
 #include "include/MatchCommand.h"
 
 slashcommand MatchCommand::cmd(snowflake botID) {
+
     slashcommand matchcmd("match", "Add, remove, or submit a match", botID);
     matchcmd.add_option(
             /* Create a subcommand type option for "add". */
@@ -28,23 +29,22 @@ message MatchCommand::msg(const slashcommand_t &event) {
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "add") {
-        /* Checks if the subcommand has any options. */
-        if (subcommand.options.size() == 2) {
-            /* Get the home role from the parameter */
-            dpp::role home = interaction.get_resolved_role(
-                    subcommand.get_value<dpp::snowflake>(0)
-            );
-            dpp::role away = interaction.get_resolved_role(
-                    subcommand.get_value<dpp::snowflake>(1)
-            );
-            if (!Schedule::hasTeam(home.id) || !Schedule::hasTeam(away.id)) {
-                return {event.command.channel_id, Embeds::teamUnregisteredEmbed(home, away)};
-            }
-            Match match(&Schedule::teams[Schedule::getTeam(home.id)], &Schedule::teams[Schedule::getTeam(away.id)]);
-            Schedule::schedule.push_back(match);
 
-            return {event.command.channel_id, Embeds::matchCreatedEmbed(match, home, away)};
+        /* Get the home role from the parameter */
+        role home = interaction.get_resolved_role(
+                subcommand.get_value<dpp::snowflake>(0)
+        );
+        role away = interaction.get_resolved_role(
+                subcommand.get_value<dpp::snowflake>(1)
+        );
+        if (!RecordBook::hasTeam(home.id) || !RecordBook::hasTeam(away.id)) {
+            return {event.command.channel_id, Embeds::teamUnregisteredEmbed(home, away)};
         }
+        Match match(&RecordBook::teams[RecordBook::getTeam(home.id)], &RecordBook::teams[RecordBook::getTeam(away.id)]);
+        RecordBook::schedule.push_back(match);
+
+        return {event.command.channel_id, Embeds::scheduleViewMatch(match.id) };
+
     }
 
     return { event.command.channel_id, Embeds::testEmbed() };

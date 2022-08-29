@@ -9,9 +9,11 @@
 #include <string>
 #include <dpp/dpp.h>
 #include "Match.h"
+#include "Team.h"
 using namespace std;
 using namespace dpp;
 
+class Team;
 class Player {
 
 public:
@@ -19,6 +21,10 @@ public:
     vector<string> aliases;
 
     user profile;
+    Team* team = nullptr;
+
+    int seasonGoals, seasonAssists, seasonSaves;
+    double seasonAvgMVPR;
 };
 
 
