@@ -6,10 +6,8 @@
 #include "src/commands/include/PlayerCommand.h"
 #include "src/commands/include/ScheduleCommand.h"
 
-const std::string    BOT_TOKEN    = RecordBook::getBotToken();
-
 int main() {
-    dpp::cluster bot(BOT_TOKEN);
+    dpp::cluster bot(RecordBook::getBotToken());
 
     bot.on_log(dpp::utility::cout_logger());
 

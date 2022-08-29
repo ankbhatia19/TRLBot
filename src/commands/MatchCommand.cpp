@@ -84,24 +84,19 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 ofs << response.body;
                 ofs.close();
 
-                std::ifstream ifs(path, std::ios::in | std::ios::binary);
-
-                // Obtain the size of the file.
-                const auto sz = std::filesystem::file_size(path);
-
-                // Create a buffer.
-                std::string result(sz, '\0');
-
-                // Read the whole file into the buffer.
-                ifs.read(result.data(), sz);
-
                 string uploadURL = MatchCommand::url + "v2/upload?visibility=public";
-                bot.request(uploadURL, http_method::m_post, [](const http_request_completion_t& response) {
+
+                bot.post_rest_multipart(uploadURL, "Authorization", MatchCommand::token, http_method::m_post, "", [](json&, const http_request_completion_t& response){
+                    cout << "Response: " << response.body << endl;
+                    cout << "Response code: " << response.status << endl;
+
+                }, {"file"}, {utility::read_file(replayName)});
+                /*bot.request(uploadURL, http_method::m_post, [](const http_request_completion_t& response) {
 
                     cout << "Server response code: " << response.status << endl;
                     cout << "Ballchasing upload link: " << response.body << endl;
 
-                }, result, "multipart/form-data", {{"Authorization", MatchCommand::token}});
+                }, dpp::utility::read_file(replayName), "multipart/form-data", {{"Authorization", MatchCommand::token}});*/
             });
         }
     }
