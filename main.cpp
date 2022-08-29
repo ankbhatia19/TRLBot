@@ -21,7 +21,7 @@ int main() {
             event.reply(PingCommand::msg(event));
         }
         else if (interaction.get_command_name() == "match"){
-            event.reply(MatchCommand::msg(event));
+            event.reply(MatchCommand::msg(event, bot));
         }
         else if (interaction.get_command_name() == "team"){
             event.reply(TeamCommand::msg(event));

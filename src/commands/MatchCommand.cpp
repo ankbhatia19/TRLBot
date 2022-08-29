@@ -14,6 +14,18 @@ slashcommand MatchCommand::cmd(snowflake botID) {
                     .add_option(dpp::command_option(dpp::co_role, "away", "The role of the away team", true))
     );
     matchcmd.add_option(
+            dpp::command_option(dpp::co_sub_command, "submit", "Submit a match with the given ID")
+                .add_option(dpp::command_option(dpp::co_integer, "id", "The match ID", true)
+                    .set_min_value(10000)
+                    .set_max_value(99999)
+                )
+                .add_option(dpp::command_option(dpp::co_attachment, "game1", "Game 1 .replay file", true))
+                .add_option(dpp::command_option(dpp::co_attachment, "game2", "Game 2 .replay file", true))
+                .add_option(dpp::command_option(dpp::co_attachment, "game3", "Game 3 .replay file", true))
+                .add_option(dpp::command_option(dpp::co_attachment, "game4", "Game 4 .replay file", false))
+                .add_option(dpp::command_option(dpp::co_attachment, "game5", "Game 5 .replay file", false))
+    );
+    matchcmd.add_option(
             /* Create another subcommand type option for "remove". */
             dpp::command_option(dpp::co_sub_command, "remove", "Remove a match")
                     .add_option(dpp::command_option(dpp::co_number, "id", "The match ID to be removed", true))
@@ -22,7 +34,7 @@ slashcommand MatchCommand::cmd(snowflake botID) {
     return matchcmd;
 }
 
-message MatchCommand::msg(const slashcommand_t &event) {
+message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
 
     interaction interaction = event.command;
     command_interaction cmd_data = interaction.get_command_interaction();
@@ -46,6 +58,30 @@ message MatchCommand::msg(const slashcommand_t &event) {
         return {event.command.channel_id, Embeds::scheduleViewMatch(match.id) };
 
     }
+    else if (subcommand.name == "submit"){
+        int matchID = std::get<int64_t>(subcommand.options[0].value);
 
+        for (int i = 1; i < subcommand.options.size(); i++){
+
+            attachment replay = interaction.get_resolved_attachment(
+                    subcommand.get_value<dpp::snowflake>(i)
+            );
+
+            std::ostringstream filename;
+            filename << matchID << "_Game" << i << ".replay";
+            string replayName = filename.str();
+
+            bot.request(replay.url, http_method::m_get, [replayName](const http_request_completion_t& response) {
+
+                std::filesystem::path path{ "Replays" }; // creates a local replays folder
+                path /= replayName; // Add a replay file
+                std::filesystem::create_directories(path.parent_path()); // add directories based on the object path
+
+                std::ofstream ofs(path);
+                ofs << response.body;
+                ofs.close();
+            });
+        }
+    }
     return { event.command.channel_id, Embeds::testEmbed() };
 }
