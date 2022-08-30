@@ -6,6 +6,7 @@
 #define TRLBOT_MATCHCOMMAND_H
 
 #include <dpp/dpp.h>
+#include <httplib.h>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>

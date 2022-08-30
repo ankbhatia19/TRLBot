@@ -84,19 +84,18 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 ofs << response.body;
                 ofs.close();
 
-                string uploadURL = MatchCommand::url + "v2/upload?visibility=public";
+                string uploadURL = "/api/v2/upload?visibility=public";
 
-                bot.post_rest_multipart(uploadURL, "Authorization", MatchCommand::token, http_method::m_post, "", [](json&, const http_request_completion_t& response){
-                    cout << "Response: " << response.body << endl;
-                    cout << "Response code: " << response.status << endl;
+                httplib::SSLClient client(MatchCommand::url);
+                client.enable_server_certificate_verification(true);
 
-                }, {"file"}, {utility::read_file(replayName)});
-                /*bot.request(uploadURL, http_method::m_post, [](const http_request_completion_t& response) {
+                httplib::MultipartFormDataItems items = {
+                        { "file", utility::read_file(path), replayName, "multipart/form-data" },
+                };
 
-                    cout << "Server response code: " << response.status << endl;
-                    cout << "Ballchasing upload link: " << response.body << endl;
+                auto res = client.Post(uploadURL, {{"Authorization", MatchCommand::token}}, items);
 
-                }, dpp::utility::read_file(replayName), "multipart/form-data", {{"Authorization", MatchCommand::token}});*/
+                cout << "Result: " << res.value().body << endl;
             });
         }
     }

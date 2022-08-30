@@ -2,8 +2,17 @@ cmake_minimum_required(VERSION 3.22)
 project(TRLBot VERSION 1.0 DESCRIPTION "A discord bot")
 set(CMAKE_CXX_STANDARD 20)
 
+set(OPENSSL_USE_STATIC_LIBS TRUE)
+find_package(OpenSSL REQUIRED)
+if(OPENSSL_FOUND)
+    set(HTTPLIB_IS_USING_OPENSSL TRUE)
+endif()
+
 # Add DPP as dependency
 add_subdirectory(libs/DPP)
+
+# Add cpp-httplib as a dependency
+add_subdirectory(libs/cpp-httplib-0.11.0)
 
 add_executable(${PROJECT_NAME}
         main.cpp
@@ -20,9 +29,15 @@ add_executable(${PROJECT_NAME}
 )
 
 # Linking libraries
-target_link_libraries(${PROJECT_NAME}
-        dpp
-)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:OpenSSL::SSL>
+        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:OpenSSL::Crypto>
+        httplib
+        dpp)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+        $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:CPPHTTPLIB_OPENSSL_SUPPORT>
+        )
 
 # Specify includes
 target_include_directories(${PROJECT_NAME} PRIVATE
