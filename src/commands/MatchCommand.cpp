@@ -74,7 +74,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
             filename << matchID << "_Game" << i << ".replay";
             string replayName = filename.str();
 
-            bot.request(replay.url, http_method::m_get, [&bot, replayName](const http_request_completion_t& response) {
+            bot.request(replay.url, http_method::m_get, [&bot, replayName, matchID](const http_request_completion_t& response) {
 
                 std::filesystem::path path{ "Replays" }; // creates a local replays folder
                 path /= replayName; // Add a replay file
@@ -93,9 +93,46 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                         { "file", utility::read_file(path), replayName, "multipart/form-data" },
                 };
 
-                auto res = client.Post(uploadURL, {{"Authorization", MatchCommand::token}}, items);
+                auto uploadRes = client.Post(uploadURL, {{"Authorization", MatchCommand::token}}, items);
+                json uploadData = json::parse(uploadRes.value().body);
 
-                cout << "Result: " << res.value().body << endl;
+                cout << uploadData << endl;
+                string getURL = "/api/replays/" + uploadData["id"].get<std::string>();
+
+                json replayData;
+
+                do {
+                    std::this_thread::sleep_for (std::chrono::milliseconds(500));
+                    auto replayRes = client.Get(getURL, {{"Authorization", MatchCommand::token}});
+                    replayData = json::parse(replayRes.value().body);
+                } while (replayData["status"].get<std::string>() == "pending");
+
+                std::map<string, struct MatchCommand::PlayerRecord> playerMap;
+
+                for (int i = 0; i < replayData["blue"]["players"].size(); i++){
+                    playerMap.insert({replayData["blue"]["players"][i]["name"].get<std::string>(), {"blue", i}});
+                }
+                for (int i = 0; i < replayData["orange"]["players"].size(); i++){
+                    playerMap.insert({replayData["orange"]["players"][i]["name"].get<std::string>(), {"orange", i}});
+                }
+
+                for (Player player : RecordBook::players){
+                    for (string username : player.aliases){
+                        if (playerMap.contains(username)){
+                            string team = playerMap[username].team;
+                            int index = playerMap[username].index;
+                            Player::MatchStatistic stat{};
+                            stat.matchID = matchID;
+                            stat.shots = replayData[team]["players"][index]["stats"]["core"]["shots"].get<int64_t>();
+                            stat.goals = replayData[team]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
+                            stat.saves = replayData[team]["players"][index]["stats"]["core"]["saves"].get<int64_t>();
+                            stat.assists = replayData[team]["players"][index]["stats"]["core"]["assists"].get<int64_t>();
+                            cout << "Stat: " << stat.matchID << " " << stat.goals << " " << stat.shots << " " << stat.saves << " " << stat.assists << endl;
+                            player.stats.emplace_back(stat);
+                            cout << "Stat size (before): " << player.stats.size() << endl;
+                        }
+                    }
+                }
             });
         }
     }

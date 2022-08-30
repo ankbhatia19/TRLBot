@@ -327,10 +327,20 @@ embed Embeds::playerView(user profile) {
     Player player = RecordBook::players[RecordBook::getPlayer(profile.id)];
 
     std::ostringstream stats;
-    stats << "Season Goals: " << player.seasonGoals << "\n";
-    stats << "Season Assists: " << player.seasonAssists << "\n";
-    stats << "Season Saves: " << player.seasonSaves << "\n";
-    stats << "Average Rating: " << player.seasonAvgMVPR << "\n";
+    cout << "Stat size: " << player.stats.size() << endl;
+    if (player.stats.empty()){
+        stats << "Season Goals: " << 0 << "\n";
+        stats << "Season Assists: " << 0 << "\n";
+        stats << "Season Saves: " << 0 << "\n";
+        stats << "TRL Rating: " << 0 << "\n";
+    }
+    else {
+        cout << "Getting stats in embed" << endl;
+        stats << "Season Goals: " << player.getStatistic(Player::GOALS) << "\n";
+        stats << "Season Assists: " << player.getStatistic(Player::ASSISTS) << "\n";
+        stats << "Season Saves: " << player.getStatistic(Player::SAVES) << "\n";
+        stats << "TRL Rating: " << player.getStatistic(Player::AVG_MVPR) << "\n";
+    }
 
     std::ostringstream usernames;
     if (player.aliases.empty())

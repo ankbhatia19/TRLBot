@@ -20,11 +20,29 @@ public:
     Player(user profile);
     vector<string> aliases;
 
+    struct MatchStatistic{
+        int matchID;
+        int shots;
+        int goals;
+        int saves;
+        int assists;
+    };
+
+    enum statistic {
+        SHOTS,
+        GOALS,
+        SAVES,
+        ASSISTS,
+        AVG_MVPR
+    };
+
+    vector<MatchStatistic> stats;
+    int getStatistic(enum statistic stat);
     user profile;
     Team* team = nullptr;
 
-    int seasonGoals, seasonAssists, seasonSaves;
-    double seasonAvgMVPR;
+private:
+    int calculateMVPR();
 };
 
 
