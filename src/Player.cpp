@@ -8,33 +8,32 @@ Player::Player(user profile) {
     Player::profile = profile;
 }
 
-int Player::calculateMVPR() {
-    return 0;
-}
-
 int Player::getStatistic(Player::statistic stat) {
-    int total;
+    int total = 0;
+
     switch (stat){
         case (GOALS):
-            for (auto statistic : stats)
-                total += statistic.goals;
+            for (auto game : stats)
+                total += game.goals;
             return total;
         case (ASSISTS):
-            for (auto statistic : stats)
-                total += statistic.assists;
+            for (auto game : stats)
+                total += game.assists;
             return total;
         case (SAVES):
-            for (auto statistic : stats)
-                total += statistic.saves;
+            for (auto game : stats)
+                total += game.saves;
             return total;;
         case (SHOTS):
-            for (auto statistic : stats)
-                total += statistic.shots;
+            for (auto game : stats)
+                total += game.shots;
             return total;;
         case (AVG_MVPR):
-            for (auto statistic : stats)
-                total += (statistic.shots / 3 + statistic.saves + statistic.goals) * 1000;
+            // (Goals) + (Assists * 0.75) + (Saves * 0.6) + (Shots / 3) ) / Games Played
+            for (auto game : stats)
+                total += (game.goals + (game.assists * 0.75) + (game.saves * 0.6) + (game.shots / 3)) * 250;
             return total / stats.size();
     }
     return 0;
 }
+

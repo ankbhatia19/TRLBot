@@ -40,9 +40,6 @@ public:
     int getStatistic(enum statistic stat);
     user profile;
     Team* team = nullptr;
-
-private:
-    int calculateMVPR();
 };
 
 

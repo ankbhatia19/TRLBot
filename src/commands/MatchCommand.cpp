@@ -107,6 +107,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                     replayData = json::parse(replayRes.value().body);
                 } while (replayData["status"].get<std::string>() == "pending");
 
+                cout << replayData.dump(4) << endl;
                 std::map<string, struct MatchCommand::PlayerRecord> playerMap;
 
                 for (int i = 0; i < replayData["blue"]["players"].size(); i++){
@@ -121,15 +122,13 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                         if (playerMap.contains(username)){
                             string team = playerMap[username].team;
                             int index = playerMap[username].index;
-                            Player::MatchStatistic stat{};
-                            stat.matchID = matchID;
-                            stat.shots = replayData[team]["players"][index]["stats"]["core"]["shots"].get<int64_t>();
-                            stat.goals = replayData[team]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
-                            stat.saves = replayData[team]["players"][index]["stats"]["core"]["saves"].get<int64_t>();
-                            stat.assists = replayData[team]["players"][index]["stats"]["core"]["assists"].get<int64_t>();
-                            cout << "Stat: " << stat.matchID << " " << stat.goals << " " << stat.shots << " " << stat.saves << " " << stat.assists << endl;
-                            player.stats.emplace_back(stat);
-                            cout << "Stat size (before): " << player.stats.size() << endl;
+                            RecordBook::players[RecordBook::getPlayer(player.profile.id)].stats.emplace_back(Player::MatchStatistic{
+                                matchID,
+                                (int) replayData[team]["players"][index]["stats"]["core"]["shots"].get<int64_t>(),
+                                (int) replayData[team]["players"][index]["stats"]["core"]["goals"].get<int64_t>(),
+                                (int) replayData[team]["players"][index]["stats"]["core"]["saves"].get<int64_t>(),
+                                (int) replayData[team]["players"][index]["stats"]["core"]["assists"].get<int64_t>()
+                            });
                         }
                     }
                 }
