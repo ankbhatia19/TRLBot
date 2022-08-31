@@ -327,19 +327,19 @@ embed Embeds::playerView(user profile) {
     Player player = RecordBook::players[RecordBook::getPlayer(profile.id)];
 
     std::ostringstream stats;
-    cout << "Stat size: " << player.stats.size() << endl;
     if (player.stats.empty()){
-        stats << "Season Goals: " << 0 << "\n";
-        stats << "Season Assists: " << 0 << "\n";
-        stats << "Season Saves: " << 0 << "\n";
-        stats << "TRL Rating: " << 0 << "\n";
+        stats << "Goals:        " << 0 << "\n";
+        stats << "Saves:        " << 0 << "\n";
+        stats << "Shots:        " << 0 << "\n";
+        stats << "Assists:      " << 0 << "\n";
+        stats << "TRL Rating:   " << 0 << "\n";
     }
     else {
-        cout << "Getting stats in embed" << endl;
-        stats << "Season Goals: " << player.getStatistic(Player::GOALS) << "\n";
-        stats << "Season Assists: " << player.getStatistic(Player::ASSISTS) << "\n";
-        stats << "Season Saves: " << player.getStatistic(Player::SAVES) << "\n";
-        stats << "TRL Rating: " << player.getStatistic(Player::AVG_MVPR) << "\n";
+        stats << "Goals:        " << player.getStatistic(Player::GOALS) << "\n";
+        stats << "Saves:        " << player.getStatistic(Player::SAVES) << "\n";
+        stats << "Shots:        " << player.getStatistic(Player::SHOTS) << "\n";
+        stats << "Assists:      " << player.getStatistic(Player::ASSISTS) << "\n";
+        stats << "TRL Rating:   " << player.getStatistic(Player::AVG_MVPR) << "\n";
     }
 
     std::ostringstream usernames;
@@ -367,8 +367,8 @@ embed Embeds::playerView(user profile) {
                     true
             )
             .add_field(
-                    "__Stats__",
-                    stats.str(),
+                    "__Season Stats__",
+                    "```" + stats.str() + "```",
                     false
             )
             .add_field(
@@ -395,6 +395,36 @@ embed Embeds::playerAddedUsername(user user, string username) {
             .add_field(
                     "Rocket League username registered:",
                     username + " to " + user.get_mention() + "\nUse `/player info` to view all registered usernames.",
+                    false
+            );
+
+    return embed;
+}
+
+embed Embeds::matchReplayProcessing(int matchID) {
+    std::ostringstream processing;
+    processing << "Processing replay for match " << matchID;
+
+    embed embed = embedTemplate()
+            .set_title("Replay Processing")
+            .add_field(
+                    processing.str(),
+                    "Please do not use any other bot commands during this time.",
+                    false
+            );
+
+    return embed;
+}
+
+embed Embeds::matchReplayProcessingComplete(int matchID) {
+    std::ostringstream processing;
+    processing << "Replays have been processed for " << matchID;
+
+    embed embed = embedTemplate()
+            .set_title("Replays Submitted")
+            .add_field(
+                    processing.str(),
+                    "Use `/player view` to view updated stats!",
                     false
             );
 

@@ -41,6 +41,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
 
     interaction interaction = event.command;
     command_interaction cmd_data = interaction.get_command_interaction();
+    auto interaction_token = interaction.token;
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "add") {
@@ -63,18 +64,18 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
     }
     else if (subcommand.name == "submit"){
         int matchID = std::get<int64_t>(subcommand.options[0].value);
-
-        for (int i = 1; i < subcommand.options.size(); i++){
+        int totalNumReplays = subcommand.options.size() - 1;
+        for (int replayNum = 1; replayNum < subcommand.options.size(); replayNum++){
 
             attachment replay = interaction.get_resolved_attachment(
-                    subcommand.get_value<dpp::snowflake>(i)
+                    subcommand.get_value<dpp::snowflake>(replayNum)
             );
 
             std::ostringstream filename;
-            filename << matchID << "_Game" << i << ".replay";
+            filename << matchID << "_Game" << replayNum << ".replay";
             string replayName = filename.str();
 
-            bot.request(replay.url, http_method::m_get, [&bot, replayName, matchID](const http_request_completion_t& response) {
+            bot.request(replay.url, http_method::m_get, [&bot, replayName, replayNum, totalNumReplays, interaction_token, &event, matchID](const http_request_completion_t& response) {
 
                 std::filesystem::path path{ "Replays" }; // creates a local replays folder
                 path /= replayName; // Add a replay file
@@ -96,7 +97,6 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 auto uploadRes = client.Post(uploadURL, {{"Authorization", MatchCommand::token}}, items);
                 json uploadData = json::parse(uploadRes.value().body);
 
-                cout << uploadData << endl;
                 string getURL = "/api/replays/" + uploadData["id"].get<std::string>();
 
                 json replayData;
@@ -107,7 +107,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                     replayData = json::parse(replayRes.value().body);
                 } while (replayData["status"].get<std::string>() == "pending");
 
-                cout << replayData.dump(4) << endl;
+                //cout << replayData.dump(4) << endl;
                 std::map<string, struct MatchCommand::PlayerRecord> playerMap;
 
                 for (int i = 0; i < replayData["blue"]["players"].size(); i++){
@@ -132,8 +132,15 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                         }
                     }
                 }
+                std::ostringstream log_info;
+                log_info << "Submitted replay " << replayNum << "/" << totalNumReplays << " for match #" << matchID;
+                bot.log(loglevel::ll_info, log_info.str());
+                if (replayNum == totalNumReplays)
+                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::matchReplayProcessingComplete(matchID)});
+                // Replay processing finished
             });
         }
+        return { event.command.channel_id, Embeds::matchReplayProcessing(matchID) };
     }
     return { event.command.channel_id, Embeds::testEmbed() };
 }

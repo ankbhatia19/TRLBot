@@ -31,7 +31,7 @@ int Player::getStatistic(Player::statistic stat) {
         case (AVG_MVPR):
             // (Goals) + (Assists * 0.75) + (Saves * 0.6) + (Shots / 3) ) / Games Played
             for (auto game : stats)
-                total += (game.goals + (game.assists * 0.75) + (game.saves * 0.6) + (game.shots / 3)) * 250;
+                total += (game.goals + (game.assists * 0.75) + (game.saves * 0.6) + (game.shots / 3)) * 500;
             return total / stats.size();
     }
     return 0;

@@ -17,6 +17,9 @@ class Embeds {
 public:
     /* <Match Embeds> */
 
+    static embed matchReplayProcessing(int matchID);
+    static embed matchReplayProcessingComplete(int matchID);
+
     /* </Match Embeds> */
 
     /* <Team Embeds> */
