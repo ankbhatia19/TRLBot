@@ -26,8 +26,10 @@ public:
 private:
     static string token;
     struct PlayerRecord{
-        string team;
+        string color;
         int index;
+        snowflake playerID;
+        enum Match::affiliation team;
     };
 };
 

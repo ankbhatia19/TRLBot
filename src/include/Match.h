@@ -24,13 +24,12 @@ public:
         RESCHEDULED,
         PLAYED
     };
-    enum winner {
+    enum affiliation {
         HOME,
         AWAY,
         NONE
     };
     struct score{
-        int gameNumber;
         int homeGoals;
         int awayGoals;
     };
@@ -38,8 +37,9 @@ public:
     int id = -1;
     struct tm* matchTime;
     enum status matchStatus;
-    enum winner matchWinner;
-    vector<score> matchScores;
+    enum affiliation matchWinner;
+    //vector<score> matchScores;
+    std::map<int, vector<score>> matchScores;
 
     void determineWinner();
 

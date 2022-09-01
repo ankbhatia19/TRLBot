@@ -84,6 +84,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
 
             bot.request(replay.url, http_method::m_get, [&bot, &event, interaction_token, matchID, replayName, replayNum, totalNumReplays](const http_request_completion_t& response) {
 
+                // Download a replay
                 std::filesystem::path path{ "Replays" }; // creates a local replays folder
                 path /= replayName; // Add a replay file
                 std::filesystem::create_directories(path.parent_path()); // add directories based on the object path
@@ -92,6 +93,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 ofs << response.body;
                 ofs.close();
 
+                // Upload the replay to ballchasing
                 httplib::SSLClient client("ballchasing.com");
                 client.enable_server_certificate_verification(true);
 
@@ -102,6 +104,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 auto uploadRes = client.Post("/api/v2/upload?visibility=public", {{"Authorization", MatchCommand::token}}, items);
                 json uploadData = json::parse(uploadRes.value().body);
 
+                // Download .json from ballchasing api
                 string getEndpoint = "/api/replays/" + uploadData["id"].get<std::string>();
                 json replayData;
 
@@ -111,48 +114,77 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                     replayData = json::parse(replayRes.value().body);
                 } while (replayData["status"].get<std::string>() == "pending");
 
+                // Pre-process replays
+                // Create a map such that get(username) will return color, index, Player object, and home/away
                 std::map<string, struct MatchCommand::PlayerRecord> playerMap;
                 for (int i = 0; i < replayData["blue"]["players"].size(); i++){
-                    playerMap.insert({replayData["blue"]["players"][i]["name"].get<std::string>(), {"blue", i}});
-                }
-                for (int i = 0; i < replayData["orange"]["players"].size(); i++){
-                    playerMap.insert({replayData["orange"]["players"][i]["name"].get<std::string>(), {"orange", i}});
-                }
-
-                for (Player player : RecordBook::players){
-                    for (string username : player.aliases){
-                        if (playerMap.contains(username)){
-                            string team = playerMap[username].team;
-                            int index = playerMap[username].index;
-
-                            std::ostringstream log_info;
-                            log_info << "Pulled stats of player " << username << " for replay " << replayNum << "/" << totalNumReplays << " for match #" << matchID;
-                            bot.log(loglevel::ll_info, log_info.str());
-                            Match::score score{replayNum, 0, 0};
-                            if (RecordBook::players[RecordBook::getPlayer(player.profile.id)].team != nullptr){
-                                if (RecordBook::players[RecordBook::getPlayer(player.profile.id)].team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.id){
-                                    // If this player is on the home team, add their goals scored to home team goals
-                                    score.homeGoals += (int) replayData[team]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
+                    for (Player player : RecordBook::players){
+                        for (string username : player.aliases){
+                            if (replayData["blue"]["players"][i]["name"].get<std::string>() == username){
+                                if (player.team == nullptr){
+                                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
+                                    return;
                                 }
-                                else if (RecordBook::players[RecordBook::getPlayer(player.profile.id)].team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.id) {
-                                    // If this player is on the away team, add their goals scored to away team goals
-                                    score.awayGoals += (int) replayData[team]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
-                                }
+                                if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.id)
+                                    playerMap.insert({username, {"blue", i, player.profile.id, Match::affiliation::HOME}});
+                                else if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.id)
+                                    playerMap.insert({username, {"blue", i, player.profile.id, Match::affiliation::AWAY}});
+                                else
+                                    playerMap.insert({username, {"blue", i, player.profile.id, Match::affiliation::NONE}});
                             }
-                            else {
-                                bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
-                                return;
-                            }
-                            RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores.emplace_back(score);
-                            RecordBook::players[RecordBook::getPlayer(player.profile.id)].stats.emplace_back(Player::MatchStatistic{
-                                matchID,
-                                (int) replayData[team]["players"][index]["stats"]["core"]["shots"].get<int64_t>(),
-                                (int) replayData[team]["players"][index]["stats"]["core"]["goals"].get<int64_t>(),
-                                (int) replayData[team]["players"][index]["stats"]["core"]["saves"].get<int64_t>(),
-                                (int) replayData[team]["players"][index]["stats"]["core"]["assists"].get<int64_t>()
-                            });
                         }
                     }
+                }
+                for (int i = 0; i < replayData["orange"]["players"].size(); i++){
+                    for (Player player : RecordBook::players){
+                        for (string username : player.aliases){
+                            if (replayData["orange"]["players"][i]["name"].get<std::string>() == username){
+                                if (player.team == nullptr){
+                                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
+                                    return;
+                                }
+                                if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.id)
+                                    playerMap.insert({username, {"orange", i, player.profile.id, Match::affiliation::HOME}});
+                                else if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.id)
+                                    playerMap.insert({username, {"orange", i, player.profile.id, Match::affiliation::AWAY}});
+                                else
+                                    playerMap.insert({username, {"orange", i, player.profile.id, Match::affiliation::NONE}});
+                            }
+                        }
+                    }
+                }
+
+                // Process replays with the player map previously created
+                for (const auto& [key, _] : playerMap){
+                    std::ostringstream log_info;
+                    log_info << "Pulled stats of player " << key << " for replay " << replayNum << "/" << totalNumReplays << " for match #" << matchID;
+                    bot.log(loglevel::ll_info, log_info.str());
+
+                    string color = playerMap[key].color;
+                    int index = playerMap[key].index;
+                    snowflake playerID = playerMap[key].playerID;
+                    enum Match::affiliation team = playerMap[key].team;
+
+                    int goals = (int) replayData[color]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
+                    if (!RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores.contains(replayNum))
+                        RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores.insert({replayNum, vector<Match::score>()});
+                    switch (team){
+                        case (Match::HOME):
+                            RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores[replayNum].emplace_back(Match::score{goals, 0});
+                            break;
+                        case Match::AWAY:
+                            RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores[replayNum].emplace_back(Match::score{0, goals});
+                            break;
+                        case Match::NONE:
+                            break;
+                    }
+                    RecordBook::players[RecordBook::getPlayer(playerID)].stats.emplace_back(Player::MatchStatistic{
+                            matchID,
+                            (int) replayData[color]["players"][index]["stats"]["core"]["shots"].get<int64_t>(),
+                            (int) replayData[color]["players"][index]["stats"]["core"]["goals"].get<int64_t>(),
+                            (int) replayData[color]["players"][index]["stats"]["core"]["saves"].get<int64_t>(),
+                            (int) replayData[color]["players"][index]["stats"]["core"]["assists"].get<int64_t>()
+                    });
                 }
                 std::ostringstream log_info;
                 log_info << "Submitted replay " << replayNum << "/" << totalNumReplays << " for match #" << matchID;

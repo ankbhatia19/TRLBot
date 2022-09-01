@@ -468,22 +468,11 @@ embed Embeds::matchCompleteEmbed(int matchID) {
     embed embed = embedTemplate()
             .set_title(title.str());
 
-    vector<Match::score> games = RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores;
-
-    // Create a map with game # linking to a vector of scores from each player
-    std::map<int, vector<Match::score>> gameMap;
-    for (Match::score game : games){
-        if (!gameMap.contains(game.gameNumber)){
-            gameMap.insert({game.gameNumber, vector<Match::score>()});
-        }
-        gameMap[game.gameNumber].emplace_back(Match::score{game.gameNumber, game.homeGoals, game.awayGoals});
-    }
-
-    for (const auto& [key, _] : gameMap){
+    for (const auto& [key, _] : RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores){
         int homeGoals = 0, awayGoals = 0;
-        for (auto playerData : gameMap[key]){
-            homeGoals += playerData.homeGoals;
-            awayGoals += playerData.awayGoals;
+        for (auto score : RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores[key]){
+            homeGoals += score.homeGoals;
+            awayGoals += score.awayGoals;
         }
         embed.add_field(
                 "Game #" + std::to_string(key),
@@ -493,10 +482,10 @@ embed Embeds::matchCompleteEmbed(int matchID) {
         );
     }
     switch (RecordBook::schedule[RecordBook::getMatch(matchID)].matchWinner){
-        case (Match::winner::HOME):
+        case (Match::affiliation::HOME):
             embed.add_field("Winner", RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.get_mention(), false);
             break;
-        case (Match::winner::AWAY):
+        case (Match::affiliation::AWAY):
             embed.add_field("Winner", RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.get_mention(), false);
             break;
         case Match::NONE:

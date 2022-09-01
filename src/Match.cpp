@@ -24,32 +24,39 @@ Match::Match(Team* home, Team* away){
     Match::home = home;
     Match::away = away;
     Match::matchStatus = status::UNPLAYED;
-    Match::matchWinner = winner::NONE;
+    Match::matchWinner = affiliation::NONE;
 }
 
 void Match::determineWinner() {
 
     int homeWins = 0, awayWins = 0;
 
-    for (auto game : matchScores){
-        if (game.homeGoals > game.awayGoals){
-            Match::home->differential++;
-            Match::away->differential--;
+    for (const auto& [key, _] : matchScores){
+        int homeGoals = 0, awayGoals = 0;
+        for (auto score : matchScores[key]){
+            homeGoals += score.homeGoals;
+            awayGoals += score.awayGoals;
+        }
+        (homeGoals > awayGoals) ? homeWins++ : awayWins++;
+        if (homeGoals > awayGoals){
             homeWins++;
+            home->differential++;
+            away->differential--;
         }
         else {
-            Match::away->differential++;
-            Match::home->differential--;
             awayWins++;
+            home->differential--;
+            away->differential++;
         }
     }
+
     if (homeWins > awayWins){
-        matchWinner = winner::HOME;
+        matchWinner = affiliation::HOME;
         Match::home->wins++;
         Match::away->losses++;
     }
     else{
-        matchWinner = winner::AWAY;
+        matchWinner = affiliation::AWAY;
         Match::away->wins++;
         Match::home->losses++;
     }
