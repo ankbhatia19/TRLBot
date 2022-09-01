@@ -9,7 +9,7 @@ embed Embeds::embedTemplate() {
     embed embed = dpp::embed()
             .set_color(dpp::colors::wrx_blue)
             .set_footer(dpp::embed_footer().set_text("TRLBot • Created by Waycey"))
-            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_graybg.jpg")
+            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_discordgray.jpg")
             .set_timestamp(time(0));
 
     return embed;
