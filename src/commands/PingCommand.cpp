@@ -11,5 +11,5 @@ slashcommand PingCommand::cmd(snowflake botID) {
 }
 
 message PingCommand::msg(const slashcommand_t &event, cluster& bot) {
-    return { event.command.channel_id, Embeds::testEmbed() };
+    return { event.command.channel_id, Embeds::pingEmbed(bot.uptime().to_string()) };
 }

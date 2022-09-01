@@ -15,6 +15,9 @@ using namespace dpp;
 
 class Embeds {
 public:
+
+    static embed pingEmbed(string uptime);
+
     /* <Match Embeds> */
 
     static embed matchReplayProcessing(int matchID);

@@ -9,6 +9,7 @@ embed Embeds::embedTemplate() {
     embed embed = dpp::embed()
             .set_color(dpp::colors::wrx_blue)
             .set_footer(dpp::embed_footer().set_text("TRLBot • Created by Waycey"))
+            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo.jpg")
             .set_timestamp(time(0));
 
     return embed;
@@ -18,6 +19,14 @@ embed Embeds::errorEmbed(string msg) {
     embed embed = embedTemplate()
             .set_title("Error")
             .add_field(msg, "Contact a dev for details");
+
+    return embed;
+}
+
+embed Embeds::pingEmbed(std::string uptime) {
+    embed embed = embedTemplate()
+            .set_title("Pong!")
+            .add_field("Uptime", uptime);
 
     return embed;
 }
