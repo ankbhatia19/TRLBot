@@ -115,7 +115,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 } while (replayData["status"].get<std::string>() == "pending");
 
                 // Pre-process replays
-                // Create a map such that get(username) will return color, index, Player object, and home/away
+                // Create a map such that get(username) will return color, index, player ID, and home/away
                 std::map<string, struct MatchCommand::PlayerRecord> playerMap;
                 for (int i = 0; i < replayData["blue"]["players"].size(); i++){
                     for (Player player : RecordBook::players){
