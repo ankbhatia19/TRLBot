@@ -25,7 +25,6 @@ public:
 
 private:
     static string token;
-    static string url;
     struct PlayerRecord{
         string team;
         int index;

@@ -332,14 +332,14 @@ embed Embeds::playerView(user profile) {
         stats << "Saves:        " << 0 << "\n";
         stats << "Shots:        " << 0 << "\n";
         stats << "Assists:      " << 0 << "\n";
-        stats << "TRL Rating:   " << 0 << "\n";
+        stats << "TRL MMR:      " << 0 << "\n";
     }
     else {
         stats << "Goals:        " << player.getStatistic(Player::GOALS) << "\n";
         stats << "Saves:        " << player.getStatistic(Player::SAVES) << "\n";
         stats << "Shots:        " << player.getStatistic(Player::SHOTS) << "\n";
         stats << "Assists:      " << player.getStatistic(Player::ASSISTS) << "\n";
-        stats << "TRL Rating:   " << player.getStatistic(Player::AVG_MVPR) << "\n";
+        stats << "TRL MMR:      " << player.getStatistic(Player::AVG_MVPR) << "\n";
     }
 
     std::ostringstream usernames;
@@ -418,7 +418,7 @@ embed Embeds::matchReplayProcessing(int matchID) {
 
 embed Embeds::matchReplayProcessingComplete(int matchID) {
     std::ostringstream processing;
-    processing << "Replays have been processed for " << matchID;
+    processing << "Replays have been processed for Match #" << matchID;
 
     embed embed = embedTemplate()
             .set_title("Replays Submitted")
@@ -431,4 +431,77 @@ embed Embeds::matchReplayProcessingComplete(int matchID) {
     return embed;
 }
 
+embed Embeds::matchNotFound(int matchID) {
+    std::ostringstream error;
+    error << "Match not found for Match #" << matchID;
 
+    embed embed = embedTemplate()
+            .set_title("Error")
+            .add_field(
+                    error.str(),
+                    "Use `/match create` to create a new match.",
+                    false
+            );
+
+    return embed;
+}
+
+embed Embeds::matchAlreadyPlayed(int matchID) {
+    std::ostringstream error;
+    error << "Match #" << matchID << " has already been submitted.";
+
+    embed embed = embedTemplate()
+            .set_title("Error")
+            .add_field(
+                    error.str(),
+                    "Use `/match create` to create a new match.",
+                    false
+            );
+
+    return embed;
+}
+
+embed Embeds::matchCompleteEmbed(int matchID) {
+    std::ostringstream title;
+    title << "Match #" << matchID << " Complete";
+
+    embed embed = embedTemplate()
+            .set_title(title.str());
+
+    vector<Match::score> games = RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores;
+
+    // Create a map with game # linking to a vector of scores from each player
+    std::map<int, vector<Match::score>> gameMap;
+    for (Match::score game : games){
+        if (!gameMap.contains(game.gameNumber)){
+            gameMap.insert({game.gameNumber, vector<Match::score>()});
+        }
+        gameMap[game.gameNumber].emplace_back(Match::score{game.gameNumber, game.homeGoals, game.awayGoals});
+    }
+
+    for (const auto& [key, _] : gameMap){
+        int homeGoals = 0, awayGoals = 0;
+        for (auto playerData : gameMap[key]){
+            homeGoals += playerData.homeGoals;
+            awayGoals += playerData.awayGoals;
+        }
+        embed.add_field(
+                "Game #" + std::to_string(key),
+                RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.get_mention() + ": " + std::to_string(homeGoals) + "\n"
+                + RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.get_mention() + ": " + std::to_string(awayGoals),
+                true
+        );
+    }
+    switch (RecordBook::schedule[RecordBook::getMatch(matchID)].matchWinner){
+        case (Match::winner::HOME):
+            embed.add_field("Winner", RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.get_mention(), false);
+            break;
+        case (Match::winner::AWAY):
+            embed.add_field("Winner", RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.get_mention(), false);
+            break;
+        case Match::NONE:
+            break;
+    }
+
+    return embed;
+}

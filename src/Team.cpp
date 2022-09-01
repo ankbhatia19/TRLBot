@@ -14,19 +14,6 @@ Team::~Team() {
 
 }
 
-int Team::getMatch(int id) {
-    for (int i = 0; i < matches.size(); i++){
-        if (id == matches[i].id){
-            return i;
-        }
-    }
-    return -1;
-}
-
-bool Team::hasMatch(int id) {
-    return getMatch(id) >= 0;
-}
-
 int Team::getPlayer(snowflake id) {
     for (int i = 0; i < players.size(); i++){
         if (id == players[i].profile.id){

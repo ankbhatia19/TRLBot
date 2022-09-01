@@ -10,6 +10,6 @@ slashcommand PingCommand::cmd(snowflake botID) {
     return pingcmd;
 }
 
-message PingCommand::msg(const slashcommand_t &event) {
+message PingCommand::msg(const slashcommand_t &event, cluster& bot) {
     return { event.command.channel_id, Embeds::testEmbed() };
 }

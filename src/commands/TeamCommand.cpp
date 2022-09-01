@@ -40,7 +40,7 @@ slashcommand TeamCommand::cmd(snowflake botID) {
     return teamcmd;
 }
 
-message TeamCommand::msg(const slashcommand_t& event) {
+message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
     interaction interaction = event.command;
     command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];

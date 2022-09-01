@@ -20,15 +20,14 @@ public:
     Team(role team);
     ~Team();
     vector<Player> players;
-    vector<Match> matches;
+
     int wins, losses;
     int differential;
     role team;
 
     int getPlayer(snowflake id);
-    int getMatch(int id);
     bool hasPlayer(snowflake id);
-    bool hasMatch(int id);
+
 };
 
 

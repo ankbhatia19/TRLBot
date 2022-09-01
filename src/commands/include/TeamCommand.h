@@ -12,7 +12,7 @@ using namespace dpp;
 class TeamCommand {
 public:
     static slashcommand cmd(snowflake botID);
-    static message msg(const slashcommand_t& event);
+    static message msg(const slashcommand_t &event, cluster& bot);
 };
 
 

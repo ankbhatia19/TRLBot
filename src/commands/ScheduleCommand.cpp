@@ -32,7 +32,7 @@ slashcommand ScheduleCommand::cmd(snowflake botID) {
     return schedcmd;
 }
 
-message ScheduleCommand::msg(const slashcommand_t &event) {
+message ScheduleCommand::msg(const slashcommand_t &event, cluster& bot) {
     interaction interaction = event.command;
     command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];

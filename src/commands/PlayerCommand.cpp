@@ -16,12 +16,13 @@ slashcommand PlayerCommand::cmd(snowflake botID) {
             /* Create a subcommand type option for "register". */
             command_option(dpp::co_sub_command, "register", "Register a new Rocket League username")
                     .add_option(command_option(dpp::co_string, "name", "The username to add", true))
+                    .add_option(command_option(dpp::co_user, "user", "The user to which the username should be added", false))
     );
 
     return playercmd;
 }
 
-message PlayerCommand::msg(const slashcommand_t &event) {
+message PlayerCommand::msg(const slashcommand_t &event, cluster& bot) {
     interaction interaction = event.command;
     command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
@@ -45,7 +46,15 @@ message PlayerCommand::msg(const slashcommand_t &event) {
     }
     else if (subcommand.name == "register"){
         string username = std::get<string>(subcommand.options[0].value);
-        user profile = interaction.get_issuing_user();
+        user profile;
+        if (subcommand.options.size() == 2){
+            profile = interaction.get_resolved_user(
+                    subcommand.get_value<dpp::snowflake>(1)
+            );
+        }
+        else {
+            profile = interaction.get_issuing_user();
+        }
         Player* player;
 
         if (!RecordBook::hasPlayer(profile.id))
@@ -56,7 +65,7 @@ message PlayerCommand::msg(const slashcommand_t &event) {
         player->aliases.push_back(username);
         RecordBook::players.push_back(*player);
 
-        return { event.command.channel_id, Embeds::playerAddedUsername(interaction.get_issuing_user(), username) };
+        return { event.command.channel_id, Embeds::playerAddedUsername(profile, username) };
     }
 
     return { event.command.channel_id, Embeds::testEmbed() };

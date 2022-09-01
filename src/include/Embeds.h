@@ -19,6 +19,11 @@ public:
 
     static embed matchReplayProcessing(int matchID);
     static embed matchReplayProcessingComplete(int matchID);
+    static embed matchCompleteEmbed(int matchID);
+
+    // On Error
+    static embed matchNotFound(int matchID);
+    static embed matchAlreadyPlayed(int matchID);
 
     /* </Match Embeds> */
 

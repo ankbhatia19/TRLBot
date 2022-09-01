@@ -5,14 +5,13 @@
 #include "include/MatchCommand.h"
 
 string MatchCommand::token = RecordBook::getBallchasingToken();
-string MatchCommand::url = RecordBook::getBallchasingURL();
 
 slashcommand MatchCommand::cmd(snowflake botID) {
 
     slashcommand matchcmd("match", "Add, remove, or submit a match", botID);
     matchcmd.add_option(
             /* Create a subcommand type option for "add". */
-            dpp::command_option(dpp::co_sub_command, "add", "Add a match")
+            dpp::command_option(dpp::co_sub_command, "create", "Create a match")
                     .add_option(dpp::command_option(dpp::co_role, "home", "The role of the home team", true))
                     .add_option(dpp::command_option(dpp::co_role, "away", "The role of the away team", true))
     );
@@ -41,10 +40,9 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
 
     interaction interaction = event.command;
     command_interaction cmd_data = interaction.get_command_interaction();
-    auto interaction_token = interaction.token;
     auto subcommand = cmd_data.options[0];
 
-    if (subcommand.name == "add") {
+    if (subcommand.name == "create") {
 
         /* Get the home role from the parameter */
         role home = interaction.get_resolved_role(
@@ -64,6 +62,15 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
     }
     else if (subcommand.name == "submit"){
         int matchID = std::get<int64_t>(subcommand.options[0].value);
+        string interaction_token = event.command.token;
+
+        if (!RecordBook::hasMatch(matchID)){
+            return { event.command.channel_id, Embeds::matchNotFound(matchID) };
+        }
+        if (RecordBook::schedule[RecordBook::getMatch(matchID)].matchStatus == Match::status::PLAYED){
+            return { event.command.channel_id, Embeds::matchAlreadyPlayed(matchID) };
+        }
+
         int totalNumReplays = subcommand.options.size() - 1;
         for (int replayNum = 1; replayNum < subcommand.options.size(); replayNum++){
 
@@ -75,7 +82,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
             filename << matchID << "_Game" << replayNum << ".replay";
             string replayName = filename.str();
 
-            bot.request(replay.url, http_method::m_get, [&bot, replayName, replayNum, totalNumReplays, interaction_token, &event, matchID](const http_request_completion_t& response) {
+            bot.request(replay.url, http_method::m_get, [&bot, &event, interaction_token, matchID, replayName, replayNum, totalNumReplays](const http_request_completion_t& response) {
 
                 std::filesystem::path path{ "Replays" }; // creates a local replays folder
                 path /= replayName; // Add a replay file
@@ -85,31 +92,26 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 ofs << response.body;
                 ofs.close();
 
-                string uploadURL = "/api/v2/upload?visibility=public";
-
-                httplib::SSLClient client(MatchCommand::url);
+                httplib::SSLClient client("ballchasing.com");
                 client.enable_server_certificate_verification(true);
 
                 httplib::MultipartFormDataItems items = {
                         { "file", utility::read_file(path), replayName, "multipart/form-data" },
                 };
 
-                auto uploadRes = client.Post(uploadURL, {{"Authorization", MatchCommand::token}}, items);
+                auto uploadRes = client.Post("/api/v2/upload?visibility=public", {{"Authorization", MatchCommand::token}}, items);
                 json uploadData = json::parse(uploadRes.value().body);
 
-                string getURL = "/api/replays/" + uploadData["id"].get<std::string>();
-
+                string getEndpoint = "/api/replays/" + uploadData["id"].get<std::string>();
                 json replayData;
 
                 do {
                     std::this_thread::sleep_for (std::chrono::milliseconds(500));
-                    auto replayRes = client.Get(getURL, {{"Authorization", MatchCommand::token}});
+                    auto replayRes = client.Get(getEndpoint, {{"Authorization", MatchCommand::token}});
                     replayData = json::parse(replayRes.value().body);
                 } while (replayData["status"].get<std::string>() == "pending");
 
-                //cout << replayData.dump(4) << endl;
                 std::map<string, struct MatchCommand::PlayerRecord> playerMap;
-
                 for (int i = 0; i < replayData["blue"]["players"].size(); i++){
                     playerMap.insert({replayData["blue"]["players"][i]["name"].get<std::string>(), {"blue", i}});
                 }
@@ -122,6 +124,26 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                         if (playerMap.contains(username)){
                             string team = playerMap[username].team;
                             int index = playerMap[username].index;
+
+                            std::ostringstream log_info;
+                            log_info << "Pulled stats of player " << username << " for replay " << replayNum << "/" << totalNumReplays << " for match #" << matchID;
+                            bot.log(loglevel::ll_info, log_info.str());
+                            Match::score score{replayNum, 0, 0};
+                            if (RecordBook::players[RecordBook::getPlayer(player.profile.id)].team != nullptr){
+                                if (RecordBook::players[RecordBook::getPlayer(player.profile.id)].team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.id){
+                                    // If this player is on the home team, add their goals scored to home team goals
+                                    score.homeGoals += (int) replayData[team]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
+                                }
+                                else if (RecordBook::players[RecordBook::getPlayer(player.profile.id)].team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.id) {
+                                    // If this player is on the away team, add their goals scored to away team goals
+                                    score.awayGoals += (int) replayData[team]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
+                                }
+                            }
+                            else {
+                                bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
+                                return;
+                            }
+                            RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores.emplace_back(score);
                             RecordBook::players[RecordBook::getPlayer(player.profile.id)].stats.emplace_back(Player::MatchStatistic{
                                 matchID,
                                 (int) replayData[team]["players"][index]["stats"]["core"]["shots"].get<int64_t>(),
@@ -135,8 +157,11 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 std::ostringstream log_info;
                 log_info << "Submitted replay " << replayNum << "/" << totalNumReplays << " for match #" << matchID;
                 bot.log(loglevel::ll_info, log_info.str());
-                if (replayNum == totalNumReplays)
-                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::matchReplayProcessingComplete(matchID)});
+                if (replayNum == totalNumReplays) {
+                    RecordBook::schedule[RecordBook::getMatch(matchID)].determineWinner();
+                    bot.interaction_response_edit(interaction_token, {event.command.channel_id,
+                                                                      Embeds::matchCompleteEmbed(matchID)});
+                }
                 // Replay processing finished
             });
         }

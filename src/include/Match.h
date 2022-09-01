@@ -24,8 +24,25 @@ public:
         RESCHEDULED,
         PLAYED
     };
+    enum winner {
+        HOME,
+        AWAY,
+        NONE
+    };
+    struct score{
+        int gameNumber;
+        int homeGoals;
+        int awayGoals;
+    };
+
     int id = -1;
     struct tm* matchTime;
+    enum status matchStatus;
+    enum winner matchWinner;
+    vector<score> matchScores;
+
+    void determineWinner();
+
 private:
     static vector<int> allIDs;
 };

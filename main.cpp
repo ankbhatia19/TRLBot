@@ -17,19 +17,19 @@ int main() {
         dpp::command_interaction cmd_data = interaction.get_command_interaction();
 
         if (interaction.get_command_name() == "ping") {
-            event.reply(PingCommand::msg(event));
+            event.reply(PingCommand::msg(event, bot));
         }
         else if (interaction.get_command_name() == "match"){
             event.reply(MatchCommand::msg(event, bot));
         }
         else if (interaction.get_command_name() == "team"){
-            event.reply(TeamCommand::msg(event));
+            event.reply(TeamCommand::msg(event, bot));
         }
         else if (interaction.get_command_name() == "schedule"){
-            event.reply(ScheduleCommand::msg(event));
+            event.reply(ScheduleCommand::msg(event, bot));
         }
         else if (interaction.get_command_name() == "player"){
-            event.reply(PlayerCommand::msg(event));
+            event.reply(PlayerCommand::msg(event, bot));
         }
     });
 
