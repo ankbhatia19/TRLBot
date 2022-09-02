@@ -9,7 +9,7 @@ embed Embeds::embedTemplate() {
     embed embed = dpp::embed()
             .set_color(dpp::colors::wrx_blue)
             .set_footer(dpp::embed_footer().set_text("TRLBot • Created by Waycey"))
-            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_noBG.png")
+            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_square_noBG.png")
             .set_timestamp(time(0));
 
     return embed;
@@ -181,29 +181,30 @@ embed Embeds::teamViewRoleEmbed(role team) {
         players << member.profile.get_mention() << "\n";
     }
 
-    stats << "Wins: " << thisTeam.wins << "\n";
-    stats << "Losses: " << thisTeam.losses << "\n";
+    stats << "Wins:             " << thisTeam.wins << "\n";
+    stats << "Losses:           " << thisTeam.losses << "\n";
     if (thisTeam.differential > 0)
-        stats << "Differential: +" << thisTeam.differential << "\n";
+        stats << "Differential:     +" << thisTeam.differential << "\n";
+    else if (thisTeam.differential < 0)
+        stats << "Differential:     -" << thisTeam.differential << "\n";
     else
-        stats << "Differential: " << thisTeam.differential << "\n";
+        stats << "Differential:     " << thisTeam.differential << "\n";
 
     embed embed = embedTemplate()
-            .set_title(team.name)
+            .set_title("Team Card")
             .add_field(
-                    "__Roster__\n",
+                "Team",
+                team.get_mention(),
+                true
+            )
+            .add_field(
+                    "Roster",
                     players.str(),
                     true
             )
             .add_field(
-                    "_          _",
-                    "_          _",
-                    true
-            )
-            .add_field(
-                    "__Stats__\n",
-                    stats.str(),
-                    true
+                    "Stats",
+                    "```" + stats.str() + "```"
             );
 
     return embed;
