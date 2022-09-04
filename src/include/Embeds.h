@@ -27,6 +27,7 @@ public:
     // On Error
     static embed matchNotFound(int matchID);
     static embed matchAlreadyPlayed(int matchID);
+    static embed playersNotRegistered(vector<string> unregistered);
 
     /* </Match Embeds> */
 

@@ -9,7 +9,7 @@ embed Embeds::embedTemplate() {
     embed embed = dpp::embed()
             .set_color(dpp::colors::wrx_blue)
             .set_footer(dpp::embed_footer().set_text("TRLBot • Created by Waycey"))
-            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_resize_noBG.png")
+            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_topright_noBG.png")
             .set_timestamp(time(0));
 
     return embed;
@@ -181,14 +181,12 @@ embed Embeds::teamViewRoleEmbed(role team) {
         players << member.profile.get_mention() << "\n";
     }
 
-    stats << "Wins:             " << thisTeam.wins << "\n";
-    stats << "Losses:           " << thisTeam.losses << "\n";
+    stats << "Series Wins:          " << thisTeam.wins << "\n";
+    stats << "Series Losses:        " << thisTeam.losses << "\n";
     if (thisTeam.differential > 0)
-        stats << "Differential:     +" << thisTeam.differential << "\n";
-    else if (thisTeam.differential < 0)
-        stats << "Differential:     -" << thisTeam.differential << "\n";
+        stats << "Game Differential:   +" << thisTeam.differential << "\n";
     else
-        stats << "Differential:     " << thisTeam.differential << "\n";
+        stats << "Game Differential:    " << thisTeam.differential << "\n";
 
     embed embed = embedTemplate()
             .set_title("Team Card")
@@ -501,6 +499,24 @@ embed Embeds::matchCompleteEmbed(int matchID) {
         case Match::NONE:
             break;
     }
+
+    return embed;
+}
+
+embed Embeds::playersNotRegistered(vector<string> unregistered) {
+
+    std::ostringstream unregisteredString;
+    for (string username : unregistered){
+        unregisteredString << "\"" << username << "\" ";
+    }
+
+    embed embed = embedTemplate()
+            .set_title("Error Submitting Replays")
+            .add_field(
+                "The following players are unregistered:",
+                unregisteredString.str() + "\nUse `player register` to add unknown players.",
+                false
+            );
 
     return embed;
 }

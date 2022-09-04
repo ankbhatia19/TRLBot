@@ -123,6 +123,9 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                             if (replayData["blue"]["players"][i]["name"].get<std::string>() == username){
                                 if (player.team == nullptr){
                                     bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
+                                    std::ostringstream log_info;
+                                    log_info << "Player.team is nullptr: " << player.profile.id;
+                                    bot.log(loglevel::ll_debug, log_info.str());
                                     return;
                                 }
                                 if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.id)
@@ -135,12 +138,16 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                         }
                     }
                 }
+                // Preprocessing for orange side
                 for (int i = 0; i < replayData["orange"]["players"].size(); i++){
                     for (Player player : RecordBook::players){
                         for (string username : player.aliases){
                             if (replayData["orange"]["players"][i]["name"].get<std::string>() == username){
                                 if (player.team == nullptr){
                                     bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
+                                    std::ostringstream log_info;
+                                    log_info << "Player.team is nullptr: " << player.profile.id;
+                                    bot.log(loglevel::ll_debug, log_info.str());
                                     return;
                                 }
                                 if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.id)
@@ -154,10 +161,27 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                     }
                 }
 
+                // Check if all players are accounted for- if not, generate an error
+                vector<string> unregistered;
+                for (int i = 0; i < replayData["blue"]["players"].size(); i++){
+                    if (!playerMap.contains(replayData["blue"]["players"][i]["name"].get<std::string>()))
+                        unregistered.emplace_back(replayData["blue"]["players"][i]["name"].get<std::string>());
+                }
+                for (int i = 0; i < replayData["orange"]["players"].size(); i++){
+                    if (!playerMap.contains(replayData["orange"]["players"][i]["name"].get<std::string>()))
+                        unregistered.emplace_back(replayData["orange"]["players"][i]["name"].get<std::string>());
+                }
+
+                if (!unregistered.empty()){
+                    bot.interaction_response_edit(interaction_token, {event.command.channel_id,
+                                                                      Embeds::playersNotRegistered(unregistered)});
+                    return;
+                }
+
                 // Process replays with the player map previously created
                 for (const auto& [key, _] : playerMap){
                     std::ostringstream log_info;
-                    log_info << "Pulled stats of player " << key << " for replay " << replayNum << "/" << totalNumReplays << " for match #" << matchID;
+                    log_info << "Found " << key << " in replay " << replayNum << "/" << totalNumReplays << " (match #" << matchID << ")";
                     bot.log(loglevel::ll_info, log_info.str());
 
                     string color = playerMap[key].color;
@@ -169,7 +193,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                     if (!RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores.contains(replayNum))
                         RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores.insert({replayNum, vector<Match::score>()});
                     switch (team){
-                        case (Match::HOME):
+                        case Match::HOME:
                             RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores[replayNum].emplace_back(Match::score{goals, 0});
                             break;
                         case Match::AWAY:
@@ -187,7 +211,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                     });
                 }
                 std::ostringstream log_info;
-                log_info << "Submitted replay " << replayNum << "/" << totalNumReplays << " for match #" << matchID;
+                log_info << "Submitted replay " << replayNum << "/" << totalNumReplays << " (match #" << matchID << ")";
                 bot.log(loglevel::ll_info, log_info.str());
                 if (replayNum == totalNumReplays) {
                     RecordBook::schedule[RecordBook::getMatch(matchID)].determineWinner();
