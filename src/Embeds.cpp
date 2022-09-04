@@ -223,35 +223,84 @@ embed Embeds::testEmbed() {
 }
 
 embed Embeds::scheduleViewAllMatches() {
-    std::ostringstream  matchIDs;
-    std::ostringstream homeTeams, awayTeams;
+    std::ostringstream  unplayedMatchIDs;
+    std::ostringstream unplayedHomeTeams, unplayedAwayTeams;
 
-    if (RecordBook::schedule.empty()){
-        matchIDs << "None";
-        homeTeams << "None";
-        awayTeams << "None";
-    }
+    std::ostringstream  playedMatchIDs;
+    std::ostringstream playedHomeTeams, playedAwayTeams;
+    vector<Match> playedMatches, unplayedMatches;
+
+    // Sort matches by stats
     for (Match match : RecordBook::schedule){
-        matchIDs << match.id << "\n";
-        homeTeams << match.home->team.get_mention() << "\n";
-        awayTeams << match.away->team.get_mention() << "\n";
+        if (match.matchStatus == Match::status::UNPLAYED){
+            unplayedMatches.emplace_back(match);
+        }
+        else if (match.matchStatus == Match::status::PLAYED){
+            playedMatches.emplace_back(match);
+        }
+    }
+
+    if (playedMatches.empty()){
+        playedMatchIDs << "None";
+        playedHomeTeams << "None";
+        playedAwayTeams << "None";
+    }
+    if (unplayedMatches.empty()){
+        unplayedMatchIDs << "None";
+        unplayedHomeTeams << "None";
+        unplayedAwayTeams << "None";
+    }
+    for (Match match : unplayedMatches){
+        unplayedMatchIDs << match.id << "\n";
+        unplayedHomeTeams << match.home->team.get_mention() << "\n";
+        unplayedAwayTeams << match.away->team.get_mention() << "\n";
+    }
+    for (Match match : playedMatches){
+        playedMatchIDs << match.id << "\n";
+        playedHomeTeams << match.home->team.get_mention() << "\n";
+        playedAwayTeams << match.away->team.get_mention() << "\n";
     }
 
     embed embed = embedTemplate()
             .set_title("All Scheduled Matches")
             .add_field(
+                    "__Unplayed__",
+                    "_ _",
+                    false
+            )
+            .add_field(
                     "Match ID",
-                    matchIDs.str(),
+                    unplayedMatchIDs.str(),
                     true
             )
             .add_field(
                     "Home",
-                    homeTeams.str(),
+                    unplayedHomeTeams.str(),
                     true
             )
             .add_field(
                     "Away",
-                    awayTeams.str(),
+                    unplayedAwayTeams.str(),
+                    true
+            )
+            .add_field(
+                    "__Completed__",
+                    "_ _",
+                    false
+            )
+            .add_field(
+                    "Match ID",
+                    playedMatchIDs.str(),
+                    true
+            )
+            .add_field(
+                    "Home",
+                    playedHomeTeams.str(),
+                    true
+            )
+            .add_field(
+                    "Away",
+                    playedAwayTeams.str(),
                     true
             );
 
@@ -260,6 +309,8 @@ embed Embeds::scheduleViewAllMatches() {
 
 embed Embeds::scheduleViewMatch(int id) {
     Match match = RecordBook::schedule[RecordBook::getMatch(id)];
+    if (match.matchStatus == Match::status::PLAYED)
+        return matchCompleteEmbed(id);
 
     std::ostringstream matchIDstr;
     std::ostringstream homeTeamPlayers;
