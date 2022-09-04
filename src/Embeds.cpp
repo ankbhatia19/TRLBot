@@ -185,6 +185,8 @@ embed Embeds::teamViewRoleEmbed(role team) {
     stats << "Series Losses:        " << thisTeam.losses << "\n";
     if (thisTeam.differential > 0)
         stats << "Game Differential:   +" << thisTeam.differential << "\n";
+    else if (thisTeam.differential < 0)
+        stats << "Game Differential:   " << thisTeam.differential << "\n";
     else
         stats << "Game Differential:    " << thisTeam.differential << "\n";
 
@@ -476,19 +478,23 @@ embed Embeds::matchCompleteEmbed(int matchID) {
     embed embed = embedTemplate()
             .set_title(title.str());
 
+    embed.add_field("Home", RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.get_mention(), true);
+    embed.add_field("Away", RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.get_mention(), true);
+
+    string allStats;
+    std::ostringstream headerLine;
+    headerLine << "            " << "Home" << "    " << "Away";
     for (const auto& [key, _] : RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores){
         int homeGoals = 0, awayGoals = 0;
         for (auto score : RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores[key]){
             homeGoals += score.homeGoals;
             awayGoals += score.awayGoals;
         }
-        embed.add_field(
-                "Game #" + std::to_string(key),
-                RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.get_mention() + ": " + std::to_string(homeGoals) + "\n"
-                + RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.get_mention() + ": " + std::to_string(awayGoals),
-                true
-        );
+        std::ostringstream gameStats;
+        gameStats << "Game #" << key << "      " << homeGoals << "       " << awayGoals;
+        allStats += gameStats.str() + "\n";
     }
+    embed.add_field("Game Stats", "```" + headerLine.str() + "\n" + allStats + "```", false);
     switch (RecordBook::schedule[RecordBook::getMatch(matchID)].matchWinner){
         case (Match::affiliation::HOME):
             embed.add_field("Winner", RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.get_mention(), false);
