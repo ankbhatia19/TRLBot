@@ -47,6 +47,8 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
 
     if (subcommand.name == "register"){
 
+        if (!Utilities::checkPerms(interaction, bot))
+            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
         /* Get the team role from the parameter */
         role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
@@ -60,6 +62,9 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
     }
     else  if (subcommand.name == "delist"){
 
+        if (!Utilities::checkPerms(interaction, bot))
+            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+
         /* Get the team role from the parameter */
         role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
@@ -72,6 +77,9 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
         return { event.command.channel_id, Embeds::teamDelistedEmbed(role) };
     }
     else if (subcommand.name == "add") {
+
+        if (!Utilities::checkPerms(interaction, bot))
+            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
 
         /* Get the team role from the parameter */
         role role = interaction.get_resolved_role(
@@ -133,6 +141,10 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
         return { event.command.channel_id, Embeds::teamAddedPlayersEmbed(profile1, profile2, profile3, role) };
     }
     else if (subcommand.name == "remove"){
+
+        if (!Utilities::checkPerms(interaction, bot))
+            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+
         /* Get the team role from the parameter */
         role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)

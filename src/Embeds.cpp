@@ -23,6 +23,18 @@ embed Embeds::errorEmbed(string msg) {
     return embed;
 }
 
+embed Embeds::testEmbed() {
+
+    embed embed = embedTemplate()
+            .set_title("Coming soon!")
+            .add_field(
+                    "This command is not yet finished.",
+                    "Stay tuned for updates."
+            );
+
+    return embed;
+}
+
 embed Embeds::pingEmbed(std::string uptime) {
     embed embed = embedTemplate()
             .set_title("Pong!")
@@ -205,18 +217,6 @@ embed Embeds::teamViewRoleEmbed(role team) {
             .add_field(
                     "Stats",
                     "```" + stats.str() + "```"
-            );
-
-    return embed;
-}
-
-embed Embeds::testEmbed() {
-
-    embed embed = embedTemplate()
-            .set_title("Coming soon!")
-            .add_field(
-                    "This command is not yet finished.",
-                    "Stay tuned for updates."
             );
 
     return embed;
@@ -477,21 +477,6 @@ embed Embeds::matchReplayProcessing(int matchID) {
     return embed;
 }
 
-embed Embeds::matchReplayProcessingComplete(int matchID) {
-    std::ostringstream processing;
-    processing << "Replays have been processed for Match #" << matchID;
-
-    embed embed = embedTemplate()
-            .set_title("Replays Submitted")
-            .add_field(
-                    processing.str(),
-                    "Use `/player view` to view updated stats!",
-                    false
-            );
-
-    return embed;
-}
-
 embed Embeds::matchNotFound(int matchID) {
     std::ostringstream error;
     error << "Match not found for Match #" << matchID;
@@ -572,6 +557,19 @@ embed Embeds::playersNotRegistered(vector<string> unregistered) {
             .add_field(
                 "The following players are unregistered:",
                 unregisteredString.str() + "\nUse `player register` to add unknown players.",
+                false
+            );
+
+    return embed;
+}
+
+embed Embeds::insufficientPermsEmbed(interaction interaction) {
+
+    embed embed = embedTemplate()
+            .set_title("Error")
+            .add_field(
+                "Insufficient Permissions",
+                interaction.get_issuing_user().get_mention() + " does not have the League Staff role.",
                 false
             );
 

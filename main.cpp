@@ -1,5 +1,4 @@
 #include <dpp/dpp.h>
-#include <httplib.h>
 
 #include "src/commands/include/PingCommand.h"
 #include "src/commands/include/TeamCommand.h"

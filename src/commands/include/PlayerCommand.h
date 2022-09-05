@@ -7,6 +7,7 @@
 
 #include <dpp/dpp.h>
 #include "../../include/Embeds.h"
+#include "Utilities.h"
 using namespace dpp;
 
 class PlayerCommand {

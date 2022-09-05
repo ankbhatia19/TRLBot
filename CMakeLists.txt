@@ -26,7 +26,7 @@ add_executable(${PROJECT_NAME}
         src/commands/PlayerCommand.cpp src/commands/include/PlayerCommand.h
         src/commands/ScheduleCommand.cpp src/commands/include/ScheduleCommand.h
         src/commands/PingCommand.cpp src/commands/include/PingCommand.h
-)
+        src/commands/Utilities.cpp src/commands/include/Utilities.h)
 
 # Linking libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC

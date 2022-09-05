@@ -15,6 +15,7 @@
 
 #include "../../include/Embeds.h"
 #include "../../include/RecordBook.h"
+#include "Utilities.h"
 
 using namespace dpp;
 

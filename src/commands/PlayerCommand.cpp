@@ -48,6 +48,10 @@ message PlayerCommand::msg(const slashcommand_t &event, cluster& bot) {
         string username = std::get<string>(subcommand.options[0].value);
         user profile;
         if (subcommand.options.size() == 2){
+            // ensure that permission requirements are met
+            if (!Utilities::checkPerms(interaction, bot))
+                return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+
             profile = interaction.get_resolved_user(
                     subcommand.get_value<dpp::snowflake>(1)
             );

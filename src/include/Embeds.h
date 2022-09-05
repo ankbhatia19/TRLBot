@@ -21,7 +21,6 @@ public:
     /* <Match Embeds> */
 
     static embed matchReplayProcessing(int matchID);
-    static embed matchReplayProcessingComplete(int matchID);
     static embed matchCompleteEmbed(int matchID);
 
     // On Error
@@ -73,6 +72,7 @@ public:
 
     /* <Miscellaneous Embeds> */
 
+    static embed insufficientPermsEmbed(interaction interaction);
     static embed errorEmbed(string msg);
     static embed testEmbed();
 

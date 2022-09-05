@@ -44,6 +44,9 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
 
     if (subcommand.name == "create") {
 
+        if (!Utilities::checkPerms(interaction, bot))
+            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+
         /* Get the home role from the parameter */
         role home = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
