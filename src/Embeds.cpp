@@ -176,13 +176,12 @@ embed Embeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
     return embed;
 }
 
-embed Embeds::teamViewRoleEmbed(role team, snowflake snowflake) {
+embed Embeds::teamViewRoleEmbed(role team) {
     std::ostringstream players;
     std::ostringstream stats;
 
     Team thisTeam = RecordBook::teams[team.id];
 
-    cout << "Team found: " << thisTeam.id << endl;
     if (thisTeam.members.empty()){
         players << "None\n";
     }
@@ -450,6 +449,16 @@ embed Embeds::playerNotFound(user profile) {
     return embed;
 }
 
+embed Embeds::playerUsernameExists(user profile, string name){
+    embed embed = embedTemplate()
+            .set_title("Error")
+            .add_field("Duplicate username entered: ",
+                       profile.get_mention() + " already has registered the username " + name
+                       + "\nUse `/player info` to view all registered usernames."
+            );
+    return embed;
+}
+
 embed Embeds::playerAddedUsername(user user, string username) {
     embed embed = embedTemplate()
             .set_title("Added username")
@@ -574,4 +583,8 @@ embed Embeds::insufficientPermsEmbed(interaction interaction) {
             );
 
     return embed;
+}
+
+embed Embeds::loadingEmbed() {
+    return errorEmbed("The user database is still loading. Please retry this command in a few minutes.");
 }

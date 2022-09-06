@@ -41,3 +41,11 @@ int Player::getStatistic(Player::statistic stat) {
     return 0;
 }
 
+bool Player::containsAlias(string alias) {
+    for (string username : aliases){
+        if (alias == username)
+            return true;
+    }
+    return false;
+}
+

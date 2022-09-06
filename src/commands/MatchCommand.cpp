@@ -4,7 +4,7 @@
 
 #include "include/MatchCommand.h"
 
-string MatchCommand::token = RecordBook::getBallchasingToken();
+string MatchCommand::token = Utilities::getBallchasingToken();
 
 slashcommand MatchCommand::cmd(snowflake botID) {
 
@@ -44,7 +44,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
 
     if (subcommand.name == "create") {
 
-        if (!Utilities::checkPerms(interaction, bot))
+        if (!Utilities::checkPerms(interaction))
             return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
 
         /* Get the home role from the parameter */

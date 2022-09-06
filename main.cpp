@@ -5,9 +5,10 @@
 #include "src/commands/include/MatchCommand.h"
 #include "src/commands/include/PlayerCommand.h"
 #include "src/commands/include/ScheduleCommand.h"
+#include "src/commands/include/Utilities.h"
 
 int main() {
-    dpp::cluster bot(RecordBook::getBotToken(), dpp::intents::i_all_intents);
+    dpp::cluster bot(Utilities::getBotToken(), dpp::intents::i_all_intents);
 
     bot.on_log(dpp::utility::cout_logger());
 

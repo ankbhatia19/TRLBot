@@ -44,7 +44,7 @@ public:
     static embed teamAddedPlayersEmbed(vector<user> players, role team);
     static embed teamRemovedPlayerEmbed(user player, role team);
     static embed teamViewAllEmbed(map<unsigned long long, Team> teams);
-    static embed teamViewRoleEmbed(role team, snowflake snowflake);
+    static embed teamViewRoleEmbed(role team);
 
     /* </Team Embeds> */
 
@@ -67,12 +67,14 @@ public:
 
     // On error
     static embed playerNotFound(user profile);
+    static embed playerUsernameExists(user profile, string name);
 
     /* </Player Embeds> */
 
     /* <Miscellaneous Embeds> */
 
     static embed insufficientPermsEmbed(interaction interaction);
+    static embed loadingEmbed();
     static embed errorEmbed(string msg);
     static embed testEmbed();
 

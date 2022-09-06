@@ -49,7 +49,7 @@ message PlayerCommand::msg(const slashcommand_t &event, cluster& bot) {
         user profile;
         if (subcommand.options.size() == 2){
             // ensure that permission requirements are met
-            if (!Utilities::checkPerms(interaction, bot))
+            if (!Utilities::checkPerms(interaction))
                 return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
 
             profile = interaction.get_resolved_user(
@@ -61,9 +61,14 @@ message PlayerCommand::msg(const slashcommand_t &event, cluster& bot) {
         }
 
         if (!RecordBook::players.contains(profile.id)){
-            cout << "Created a new player: " << profile.id << endl;
             RecordBook::players.insert({profile.id, {profile.id}});
+            std::ostringstream log_info;
+            log_info << "Player created: " << profile.id;
+            bot.log(dpp::loglevel::ll_info, log_info.str());
         }
+
+        if (RecordBook::players[profile.id].containsAlias(username))
+            return { event.command.channel_id, Embeds::playerUsernameExists(profile, username) };
 
         RecordBook::players[profile.id].aliases.push_back(username);
 

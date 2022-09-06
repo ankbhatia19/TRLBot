@@ -41,6 +41,8 @@ public:
     int getStatistic(enum statistic stat);
     unsigned long long id;
     unsigned long long teamID = 0;
+
+    bool containsAlias(string alias);
 };
 
 
