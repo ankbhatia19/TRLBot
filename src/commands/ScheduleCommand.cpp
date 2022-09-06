@@ -43,7 +43,7 @@ message ScheduleCommand::msg(const slashcommand_t &event, cluster& bot) {
         }
         else {
             int matchID = std::get<int64_t>(subcommand.options[0].value);
-            if (!RecordBook::hasMatch(matchID))
+            if (!RecordBook::schedule.contains(matchID))
                 return { event.command.channel_id, Embeds::scheduleMatchDoesNotExist(matchID) };
             return { event.command.channel_id, Embeds::scheduleViewMatch(matchID) };
         }

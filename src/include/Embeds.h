@@ -41,10 +41,10 @@ public:
     // On Success
     static embed teamRegisteredEmbed(role team);
     static embed teamDelistedEmbed(role team);
-    static embed teamAddedPlayersEmbed(user player1, user player2, user player3, role team);
+    static embed teamAddedPlayersEmbed(vector<user> players, role team);
     static embed teamRemovedPlayerEmbed(user player, role team);
-    static embed teamViewAllEmbed(vector<Team> teams);
-    static embed teamViewRoleEmbed(role team);
+    static embed teamViewAllEmbed(map<unsigned long long, Team> teams);
+    static embed teamViewRoleEmbed(role team, snowflake snowflake);
 
     /* </Team Embeds> */
 

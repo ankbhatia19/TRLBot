@@ -4,48 +4,9 @@
 
 #include "include/RecordBook.h"
 
-vector<Match> RecordBook::schedule;
-vector<Team> RecordBook::teams;
-vector<Player> RecordBook::players;
-
-bool RecordBook::hasTeam(snowflake id) {
-    return getTeam(id) >= 0;
-}
-
-bool RecordBook::hasMatch(int id) {
-    return getMatch(id) >= 0;
-}
-
-bool RecordBook::hasPlayer(snowflake id) {
-    return getPlayer(id) >= 0;
-}
-
-int RecordBook::getTeam(snowflake id) {
-    for (int i = 0; i < teams.size(); i++){
-        if (id == teams[i].team.id){
-            return i;
-        }
-    }
-    return -1;
-}
-
-int RecordBook::getMatch(int id) {
-    for (int i = 0; i < schedule.size(); i++){
-        if (id == schedule[i].id){
-            return i;
-        }
-    }
-    return -1;
-}
-
-int RecordBook::getPlayer(snowflake id) {
-    for (int i = 0; i < players.size(); i++){
-        if (id == players[i].profile.id){
-            return i;
-        }
-    }
-    return -1;
-}
+map<unsigned long long, Match> RecordBook::schedule;
+map<unsigned long long, Team> RecordBook::teams;
+map<unsigned long long, Player> RecordBook::players;
 
 string RecordBook::getBotToken() {
     std::ifstream f("config.json");
@@ -60,15 +21,6 @@ string RecordBook::getBallchasingToken() {
     std::ifstream f("config.json");
     json data = json::parse(f);
     string token = data["ballchasing_token"];
-    f.close();
-
-    return token;
-}
-
-string RecordBook::getBallchasingURL() {
-    std::ifstream f("config.json");
-    json data = json::parse(f);
-    string token = data["ballchasing_url"];
     f.close();
 
     return token;

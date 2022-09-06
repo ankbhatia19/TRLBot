@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <vector>
 #include "Team.h"
+#include "RecordBook.h"
+
 using namespace std;
 
 class Match;
@@ -16,9 +18,9 @@ class Team;
 
 class Match {
 public:
-    Match(Team* home, Team* away);
-    Team* home;
-    Team* away;
+    Match(unsigned long long homeID, unsigned long long awayID);
+    Match();
+    unsigned long long homeID, awayID;
     enum status {
         UNPLAYED,
         RESCHEDULED,

@@ -54,11 +54,12 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
         role away = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(1)
         );
-        if (!RecordBook::hasTeam(home.id) || !RecordBook::hasTeam(away.id)) {
+        if (!RecordBook::teams.contains(home.id) || !RecordBook::teams.contains(away.id)) {
             return {event.command.channel_id, Embeds::teamUnregisteredEmbed(home, away)};
         }
-        Match match(&RecordBook::teams[RecordBook::getTeam(home.id)], &RecordBook::teams[RecordBook::getTeam(away.id)]);
-        RecordBook::schedule.push_back(match);
+
+        Match match(home.id, away.id);
+        RecordBook::schedule.insert({match.id, match});
 
         return {event.command.channel_id, Embeds::scheduleViewMatch(match.id) };
 
@@ -67,10 +68,10 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
         int matchID = std::get<int64_t>(subcommand.options[0].value);
         string interaction_token = event.command.token;
 
-        if (!RecordBook::hasMatch(matchID)){
+        if (!RecordBook::schedule.contains(matchID)){
             return { event.command.channel_id, Embeds::matchNotFound(matchID) };
         }
-        if (RecordBook::schedule[RecordBook::getMatch(matchID)].matchStatus == Match::status::PLAYED){
+        if (RecordBook::schedule[matchID].matchStatus == Match::status::PLAYED){
             return { event.command.channel_id, Embeds::matchAlreadyPlayed(matchID) };
         }
 
@@ -121,44 +122,44 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 // Create a map such that get(username) will return color, index, player ID, and home/away
                 std::map<string, struct MatchCommand::PlayerRecord> playerMap;
                 for (int i = 0; i < replayData["blue"]["players"].size(); i++){
-                    for (Player player : RecordBook::players){
-                        for (string username : player.aliases){
+                    for (const auto& [key, _] : RecordBook::players){
+                        for (string username : RecordBook::players[key].aliases){
                             if (replayData["blue"]["players"][i]["name"].get<std::string>() == username){
-                                if (player.team == nullptr){
+                                if (RecordBook::players[key].teamID == 0){
                                     bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
                                     std::ostringstream log_info;
-                                    log_info << "Player.team is nullptr: " << player.profile.id;
+                                    log_info << "Player.team is nullptr: " << RecordBook::players[key].id;
                                     bot.log(loglevel::ll_debug, log_info.str());
                                     return;
                                 }
-                                if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.id)
-                                    playerMap.insert({username, {"blue", i, player.profile.id, Match::affiliation::HOME}});
-                                else if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.id)
-                                    playerMap.insert({username, {"blue", i, player.profile.id, Match::affiliation::AWAY}});
+                                if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].homeID)
+                                    playerMap.insert({username, {"blue", i, RecordBook::players[key].id, Match::affiliation::HOME}});
+                                else if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].awayID)
+                                    playerMap.insert({username, {"blue", i, RecordBook::players[key].id, Match::affiliation::AWAY}});
                                 else
-                                    playerMap.insert({username, {"blue", i, player.profile.id, Match::affiliation::NONE}});
+                                    playerMap.insert({username, {"blue", i, RecordBook::players[key].id, Match::affiliation::NONE}});
                             }
                         }
                     }
                 }
                 // Preprocessing for orange side
                 for (int i = 0; i < replayData["orange"]["players"].size(); i++){
-                    for (Player player : RecordBook::players){
-                        for (string username : player.aliases){
+                    for (const auto& [key, _] : RecordBook::players){
+                        for (string username : RecordBook::players[key].aliases){
                             if (replayData["orange"]["players"][i]["name"].get<std::string>() == username){
-                                if (player.team == nullptr){
+                                if (RecordBook::players[key].teamID == 0){
                                     bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
                                     std::ostringstream log_info;
-                                    log_info << "Player.team is nullptr: " << player.profile.id;
+                                    log_info << "Player.team is nullptr: " << RecordBook::players[key].id;
                                     bot.log(loglevel::ll_debug, log_info.str());
                                     return;
                                 }
-                                if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.id)
-                                    playerMap.insert({username, {"orange", i, player.profile.id, Match::affiliation::HOME}});
-                                else if (player.team->team.id == RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.id)
-                                    playerMap.insert({username, {"orange", i, player.profile.id, Match::affiliation::AWAY}});
+                                if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].homeID)
+                                    playerMap.insert({username, {"orange", i, RecordBook::players[key].id, Match::affiliation::HOME}});
+                                else if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].awayID)
+                                    playerMap.insert({username, {"orange", i, RecordBook::players[key].id, Match::affiliation::AWAY}});
                                 else
-                                    playerMap.insert({username, {"orange", i, player.profile.id, Match::affiliation::NONE}});
+                                    playerMap.insert({username, {"orange", i, RecordBook::players[key].id, Match::affiliation::NONE}});
                             }
                         }
                     }
@@ -193,19 +194,19 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                     enum Match::affiliation team = playerMap[key].team;
 
                     int goals = (int) replayData[color]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
-                    if (!RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores.contains(replayNum))
-                        RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores.insert({replayNum, vector<Match::score>()});
+                    if (!RecordBook::schedule[matchID].matchScores.contains(replayNum))
+                        RecordBook::schedule[matchID].matchScores.insert({replayNum, vector<Match::score>()});
                     switch (team){
                         case Match::HOME:
-                            RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores[replayNum].emplace_back(Match::score{goals, 0});
+                            RecordBook::schedule[matchID].matchScores[replayNum].emplace_back(Match::score{goals, 0});
                             break;
                         case Match::AWAY:
-                            RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores[replayNum].emplace_back(Match::score{0, goals});
+                            RecordBook::schedule[matchID].matchScores[replayNum].emplace_back(Match::score{0, goals});
                             break;
                         case Match::NONE:
                             break;
                     }
-                    RecordBook::players[RecordBook::getPlayer(playerID)].stats.emplace_back(Player::MatchStatistic{
+                    RecordBook::players[playerID].stats.emplace_back(Player::MatchStatistic{
                             matchID,
                             (int) replayData[color]["players"][index]["stats"]["core"]["shots"].get<int64_t>(),
                             (int) replayData[color]["players"][index]["stats"]["core"]["goals"].get<int64_t>(),
@@ -217,7 +218,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 log_info << "Submitted replay " << replayNum << "/" << totalNumReplays << " (match #" << matchID << ")";
                 bot.log(loglevel::ll_info, log_info.str());
                 if (replayNum == totalNumReplays) {
-                    RecordBook::schedule[RecordBook::getMatch(matchID)].determineWinner();
+                    RecordBook::schedule[matchID].determineWinner();
                     bot.interaction_response_edit(interaction_token, {event.command.channel_id,
                                                                       Embeds::matchCompleteEmbed(matchID)});
                 }

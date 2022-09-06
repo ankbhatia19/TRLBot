@@ -17,17 +17,14 @@ class Match;
 
 class Team {
 public:
-    Team(role team);
-    ~Team();
-    vector<Player> players;
+    Team();
+    Team(unsigned long long id);
 
     int wins, losses;
     int differential;
-    role team;
+    unsigned long long id;
 
-    int getPlayer(snowflake id);
-    bool hasPlayer(snowflake id);
-
+    map<unsigned long long, Player> members;
 };
 
 

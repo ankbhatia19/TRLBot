@@ -14,15 +14,23 @@ int generateID(){
     return (rand() % 90000) + 10000; // always return a 5 digit random id
 }
 
-Match::Match(Team* home, Team* away){
+Match::Match(unsigned long long homeID, unsigned long long awayID){
 
     while (id == -1 || (find(allIDs.begin(), allIDs.end(), id) != allIDs.end())) {
         id = generateID();
     }
     allIDs.push_back(id);
 
-    Match::home = home;
-    Match::away = away;
+    Match::homeID = homeID;
+    Match::awayID = awayID;
+    Match::matchStatus = status::UNPLAYED;
+    Match::matchWinner = affiliation::NONE;
+}
+
+Match::Match() {
+    id = -1;
+    Match::homeID = 0;
+    Match::awayID = 0;
     Match::matchStatus = status::UNPLAYED;
     Match::matchWinner = affiliation::NONE;
 }
@@ -40,25 +48,27 @@ void Match::determineWinner() {
         (homeGoals > awayGoals) ? homeWins++ : awayWins++;
         if (homeGoals > awayGoals){
             homeWins++;
-            home->differential++;
-            away->differential--;
+            RecordBook::teams[homeID].differential++;
+            RecordBook::teams[awayID].differential--;
         }
         else {
             awayWins++;
-            home->differential--;
-            away->differential++;
+            RecordBook::teams[homeID].differential--;
+            RecordBook::teams[awayID].differential++;
         }
     }
 
     if (homeWins > awayWins){
         matchWinner = affiliation::HOME;
-        Match::home->wins++;
-        Match::away->losses++;
+
+        RecordBook::teams[homeID].wins++;
+        RecordBook::teams[awayID].losses++;
     }
     else{
         matchWinner = affiliation::AWAY;
-        Match::away->wins++;
-        Match::home->losses++;
+
+        RecordBook::teams[homeID].losses++;
+        RecordBook::teams[awayID].wins++;
     }
     matchStatus = status::PLAYED;
 }

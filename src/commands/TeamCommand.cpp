@@ -53,11 +53,10 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
         role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
-        if (RecordBook::hasTeam(role.id))
+        if (RecordBook::teams.contains(role.id))
             return { event.command.channel_id, Embeds::errorEmbed("Team [" + role.name + "] already exists.") };
 
-        Team team(role);
-        RecordBook::teams.push_back(team);
+        RecordBook::teams.insert({role.id, {role.id}});
         return { event.command.channel_id, Embeds::teamRegisteredEmbed(role) };
     }
     else  if (subcommand.name == "delist"){
@@ -70,10 +69,10 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
-        if (!RecordBook::hasTeam(role.id))
+        if (!RecordBook::teams.contains(role.id))
             return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
 
-        RecordBook::teams.erase(RecordBook::teams.begin() + RecordBook::getTeam(role.id));
+        RecordBook::teams.erase(role.id);
         return { event.command.channel_id, Embeds::teamDelistedEmbed(role) };
     }
     else if (subcommand.name == "add") {
@@ -86,59 +85,27 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
-        if (!RecordBook::hasTeam(role.id))
+        if (!RecordBook::teams.contains(role.id))
             return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
 
-        user profile1, profile2, profile3;
-
-        profile1 = interaction.get_resolved_user(
-                subcommand.get_value<dpp::snowflake>(1)
-        );
-        if (!RecordBook::hasPlayer(profile1.id))
-            return { event.command.channel_id, Embeds::playerNotFound(profile1) };
-
-        if (RecordBook::teams[RecordBook::getTeam(role.id)].hasPlayer(profile1.id))
-            return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile1, role)};
-
-        RecordBook::teams[RecordBook::getTeam(role.id)].players.push_back(
-                RecordBook::players[RecordBook::getPlayer(profile1.id)]
-        );
-        RecordBook::players[RecordBook::getPlayer(profile1.id)].team = &RecordBook::teams[RecordBook::getTeam(role.id)];
-
-        if (subcommand.options.size() > 2){
-            // Two users specified
-            profile2 = interaction.get_resolved_user(
-                    subcommand.get_value<dpp::snowflake>(2)
+        vector<user> addedPlayers;
+        for (int i = 1; i < subcommand.options.size(); i++){
+            user profile = interaction.get_resolved_user(
+                    subcommand.get_value<dpp::snowflake>(i)
             );
-            if (!RecordBook::hasPlayer(profile2.id))
-                return { event.command.channel_id, Embeds::playerNotFound(profile2) };
+            if (!RecordBook::players.contains(profile.id))
+                return { event.command.channel_id, Embeds::playerNotFound(profile) };
 
-            if (RecordBook::teams[RecordBook::getTeam(role.id)].hasPlayer(profile2.id))
-                return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile2, role)};
+            if (RecordBook::teams[role.id].members.contains(profile.id))
+                return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile, role)};
 
-            RecordBook::teams[RecordBook::getTeam(role.id)].players.push_back(
-                    RecordBook::players[RecordBook::getPlayer(profile2.id)]
+            RecordBook::teams[role.id].members.insert(
+                    {profile.id, RecordBook::players[profile.id]}
             );
-            RecordBook::players[RecordBook::getPlayer(profile2.id)].team = &RecordBook::teams[RecordBook::getTeam(role.id)];
+            RecordBook::players[profile.id].teamID = role.id;
+            addedPlayers.push_back(profile);
         }
-        if (subcommand.options.size() > 3){
-            // Three users specified
-            profile3 = interaction.get_resolved_user(
-                    subcommand.get_value<dpp::snowflake>(3)
-            );
-            if (!RecordBook::hasPlayer(profile3.id))
-                return { event.command.channel_id, Embeds::playerNotFound(profile3) };
-
-            if (RecordBook::teams[RecordBook::getTeam(role.id)].hasPlayer(profile3.id))
-                return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile3, role)};
-
-            RecordBook::teams[RecordBook::getTeam(role.id)].players.push_back(
-                    RecordBook::players[RecordBook::getPlayer(profile3.id)]
-            );
-            RecordBook::players[RecordBook::getPlayer(profile3.id)].team = &RecordBook::teams[RecordBook::getTeam(role.id)];
-        }
-
-        return { event.command.channel_id, Embeds::teamAddedPlayersEmbed(profile1, profile2, profile3, role) };
+        return { event.command.channel_id, Embeds::teamAddedPlayersEmbed(addedPlayers, role) };
     }
     else if (subcommand.name == "remove"){
 
@@ -150,18 +117,17 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
-        if (!RecordBook::hasTeam(role.id))
+        if (!RecordBook::teams.contains(role.id))
             return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
 
         user profile = interaction.get_resolved_user(
                 subcommand.get_value<dpp::snowflake>(1)
         );
 
-        Team team = RecordBook::teams[RecordBook::getTeam(role.id)];
-        if (!team.hasPlayer(profile.id))
+        if (!RecordBook::teams[role.id].members.contains(profile.id))
             return { event.command.channel_id, Embeds::teamPlayerUnregisteredEmbed(profile, role) };
 
-        team.players.erase(team.players.begin() + team.getPlayer(profile.id));
+        RecordBook::teams[role.id].members.erase(profile.id);
 
         return { event.command.channel_id, Embeds::teamRemovedPlayerEmbed(profile, role)};
     }
@@ -175,10 +141,10 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
                     subcommand.get_value<dpp::snowflake>(0)
             );
 
-            if (!RecordBook::hasTeam(role.id)) {
+            if (!RecordBook::teams.contains(role.id)) {
                 return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
             }
-            return { event.command.channel_id, Embeds::teamViewRoleEmbed(role) };
+            return { event.command.channel_id, Embeds::teamViewRoleEmbed(role, interaction.guild_id)};
         }
     }
 

@@ -39,7 +39,7 @@ message PlayerCommand::msg(const slashcommand_t &event, cluster& bot) {
                     subcommand.get_value<dpp::snowflake>(0)
             );
         }
-        if (!RecordBook::hasPlayer(profile.id))
+        if (!RecordBook::players.contains(profile.id))
             return { event.command.channel_id, Embeds::playerNotFound(profile) };
 
         return { event.command.channel_id, Embeds::playerView(profile) };
@@ -59,15 +59,13 @@ message PlayerCommand::msg(const slashcommand_t &event, cluster& bot) {
         else {
             profile = interaction.get_issuing_user();
         }
-        Player* player;
 
-        if (!RecordBook::hasPlayer(profile.id))
-            player = new Player(profile);
-        else
-            player = &RecordBook::players[RecordBook::getPlayer(profile.id)];
+        if (!RecordBook::players.contains(profile.id)){
+            cout << "Created a new player: " << profile.id << endl;
+            RecordBook::players.insert({profile.id, {profile.id}});
+        }
 
-        player->aliases.push_back(username);
-        RecordBook::players.push_back(*player);
+        RecordBook::players[profile.id].aliases.push_back(username);
 
         return { event.command.channel_id, Embeds::playerAddedUsername(profile, username) };
     }

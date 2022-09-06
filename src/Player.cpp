@@ -4,8 +4,12 @@
 
 #include "include/Player.h"
 
-Player::Player(user profile) {
-    Player::profile = profile;
+Player::Player(unsigned long long id) {
+    Player::id = id;
+}
+
+Player::Player() {
+    Player::id = 0;
 }
 
 int Player::getStatistic(Player::statistic stat) {

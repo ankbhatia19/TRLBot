@@ -46,10 +46,10 @@ embed Embeds::pingEmbed(std::string uptime) {
 embed Embeds::teamUnregisteredEmbed(role home, role away) {
     std::ostringstream unregistered;
 
-    if (!RecordBook::hasTeam(home.id)){
+    if (!RecordBook::teams.contains(home.id)){
         unregistered << home.get_mention() << "\n";
     }
-    if (!RecordBook::hasTeam(away.id)){
+    if (!RecordBook::teams.contains(away.id)){
         unregistered << away.get_mention() << " \n";
     }
 
@@ -66,7 +66,7 @@ embed Embeds::teamUnregisteredEmbed(role home, role away) {
 embed Embeds::teamUnregisteredEmbed(role team) {
     std::ostringstream unregistered;
     unregistered << "";
-    if (!RecordBook::hasTeam(team.id)){
+    if (!RecordBook::teams.contains(team.id)){
         unregistered << team.get_mention();
     }
     unregistered << "\n";
@@ -104,21 +104,17 @@ embed Embeds::teamDelistedEmbed(role team) {
     return embed;
 }
 
-embed Embeds::teamAddedPlayersEmbed(user player1, user player2, user player3, role team) {
+embed Embeds::teamAddedPlayersEmbed(vector<user> players, role team) {
 
-    std::ostringstream players;
-    if (player1.id != snowflake(0))
-        players << player1.get_mention() << " ";
-    if (player2.id != snowflake(0))
-        players << player2.get_mention() << " ";
-    if (player3.id != snowflake(0))
-        players << player3.get_mention() << " ";
+    std::ostringstream playersStr;
+    for (auto user : players)
+        playersStr << user.get_mention() + " ";
 
     embed embed = embedTemplate()
             .set_title("Player Added")
             .add_field(
                     "Registered player(s): ",
-                    players.str() + "to " + team.get_mention() + "\nUse `/player info` to view the player(s)."
+                    playersStr.str() + "to " + team.get_mention() + "\nUse `/player info` to view the player(s)."
             );
 
     return embed;
@@ -160,7 +156,7 @@ embed Embeds::teamPlayerUnregisteredEmbed(user player, role team) {
     return embed;
 }
 
-embed Embeds::teamViewAllEmbed(vector<Team> teams) {
+embed Embeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
 
     std::ostringstream teamList;
     std::ostringstream teamCount;
@@ -168,8 +164,8 @@ embed Embeds::teamViewAllEmbed(vector<Team> teams) {
     if (teams.empty())
         teamList << "No registered teams.";
 
-    for (auto team : teams){
-        teamList << team.team.get_mention() << "\n";
+    for (const auto& [key, _] : teams){
+        teamList << dpp::find_role(key)->get_mention() << "\n";
     }
     teamCount << "Registered Teams: " << teams.size();
 
@@ -180,17 +176,21 @@ embed Embeds::teamViewAllEmbed(vector<Team> teams) {
     return embed;
 }
 
-embed Embeds::teamViewRoleEmbed(role team) {
+embed Embeds::teamViewRoleEmbed(role team, snowflake snowflake) {
     std::ostringstream players;
     std::ostringstream stats;
 
-    Team thisTeam = RecordBook::teams[RecordBook::getTeam(team.id)];
+    Team thisTeam = RecordBook::teams[team.id];
 
-    if (thisTeam.players.empty()){
+    cout << "Team found: " << thisTeam.id << endl;
+    if (thisTeam.members.empty()){
         players << "None\n";
     }
-    for (auto member : thisTeam.players){
-        players << member.profile.get_mention() << "\n";
+    for (const auto& [id, _] : thisTeam.members){
+        if (dpp::find_user(id) == nullptr)
+            return errorEmbed("Member list is still being loaded. Try again in a few minutes.");
+
+        players << dpp::find_user(id)->get_mention() << "\n";
     }
 
     stats << "Series Wins:          " << thisTeam.wins << "\n";
@@ -231,12 +231,12 @@ embed Embeds::scheduleViewAllMatches() {
     vector<Match> playedMatches, unplayedMatches;
 
     // Sort matches by stats
-    for (Match match : RecordBook::schedule){
-        if (match.matchStatus == Match::status::UNPLAYED){
-            unplayedMatches.emplace_back(match);
+    for (const auto& [key, _] : RecordBook::schedule){
+        if (RecordBook::schedule[key].matchStatus == Match::status::UNPLAYED){
+            unplayedMatches.emplace_back(RecordBook::schedule[key]);
         }
-        else if (match.matchStatus == Match::status::PLAYED){
-            playedMatches.emplace_back(match);
+        else if (RecordBook::schedule[key].matchStatus == Match::status::PLAYED){
+            playedMatches.emplace_back(RecordBook::schedule[key]);
         }
     }
 
@@ -252,13 +252,13 @@ embed Embeds::scheduleViewAllMatches() {
     }
     for (Match match : unplayedMatches){
         unplayedMatchIDs << match.id << "\n";
-        unplayedHomeTeams << match.home->team.get_mention() << "\n";
-        unplayedAwayTeams << match.away->team.get_mention() << "\n";
+        unplayedHomeTeams << find_role(match.homeID)->get_mention() << "\n";
+        unplayedAwayTeams << find_role(match.awayID)->get_mention() << "\n";
     }
     for (Match match : playedMatches){
         playedMatchIDs << match.id << "\n";
-        playedHomeTeams << match.home->team.get_mention() << "\n";
-        playedAwayTeams << match.away->team.get_mention() << "\n";
+        playedHomeTeams << find_role(match.homeID)->get_mention() << "\n";
+        playedAwayTeams << find_role(match.awayID)->get_mention() << "\n";
     }
 
     embed embed = embedTemplate()
@@ -308,7 +308,7 @@ embed Embeds::scheduleViewAllMatches() {
 }
 
 embed Embeds::scheduleViewMatch(int id) {
-    Match match = RecordBook::schedule[RecordBook::getMatch(id)];
+    Match match = RecordBook::schedule[id];
     if (match.matchStatus == Match::status::PLAYED)
         return matchCompleteEmbed(id);
 
@@ -320,19 +320,19 @@ embed Embeds::scheduleViewMatch(int id) {
 
     matchIDstr << "Match ID: " << match.id;
 
-    homeTeamPlayers << match.home->team.get_mention() << "\n_ _\n__Roster__\n";
-    awayTeamPlayers << match.away->team.get_mention() << "\n_ _\n__Roster__\n";
-    if (RecordBook::teams[RecordBook::getTeam(match.home->team.id)].players.empty())
+    homeTeamPlayers << find_role(match.homeID)->get_mention() << "\n_ _\n__Roster__\n";
+    awayTeamPlayers << find_role(match.awayID)->get_mention() << "\n_ _\n__Roster__\n";
+    if (RecordBook::teams[match.homeID].members.empty())
         homeTeamPlayers << "None\n";
 
-    if (RecordBook::teams[RecordBook::getTeam(match.away->team.id)].players.empty())
+    if (RecordBook::teams[match.awayID].members.empty())
         awayTeamPlayers << "None\n";
 
-    for (auto member : RecordBook::teams[RecordBook::getTeam(match.home->team.id)].players)
-        homeTeamPlayers << member.profile.get_mention() << "\n";
+    for (const auto& [id, _] : RecordBook::teams[match.homeID].members)
+        homeTeamPlayers << find_user(id)->get_mention() << "\n";
 
-    for (auto member : RecordBook::teams[RecordBook::getTeam(match.away->team.id)].players)
-        awayTeamPlayers << member.profile.get_mention() << "\n";
+    for (const auto& [id, _] : RecordBook::teams[match.awayID].members)
+        awayTeamPlayers << find_user(id)->get_mention() << "\n";
 
     if (match.matchTime == nullptr)
         scheduledTime << "None";
@@ -385,7 +385,7 @@ embed Embeds::scheduleMatchDoesNotExist(int id) {
 
 embed Embeds::playerView(user profile) {
 
-    Player player = RecordBook::players[RecordBook::getPlayer(profile.id)];
+    Player player = RecordBook::players[profile.id];
 
     std::ostringstream stats;
     if (player.stats.empty()){
@@ -410,16 +410,16 @@ embed Embeds::playerView(user profile) {
         usernames << name << "\n";
 
     std::ostringstream team;
-    if (player.team == nullptr)
+    if (player.teamID == 0)
         team << "None";
     else
-        team << player.team->team.get_mention();
+        team << find_role(player.teamID)->get_mention();
 
     embed embed = embedTemplate()
             .set_title("Player Card")
             .add_field(
                     "Player",
-                    player.profile.get_mention(),
+                    find_user(profile.id)->get_mention(),
                     true
             )
             .add_field(
@@ -514,15 +514,15 @@ embed Embeds::matchCompleteEmbed(int matchID) {
     embed embed = embedTemplate()
             .set_title(title.str());
 
-    embed.add_field("Home", RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.get_mention(), true);
-    embed.add_field("Away", RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.get_mention(), true);
+    embed.add_field("Home", find_role(RecordBook::schedule[matchID].homeID)->get_mention(), true);
+    embed.add_field("Away", find_role(RecordBook::schedule[matchID].awayID)->get_mention(), true);
 
     string allStats;
     std::ostringstream headerLine;
     headerLine << "            " << "Home" << "    " << "Away";
-    for (const auto& [key, _] : RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores){
+    for (const auto& [key, _] : RecordBook::schedule[matchID].matchScores){
         int homeGoals = 0, awayGoals = 0;
-        for (auto score : RecordBook::schedule[RecordBook::getMatch(matchID)].matchScores[key]){
+        for (auto score : RecordBook::schedule[matchID].matchScores[key]){
             homeGoals += score.homeGoals;
             awayGoals += score.awayGoals;
         }
@@ -531,12 +531,12 @@ embed Embeds::matchCompleteEmbed(int matchID) {
         allStats += gameStats.str() + "\n";
     }
     embed.add_field("Game Stats", "```" + headerLine.str() + "\n" + allStats + "```", false);
-    switch (RecordBook::schedule[RecordBook::getMatch(matchID)].matchWinner){
+    switch (RecordBook::schedule[matchID].matchWinner){
         case (Match::affiliation::HOME):
-            embed.add_field("Winner", RecordBook::schedule[RecordBook::getMatch(matchID)].home->team.get_mention(), false);
+            embed.add_field("Winner", find_role(RecordBook::schedule[matchID].homeID)->get_mention(), false);
             break;
         case (Match::affiliation::AWAY):
-            embed.add_field("Winner", RecordBook::schedule[RecordBook::getMatch(matchID)].away->team.get_mention(), false);
+            embed.add_field("Winner", find_role(RecordBook::schedule[matchID].awayID)->get_mention(), false);
             break;
         case Match::NONE:
             break;

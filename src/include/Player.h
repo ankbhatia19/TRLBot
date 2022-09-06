@@ -17,7 +17,8 @@ class Team;
 class Player {
 
 public:
-    Player(user profile);
+    Player(unsigned long long id);
+    Player();
     vector<string> aliases;
 
     struct MatchStatistic{
@@ -38,8 +39,8 @@ public:
 
     vector<MatchStatistic> stats;
     int getStatistic(enum statistic stat);
-    user profile;
-    Team* team = nullptr;
+    unsigned long long id;
+    unsigned long long teamID = 0;
 };
 
 
