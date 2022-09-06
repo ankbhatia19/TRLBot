@@ -17,19 +17,17 @@
 #include "../../include/RecordBook.h"
 #include "Utilities.h"
 
-using namespace dpp;
-
 class MatchCommand {
 public:
-    static slashcommand cmd(snowflake botID);
-    static message msg(const slashcommand_t& response, cluster& bot);
+    static dpp::slashcommand cmd(dpp::snowflake botID);
+    static dpp::message msg(const dpp::slashcommand_t& response, dpp::cluster& bot);
 
 private:
     static string token;
     struct PlayerRecord{
         string color;
         int index;
-        snowflake playerID;
+        dpp::snowflake playerID;
         enum Match::affiliation team;
     };
 };

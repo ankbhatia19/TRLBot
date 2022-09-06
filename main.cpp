@@ -35,7 +35,7 @@ int main() {
 
     bot.on_ready([&bot](const dpp::ready_t& event) {
         if (dpp::run_once<struct register_bot_commands>()) {
-            vector<slashcommand> CommandGroup = {
+            vector<dpp::slashcommand> CommandGroup = {
                     PingCommand::cmd(bot.me.id),
                     MatchCommand::cmd(bot.me.id),
                     TeamCommand::cmd(bot.me.id),

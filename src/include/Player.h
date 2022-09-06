@@ -11,7 +11,6 @@
 #include "Match.h"
 #include "Team.h"
 using namespace std;
-using namespace dpp;
 
 class Team;
 class Player {

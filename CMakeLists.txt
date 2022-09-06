@@ -12,7 +12,7 @@ endif()
 add_subdirectory(libs/DPP)
 
 # Add cpp-httplib as a dependency
-add_subdirectory(libs/cpp-httplib-0.11.0)
+add_subdirectory(libs/cpp-httplib)
 
 add_executable(${PROJECT_NAME}
         main.cpp

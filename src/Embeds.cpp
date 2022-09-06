@@ -4,9 +4,9 @@
 
 #include "include/Embeds.h"
 
-embed Embeds::embedTemplate() {
+dpp::embed Embeds::embedTemplate() {
     /* create the embed */
-    embed embed = dpp::embed()
+    dpp::embed embed = dpp::embed()
             .set_color(dpp::colors::wrx_blue)
             .set_footer(dpp::embed_footer().set_text("TRLBot • Created by Waycey"))
             .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_topright_noBG.png")
@@ -15,17 +15,21 @@ embed Embeds::embedTemplate() {
     return embed;
 }
 
-embed Embeds::errorEmbed(string msg) {
-    embed embed = embedTemplate()
+dpp::embed Embeds::errorEmbed(string msg) {
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(msg, "Contact a dev for details");
 
     return embed;
 }
 
-embed Embeds::testEmbed() {
+dpp::embed Embeds::loadingEmbed() {
+    return errorEmbed("The user database is still loading. Please retry this command in a few minutes.");
+}
 
-    embed embed = embedTemplate()
+dpp::embed Embeds::testEmbed() {
+
+    dpp::embed embed = embedTemplate()
             .set_title("Coming soon!")
             .add_field(
                     "This command is not yet finished.",
@@ -35,15 +39,15 @@ embed Embeds::testEmbed() {
     return embed;
 }
 
-embed Embeds::pingEmbed(std::string uptime) {
-    embed embed = embedTemplate()
+dpp::embed Embeds::pingEmbed(std::string uptime) {
+    dpp::embed embed = embedTemplate()
             .set_title("Pong!")
             .add_field("Uptime", uptime);
 
     return embed;
 }
 
-embed Embeds::teamUnregisteredEmbed(role home, role away) {
+dpp::embed Embeds::teamUnregisteredEmbed(dpp::role home, dpp::role away) {
     std::ostringstream unregistered;
 
     if (!RecordBook::teams.contains(home.id)){
@@ -53,7 +57,7 @@ embed Embeds::teamUnregisteredEmbed(role home, role away) {
         unregistered << away.get_mention() << " \n";
     }
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                     "These team(s) have not been registered: ",
@@ -63,14 +67,14 @@ embed Embeds::teamUnregisteredEmbed(role home, role away) {
     return embed;
 }
 
-embed Embeds::teamUnregisteredEmbed(role team) {
+dpp::embed Embeds::teamUnregisteredEmbed(dpp::role team) {
     std::ostringstream unregistered;
     unregistered << "";
     if (!RecordBook::teams.contains(team.id)){
         unregistered << team.get_mention();
     }
     unregistered << "\n";
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                     "These team(s) have not been registered: ",
@@ -80,9 +84,9 @@ embed Embeds::teamUnregisteredEmbed(role team) {
     return embed;
 }
 
-embed Embeds::teamRegisteredEmbed(role team) {
+dpp::embed Embeds::teamRegisteredEmbed(dpp::role team) {
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Team Created")
             .add_field(
                     "Registered team: ",
@@ -92,9 +96,9 @@ embed Embeds::teamRegisteredEmbed(role team) {
     return embed;
 }
 
-embed Embeds::teamDelistedEmbed(role team) {
+dpp::embed Embeds::teamDelistedEmbed(dpp::role team) {
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Team Removed")
             .add_field(
                     "Delisted team: ",
@@ -104,13 +108,13 @@ embed Embeds::teamDelistedEmbed(role team) {
     return embed;
 }
 
-embed Embeds::teamAddedPlayersEmbed(vector<user> players, role team) {
+dpp::embed Embeds::teamAddedPlayersEmbed(vector<dpp::user> players, dpp::role team) {
 
     std::ostringstream playersStr;
     for (auto user : players)
         playersStr << user.get_mention() + " ";
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Player Added")
             .add_field(
                     "Registered player(s): ",
@@ -120,9 +124,9 @@ embed Embeds::teamAddedPlayersEmbed(vector<user> players, role team) {
     return embed;
 }
 
-embed Embeds::teamRemovedPlayerEmbed(user player, role team) {
+dpp::embed Embeds::teamRemovedPlayerEmbed(dpp::user player, dpp::role team) {
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Player Removed")
             .add_field(
                     "Unregistered player: ",
@@ -132,9 +136,9 @@ embed Embeds::teamRemovedPlayerEmbed(user player, role team) {
     return embed;
 }
 
-embed Embeds::teamPlayerAlreadyRegisteredEmbed(user player, role team) {
+dpp::embed Embeds::teamPlayerAlreadyRegisteredEmbed(dpp::user player, dpp::role team) {
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                     "Player already registered: " ,
@@ -144,9 +148,9 @@ embed Embeds::teamPlayerAlreadyRegisteredEmbed(user player, role team) {
     return embed;
 }
 
-embed Embeds::teamPlayerUnregisteredEmbed(user player, role team) {
+dpp::embed Embeds::teamPlayerUnregisteredEmbed(dpp::user player, dpp::role team) {
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                     "Player not registered: " ,
@@ -156,7 +160,7 @@ embed Embeds::teamPlayerUnregisteredEmbed(user player, role team) {
     return embed;
 }
 
-embed Embeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
+dpp::embed Embeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
 
     std::ostringstream teamList;
     std::ostringstream teamCount;
@@ -169,14 +173,14 @@ embed Embeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
     }
     teamCount << "Registered Teams: " << teams.size();
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("__Teams__")
             .add_field(teamCount.str(), teamList.str());
 
     return embed;
 }
 
-embed Embeds::teamViewRoleEmbed(role team) {
+dpp::embed Embeds::teamViewRoleEmbed(dpp::role team) {
     std::ostringstream players;
     std::ostringstream stats;
 
@@ -201,7 +205,7 @@ embed Embeds::teamViewRoleEmbed(role team) {
     else
         stats << "Game Differential:    " << thisTeam.differential << "\n";
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Team Card")
             .add_field(
                 "Team",
@@ -221,7 +225,7 @@ embed Embeds::teamViewRoleEmbed(role team) {
     return embed;
 }
 
-embed Embeds::scheduleViewAllMatches() {
+dpp::embed Embeds::scheduleViewAllMatches() {
     std::ostringstream  unplayedMatchIDs;
     std::ostringstream unplayedHomeTeams, unplayedAwayTeams;
 
@@ -251,16 +255,16 @@ embed Embeds::scheduleViewAllMatches() {
     }
     for (Match match : unplayedMatches){
         unplayedMatchIDs << match.id << "\n";
-        unplayedHomeTeams << find_role(match.homeID)->get_mention() << "\n";
-        unplayedAwayTeams << find_role(match.awayID)->get_mention() << "\n";
+        unplayedHomeTeams << dpp::find_role(match.homeID)->get_mention() << "\n";
+        unplayedAwayTeams << dpp::find_role(match.awayID)->get_mention() << "\n";
     }
     for (Match match : playedMatches){
         playedMatchIDs << match.id << "\n";
-        playedHomeTeams << find_role(match.homeID)->get_mention() << "\n";
-        playedAwayTeams << find_role(match.awayID)->get_mention() << "\n";
+        playedHomeTeams << dpp::find_role(match.homeID)->get_mention() << "\n";
+        playedAwayTeams << dpp::find_role(match.awayID)->get_mention() << "\n";
     }
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("All Scheduled Matches")
             .add_field(
                     "__Unplayed__",
@@ -306,7 +310,7 @@ embed Embeds::scheduleViewAllMatches() {
     return embed;
 }
 
-embed Embeds::scheduleViewMatch(int id) {
+dpp::embed Embeds::scheduleViewMatch(int id) {
     Match match = RecordBook::schedule[id];
     if (match.matchStatus == Match::status::PLAYED)
         return matchCompleteEmbed(id);
@@ -319,8 +323,8 @@ embed Embeds::scheduleViewMatch(int id) {
 
     matchIDstr << "Match ID: " << match.id;
 
-    homeTeamPlayers << find_role(match.homeID)->get_mention() << "\n_ _\n__Roster__\n";
-    awayTeamPlayers << find_role(match.awayID)->get_mention() << "\n_ _\n__Roster__\n";
+    homeTeamPlayers << dpp::find_role(match.homeID)->get_mention() << "\n_ _\n__Roster__\n";
+    awayTeamPlayers << dpp::find_role(match.awayID)->get_mention() << "\n_ _\n__Roster__\n";
     if (RecordBook::teams[match.homeID].members.empty())
         homeTeamPlayers << "None\n";
 
@@ -328,16 +332,16 @@ embed Embeds::scheduleViewMatch(int id) {
         awayTeamPlayers << "None\n";
 
     for (const auto& [id, _] : RecordBook::teams[match.homeID].members)
-        homeTeamPlayers << find_user(id)->get_mention() << "\n";
+        homeTeamPlayers << dpp::find_user(id)->get_mention() << "\n";
 
     for (const auto& [id, _] : RecordBook::teams[match.awayID].members)
-        awayTeamPlayers << find_user(id)->get_mention() << "\n";
+        awayTeamPlayers << dpp::find_user(id)->get_mention() << "\n";
 
     if (match.matchTime == nullptr)
         scheduledTime << "None";
 
     lobbyInfo << "**User: ** trl\n**Pass: ** " << match.id;
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title(matchIDstr.str())
             .add_field(
                     "Home",
@@ -368,11 +372,11 @@ embed Embeds::scheduleViewMatch(int id) {
     return embed;
 }
 
-embed Embeds::scheduleMatchDoesNotExist(int id) {
+dpp::embed Embeds::scheduleMatchDoesNotExist(int id) {
 
     std::ostringstream matchError;
     matchError << "Match ID " << id << " does not exist.";
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                     matchError.str(),
@@ -382,7 +386,7 @@ embed Embeds::scheduleMatchDoesNotExist(int id) {
     return embed;
 }
 
-embed Embeds::playerView(user profile) {
+dpp::embed Embeds::playerView(dpp::user profile) {
 
     Player player = RecordBook::players[profile.id];
 
@@ -412,9 +416,9 @@ embed Embeds::playerView(user profile) {
     if (player.teamID == 0)
         team << "None";
     else
-        team << find_role(player.teamID)->get_mention();
+        team << dpp::find_role(player.teamID)->get_mention();
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Player Card")
             .add_field(
                     "Player",
@@ -440,8 +444,8 @@ embed Embeds::playerView(user profile) {
     return embed;
 }
 
-embed Embeds::playerNotFound(user profile) {
-    embed embed = embedTemplate()
+dpp::embed Embeds::playerNotFound(dpp::user profile) {
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field("This player is not registered: ",
                        profile.get_mention() + "\nUse `/player register` to create a new player account."
@@ -449,8 +453,8 @@ embed Embeds::playerNotFound(user profile) {
     return embed;
 }
 
-embed Embeds::playerUsernameExists(user profile, string name){
-    embed embed = embedTemplate()
+dpp::embed Embeds::playerUsernameExists(dpp::user profile, string name){
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field("Duplicate username entered: ",
                        profile.get_mention() + " already has registered the username " + name
@@ -459,8 +463,8 @@ embed Embeds::playerUsernameExists(user profile, string name){
     return embed;
 }
 
-embed Embeds::playerAddedUsername(user user, string username) {
-    embed embed = embedTemplate()
+dpp::embed Embeds::playerAddedUsername(dpp::user user, string username) {
+    dpp::embed embed = embedTemplate()
             .set_title("Added username")
             .add_field(
                     "Rocket League username registered:",
@@ -471,11 +475,11 @@ embed Embeds::playerAddedUsername(user user, string username) {
     return embed;
 }
 
-embed Embeds::matchReplayProcessing(int matchID) {
+dpp::embed Embeds::matchReplayProcessing(int matchID) {
     std::ostringstream processing;
     processing << "Processing replay for match " << matchID;
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Replay Processing")
             .add_field(
                     processing.str(),
@@ -486,11 +490,11 @@ embed Embeds::matchReplayProcessing(int matchID) {
     return embed;
 }
 
-embed Embeds::matchNotFound(int matchID) {
+dpp::embed Embeds::matchNotFound(int matchID) {
     std::ostringstream error;
     error << "Match not found for Match #" << matchID;
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                     error.str(),
@@ -501,11 +505,11 @@ embed Embeds::matchNotFound(int matchID) {
     return embed;
 }
 
-embed Embeds::matchAlreadyPlayed(int matchID) {
+dpp::embed Embeds::matchAlreadyPlayed(int matchID) {
     std::ostringstream error;
     error << "Match #" << matchID << " has already been submitted.";
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                     error.str(),
@@ -516,15 +520,15 @@ embed Embeds::matchAlreadyPlayed(int matchID) {
     return embed;
 }
 
-embed Embeds::matchCompleteEmbed(int matchID) {
+dpp::embed Embeds::matchCompleteEmbed(int matchID) {
     std::ostringstream title;
     title << "Match #" << matchID << " Complete";
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title(title.str());
 
-    embed.add_field("Home", find_role(RecordBook::schedule[matchID].homeID)->get_mention(), true);
-    embed.add_field("Away", find_role(RecordBook::schedule[matchID].awayID)->get_mention(), true);
+    embed.add_field("Home", dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention(), true);
+    embed.add_field("Away", dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention(), true);
 
     string allStats;
     std::ostringstream headerLine;
@@ -542,10 +546,10 @@ embed Embeds::matchCompleteEmbed(int matchID) {
     embed.add_field("Game Stats", "```" + headerLine.str() + "\n" + allStats + "```", false);
     switch (RecordBook::schedule[matchID].matchWinner){
         case (Match::affiliation::HOME):
-            embed.add_field("Winner", find_role(RecordBook::schedule[matchID].homeID)->get_mention(), false);
+            embed.add_field("Winner", dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention(), false);
             break;
         case (Match::affiliation::AWAY):
-            embed.add_field("Winner", find_role(RecordBook::schedule[matchID].awayID)->get_mention(), false);
+            embed.add_field("Winner", dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention(), false);
             break;
         case Match::NONE:
             break;
@@ -554,14 +558,14 @@ embed Embeds::matchCompleteEmbed(int matchID) {
     return embed;
 }
 
-embed Embeds::playersNotRegistered(vector<string> unregistered) {
+dpp::embed Embeds::playersNotRegistered(vector<string> unregistered) {
 
     std::ostringstream unregisteredString;
     for (string username : unregistered){
         unregisteredString << "\"" << username << "\" ";
     }
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error Submitting Replays")
             .add_field(
                 "The following players are unregistered:",
@@ -572,9 +576,9 @@ embed Embeds::playersNotRegistered(vector<string> unregistered) {
     return embed;
 }
 
-embed Embeds::insufficientPermsEmbed(interaction interaction) {
+dpp::embed Embeds::insufficientPermsEmbed(dpp::interaction interaction) {
 
-    embed embed = embedTemplate()
+    dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                 "Insufficient Permissions",
@@ -585,6 +589,3 @@ embed Embeds::insufficientPermsEmbed(interaction interaction) {
     return embed;
 }
 
-embed Embeds::loadingEmbed() {
-    return errorEmbed("The user database is still loading. Please retry this command in a few minutes.");
-}

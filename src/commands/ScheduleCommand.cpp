@@ -4,37 +4,37 @@
 
 #include "include/ScheduleCommand.h"
 
-slashcommand ScheduleCommand::cmd(snowflake botID) {
-    slashcommand schedcmd("schedule", "View and edit the schedule", botID);
+dpp::slashcommand ScheduleCommand::cmd(dpp::snowflake botID) {
+    dpp::slashcommand schedcmd("schedule", "View and edit the schedule", botID);
 
     schedcmd.add_option(
             /* Create a subcommand type option for "view". */
-            command_option(
+            dpp::command_option(
                     dpp::co_sub_command, "view", "View all scheduled matches or the indicated match")
                     .add_option(
-                            command_option(dpp::co_integer, "id", "The match ID to view", false)
+                            dpp::command_option(dpp::co_integer, "id", "The match ID to view", false)
                                     .set_min_value(10000)
                                     .set_max_value(99999)
                     )
     );
     schedcmd.add_option(
             /* Create another subcommand type option for "edit". */
-            command_option(dpp::co_sub_command, "edit", "Edit a match")
+            dpp::command_option(dpp::co_sub_command, "edit", "Edit a match")
                     .add_option(
-                            command_option(dpp::co_integer, "id", "The match ID to edit", true)
+                            dpp::command_option(dpp::co_integer, "id", "The match ID to edit", true)
                                     .set_min_value(10000)
                                     .set_max_value(99999)
                     )
-                    .add_option(command_option(dpp::co_string, "date", "The date to schedule this match", true))
-                    .add_option(command_option(dpp::co_string, "time", "The time to schedule this match", true))
+                    .add_option(dpp::command_option(dpp::co_string, "date", "The date to schedule this match", true))
+                    .add_option(dpp::command_option(dpp::co_string, "time", "The time to schedule this match", true))
     );
 
     return schedcmd;
 }
 
-message ScheduleCommand::msg(const slashcommand_t &event, cluster& bot) {
-    interaction interaction = event.command;
-    command_interaction cmd_data = interaction.get_command_interaction();
+dpp::message ScheduleCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bot) {
+    dpp::interaction interaction = event.command;
+    dpp::command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "view"){

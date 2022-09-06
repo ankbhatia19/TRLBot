@@ -4,7 +4,7 @@
 
 #include "include/Utilities.h"
 
-bool Utilities::checkPerms(interaction i) {
+bool Utilities::checkPerms(dpp::interaction i) {
     auto roles = i.member.roles;
     for (auto snowflake : roles){
         if (dpp::find_role(snowflake)->name == "League Staff")

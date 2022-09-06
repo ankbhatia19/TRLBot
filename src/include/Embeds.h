@@ -11,77 +11,76 @@
 #include "Match.h"
 #include "RecordBook.h"
 using namespace std;
-using namespace dpp;
 
 class Embeds {
 public:
 
-    static embed pingEmbed(string uptime);
+    static dpp::embed pingEmbed(string uptime);
 
     /* <Match Embeds> */
 
-    static embed matchReplayProcessing(int matchID);
-    static embed matchCompleteEmbed(int matchID);
+    static dpp::embed matchReplayProcessing(int matchID);
+    static dpp::embed matchCompleteEmbed(int matchID);
 
     // On Error
-    static embed matchNotFound(int matchID);
-    static embed matchAlreadyPlayed(int matchID);
-    static embed playersNotRegistered(vector<string> unregistered);
+    static dpp::embed matchNotFound(int matchID);
+    static dpp::embed matchAlreadyPlayed(int matchID);
+    static dpp::embed playersNotRegistered(vector<string> unregistered);
 
     /* </Match Embeds> */
 
     /* <Team Embeds> */
 
     // On Error
-    static embed teamUnregisteredEmbed(role home, role away);
-    static embed teamUnregisteredEmbed(role team);
-    static embed teamPlayerAlreadyRegisteredEmbed(user player, role team);
-    static embed teamPlayerUnregisteredEmbed(user player, role team);
+    static dpp::embed teamUnregisteredEmbed(dpp::role home, dpp::role away);
+    static dpp::embed teamUnregisteredEmbed(dpp::role team);
+    static dpp::embed teamPlayerAlreadyRegisteredEmbed(dpp::user player, dpp::role team);
+    static dpp::embed teamPlayerUnregisteredEmbed(dpp::user player, dpp::role team);
 
     // On Success
-    static embed teamRegisteredEmbed(role team);
-    static embed teamDelistedEmbed(role team);
-    static embed teamAddedPlayersEmbed(vector<user> players, role team);
-    static embed teamRemovedPlayerEmbed(user player, role team);
-    static embed teamViewAllEmbed(map<unsigned long long, Team> teams);
-    static embed teamViewRoleEmbed(role team);
+    static dpp::embed teamRegisteredEmbed(dpp::role team);
+    static dpp::embed teamDelistedEmbed(dpp::role team);
+    static dpp::embed teamAddedPlayersEmbed(vector<dpp::user> players, dpp::role team);
+    static dpp::embed teamRemovedPlayerEmbed(dpp::user player, dpp::role team);
+    static dpp::embed teamViewAllEmbed(map<unsigned long long, Team> teams);
+    static dpp::embed teamViewRoleEmbed(dpp::role team);
 
     /* </Team Embeds> */
 
     /* <RecordBook Embeds> */
 
     // On Success
-    static embed scheduleViewAllMatches();
-    static embed scheduleViewMatch(int id);
+    static dpp::embed scheduleViewAllMatches();
+    static dpp::embed scheduleViewMatch(int id);
 
     // On Error
-    static embed scheduleMatchDoesNotExist(int id);
+    static dpp::embed scheduleMatchDoesNotExist(int id);
 
     /* </RecordBook Embeds> */
 
     /* <Player Embeds> */
 
     // On success
-    static embed playerView(user profile);
-    static embed playerAddedUsername(user user, string username);
+    static dpp::embed playerView(dpp::user profile);
+    static dpp::embed playerAddedUsername(dpp::user user, string username);
 
     // On error
-    static embed playerNotFound(user profile);
-    static embed playerUsernameExists(user profile, string name);
+    static dpp::embed playerNotFound(dpp::user profile);
+    static dpp::embed playerUsernameExists(dpp::user profile, string name);
 
     /* </Player Embeds> */
 
     /* <Miscellaneous Embeds> */
 
-    static embed insufficientPermsEmbed(interaction interaction);
-    static embed loadingEmbed();
-    static embed errorEmbed(string msg);
-    static embed testEmbed();
+    static dpp::embed insufficientPermsEmbed(dpp::interaction interaction);
+    static dpp::embed loadingEmbed();
+    static dpp::embed errorEmbed(string msg);
+    static dpp::embed testEmbed();
 
     /* </Miscellaneous Embeds> */
 
 private:
-    static embed embedTemplate();
+    static dpp::embed embedTemplate();
 };
 
 

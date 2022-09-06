@@ -6,9 +6,9 @@
 
 string MatchCommand::token = Utilities::getBallchasingToken();
 
-slashcommand MatchCommand::cmd(snowflake botID) {
+dpp::slashcommand MatchCommand::cmd(dpp::snowflake botID) {
 
-    slashcommand matchcmd("match", "Add, remove, or submit a match", botID);
+    dpp::slashcommand matchcmd("match", "Add, remove, or submit a match", botID);
     matchcmd.add_option(
             /* Create a subcommand type option for "add". */
             dpp::command_option(dpp::co_sub_command, "create", "Create a match")
@@ -36,10 +36,10 @@ slashcommand MatchCommand::cmd(snowflake botID) {
     return matchcmd;
 }
 
-message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
+dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bot) {
 
-    interaction interaction = event.command;
-    command_interaction cmd_data = interaction.get_command_interaction();
+    dpp::interaction interaction = event.command;
+    dpp::command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "create") {
@@ -48,10 +48,10 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
             return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
 
         /* Get the home role from the parameter */
-        role home = interaction.get_resolved_role(
+        dpp::role home = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
-        role away = interaction.get_resolved_role(
+        dpp::role away = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(1)
         );
         if (!RecordBook::teams.contains(home.id) || !RecordBook::teams.contains(away.id)) {
@@ -78,7 +78,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
         int totalNumReplays = subcommand.options.size() - 1;
         for (int replayNum = 1; replayNum < subcommand.options.size(); replayNum++){
 
-            attachment replay = interaction.get_resolved_attachment(
+            dpp::attachment replay = interaction.get_resolved_attachment(
                     subcommand.get_value<dpp::snowflake>(replayNum)
             );
 
@@ -86,7 +86,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
             filename << matchID << "_Game" << replayNum << ".replay";
             string replayName = filename.str();
 
-            bot.request(replay.url, http_method::m_get, [&bot, &event, interaction_token, matchID, replayName, replayNum, totalNumReplays](const http_request_completion_t& response) {
+            bot.request(replay.url, dpp::http_method::m_get, [&bot, &event, interaction_token, matchID, replayName, replayNum, totalNumReplays](const dpp::http_request_completion_t& response) {
 
                 // Download a replay
                 std::filesystem::path path{ "Replays" }; // creates a local replays folder
@@ -102,7 +102,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 client.enable_server_certificate_verification(true);
 
                 httplib::MultipartFormDataItems items = {
-                        { "file", utility::read_file(path), replayName, "multipart/form-data" },
+                        { "file", dpp::utility::read_file(path), replayName, "multipart/form-data" },
                 };
 
                 auto uploadRes = client.Post("/api/v2/upload?visibility=public", {{"Authorization", MatchCommand::token}}, items);
@@ -129,7 +129,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                                     bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
                                     std::ostringstream log_info;
                                     log_info << "Player.team is nullptr: " << RecordBook::players[key].id;
-                                    bot.log(loglevel::ll_debug, log_info.str());
+                                    bot.log(dpp::loglevel::ll_debug, log_info.str());
                                     return;
                                 }
                                 if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].homeID)
@@ -151,7 +151,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                                     bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
                                     std::ostringstream log_info;
                                     log_info << "Player.team is nullptr: " << RecordBook::players[key].id;
-                                    bot.log(loglevel::ll_debug, log_info.str());
+                                    bot.log(dpp::loglevel::ll_debug, log_info.str());
                                     return;
                                 }
                                 if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].homeID)
@@ -186,11 +186,11 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 for (const auto& [key, _] : playerMap){
                     std::ostringstream log_info;
                     log_info << "Found " << key << " in replay " << replayNum << "/" << totalNumReplays << " (match #" << matchID << ")";
-                    bot.log(loglevel::ll_info, log_info.str());
+                    bot.log(dpp::loglevel::ll_info, log_info.str());
 
                     string color = playerMap[key].color;
                     int index = playerMap[key].index;
-                    snowflake playerID = playerMap[key].playerID;
+                    dpp::snowflake playerID = playerMap[key].playerID;
                     enum Match::affiliation team = playerMap[key].team;
 
                     int goals = (int) replayData[color]["players"][index]["stats"]["core"]["goals"].get<int64_t>();
@@ -216,7 +216,7 @@ message MatchCommand::msg(const slashcommand_t &event, cluster& bot) {
                 }
                 std::ostringstream log_info;
                 log_info << "Submitted replay " << replayNum << "/" << totalNumReplays << " (match #" << matchID << ")";
-                bot.log(loglevel::ll_info, log_info.str());
+                bot.log(dpp::loglevel::ll_info, log_info.str());
                 if (replayNum == totalNumReplays) {
                     RecordBook::schedule[matchID].determineWinner();
                     bot.interaction_response_edit(interaction_token, {event.command.channel_id,

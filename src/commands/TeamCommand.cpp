@@ -4,45 +4,45 @@
 
 #include "include/TeamCommand.h"
 
-slashcommand TeamCommand::cmd(snowflake botID) {
-    slashcommand teamcmd("team", "Edit and view team information and members", botID);
+dpp::slashcommand TeamCommand::cmd(dpp::snowflake botID) {
+    dpp::slashcommand teamcmd("team", "Edit and view team information and members", botID);
 
     teamcmd.add_option(
             /* Create a subcommand type option for "register". */
-            command_option(dpp::co_sub_command, "register", "Register a team")
-                    .add_option(command_option(dpp::co_role, "team", "The team role", true))
+            dpp::command_option(dpp::co_sub_command, "register", "Register a team")
+                    .add_option(dpp::command_option(dpp::co_role, "team", "The team role", true))
     );
     teamcmd.add_option(
             /* Create a subcommand type option for "delist". */
-            command_option(dpp::co_sub_command, "delist", "Delist a team")
-                    .add_option(command_option(dpp::co_role, "team", "The team role", true))
+            dpp::command_option(dpp::co_sub_command, "delist", "Delist a team")
+                    .add_option(dpp::command_option(dpp::co_role, "team", "The team role", true))
     );
     teamcmd.add_option(
             /* Create a subcommand type option for "add". */
-            command_option(dpp::co_sub_command, "add", "Add team members")
-                    .add_option(command_option(dpp::co_role, "team", "The team role", true))
-                    .add_option(command_option(dpp::co_user, "player1", "The player to add", true))
-                    .add_option(command_option(dpp::co_user, "player2", "The player to add", false))
-                    .add_option(command_option(dpp::co_user, "player3", "The player to add", false))
+            dpp::command_option(dpp::co_sub_command, "add", "Add team members")
+                    .add_option(dpp::command_option(dpp::co_role, "team", "The team role", true))
+                    .add_option(dpp::command_option(dpp::co_user, "player1", "The player to add", true))
+                    .add_option(dpp::command_option(dpp::co_user, "player2", "The player to add", false))
+                    .add_option(dpp::command_option(dpp::co_user, "player3", "The player to add", false))
     );
     teamcmd.add_option(
             /* Create another subcommand type option for "remove". */
-            command_option(dpp::co_sub_command, "remove", "Remove a player")
-                    .add_option(command_option(dpp::co_role, "role", "The team role", true))
-                    .add_option(command_option(dpp::co_user, "player", "The player to remove", true))
+            dpp::command_option(dpp::co_sub_command, "remove", "Remove a player")
+                    .add_option(dpp::command_option(dpp::co_role, "role", "The team role", true))
+                    .add_option(dpp::command_option(dpp::co_user, "player", "The player to remove", true))
     );
     teamcmd.add_option(
             /* Create another subcommand type option for "view". */
-            command_option(dpp::co_sub_command, "view", "View all teams or the indicated team")
-                    .add_option(command_option(dpp::co_role, "role", "The team role", false))
+            dpp::command_option(dpp::co_sub_command, "view", "View all teams or the indicated team")
+                    .add_option(dpp::command_option(dpp::co_role, "role", "The team role", false))
     );
 
     return teamcmd;
 }
 
-message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
-    interaction interaction = event.command;
-    command_interaction cmd_data = interaction.get_command_interaction();
+dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bot) {
+    dpp::interaction interaction = event.command;
+    dpp::command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "register"){
@@ -50,7 +50,7 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
         if (!Utilities::checkPerms(interaction))
             return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
         /* Get the team role from the parameter */
-        role role = interaction.get_resolved_role(
+        dpp::role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
         if (RecordBook::teams.contains(role.id))
@@ -65,7 +65,7 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
             return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
 
         /* Get the team role from the parameter */
-        role role = interaction.get_resolved_role(
+        dpp::role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
@@ -84,16 +84,16 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
             return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
 
         /* Get the team role from the parameter */
-        role role = interaction.get_resolved_role(
+        dpp::role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
         if (!RecordBook::teams.contains(role.id))
             return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
 
-        vector<user> addedPlayers;
+        vector<dpp::user> addedPlayers;
         for (int i = 1; i < subcommand.options.size(); i++){
-            user profile = interaction.get_resolved_user(
+            dpp::user profile = interaction.get_resolved_user(
                     subcommand.get_value<dpp::snowflake>(i)
             );
             if (!RecordBook::players.contains(profile.id))
@@ -116,14 +116,14 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
             return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
 
         /* Get the team role from the parameter */
-        role role = interaction.get_resolved_role(
+        dpp::role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
         if (!RecordBook::teams.contains(role.id))
             return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
 
-        user profile = interaction.get_resolved_user(
+        dpp::user profile = interaction.get_resolved_user(
                 subcommand.get_value<dpp::snowflake>(1)
         );
 
@@ -140,7 +140,7 @@ message TeamCommand::msg(const slashcommand_t &event, cluster& bot) {
         }
         else {
             /* Get the team role from the parameter */
-            role role = interaction.get_resolved_role(
+            dpp::role role = interaction.get_resolved_role(
                     subcommand.get_value<dpp::snowflake>(0)
             );
 

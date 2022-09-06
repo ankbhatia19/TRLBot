@@ -10,7 +10,6 @@
 #include "Player.h"
 #include "Match.h"
 using namespace std;
-using namespace dpp;
 
 class Player;
 class Match;

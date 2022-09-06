@@ -4,12 +4,12 @@
 
 #include "include/PingCommand.h"
 
-slashcommand PingCommand::cmd(snowflake botID) {
-    slashcommand pingcmd("ping", "Pong!", botID);
+dpp::slashcommand PingCommand::cmd(dpp::snowflake botID) {
+    dpp::slashcommand pingcmd("ping", "Pong!", botID);
 
     return pingcmd;
 }
 
-message PingCommand::msg(const slashcommand_t &event, cluster& bot) {
+dpp::message PingCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bot) {
     return { event.command.channel_id, Embeds::pingEmbed(bot.uptime().to_string()) };
 }

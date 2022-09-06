@@ -8,12 +8,11 @@
 #include <dpp/dpp.h>
 #include "../../include/Embeds.h"
 #include "Utilities.h"
-using namespace dpp;
 
 class TeamCommand {
 public:
-    static slashcommand cmd(snowflake botID);
-    static message msg(const slashcommand_t &event, cluster& bot);
+    static dpp::slashcommand cmd(dpp::snowflake botID);
+    static dpp::message msg(const dpp::slashcommand_t &event, dpp::cluster& bot);
 };
 
 

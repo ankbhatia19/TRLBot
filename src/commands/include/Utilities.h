@@ -11,12 +11,11 @@
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
-using namespace dpp;
 using namespace std;
 
 class Utilities {
 public:
-    static bool checkPerms(interaction i);
+    static bool checkPerms(dpp::interaction i);
 
     static string getBotToken();
     static string getBallchasingToken();
