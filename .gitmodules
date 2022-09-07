@@ -1,0 +1,6 @@
+[submodule "libs/DPP"]
+	path = libs/DPP
+	url = https://github.com/brainboxdotcc/DPP.git
+[submodule "libs/cpp-httplib"]
+	path = libs/cpp-httplib
+	url = https://github.com/yhirose/cpp-httplib.git
