@@ -6,7 +6,11 @@
 #define TRLBOT_SCHEDULECOMMAND_H
 
 #include <dpp/dpp.h>
-#include "../../include/Embeds.h"
+
+#include "../../embeds/include/MatchEmbeds.h"
+#include "../../embeds/include/TeamEmbeds.h"
+#include "../../embeds/include/PlayerEmbeds.h"
+#include "../../embeds/include/ScheduleEmbeds.h"
 
 class ScheduleCommand {
 public:

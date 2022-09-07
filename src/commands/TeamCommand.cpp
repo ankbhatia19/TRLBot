@@ -48,21 +48,21 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
     if (subcommand.name == "register"){
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
         /* Get the team role from the parameter */
         dpp::role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
         if (RecordBook::teams.contains(role.id))
-            return { event.command.channel_id, Embeds::errorEmbed("Team [" + role.name + "] already exists.") };
+            return { event.command.channel_id, UtilityEmbeds::errorEmbed("Team [" + role.name + "] already exists.") };
 
         RecordBook::teams.insert({role.id, {role.id}});
-        return { event.command.channel_id, Embeds::teamRegisteredEmbed(role) };
+        return { event.command.channel_id, TeamEmbeds::teamRegisteredEmbed(role) };
     }
     else  if (subcommand.name == "delist"){
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
 
         /* Get the team role from the parameter */
         dpp::role role = interaction.get_resolved_role(
@@ -70,18 +70,18 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
         );
 
         if (!RecordBook::teams.contains(role.id))
-            return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
+            return { event.command.channel_id, TeamEmbeds::teamUnregisteredEmbed(role) };
 
         RecordBook::teams.erase(role.id);
         std::ostringstream log_info;
         log_info << "Removed team: " << role.id;
         bot.log(dpp::loglevel::ll_info, log_info.str());
-        return { event.command.channel_id, Embeds::teamDelistedEmbed(role) };
+        return { event.command.channel_id, TeamEmbeds::teamDelistedEmbed(role) };
     }
     else if (subcommand.name == "add") {
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
 
         /* Get the team role from the parameter */
         dpp::role role = interaction.get_resolved_role(
@@ -89,7 +89,7 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
         );
 
         if (!RecordBook::teams.contains(role.id))
-            return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
+            return { event.command.channel_id, TeamEmbeds::teamUnregisteredEmbed(role) };
 
         vector<dpp::user> addedPlayers;
         for (int i = 1; i < subcommand.options.size(); i++){
@@ -97,10 +97,10 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
                     subcommand.get_value<dpp::snowflake>(i)
             );
             if (!RecordBook::players.contains(profile.id))
-                return { event.command.channel_id, Embeds::playerNotFound(profile) };
+                return { event.command.channel_id, PlayerEmbeds::playerNotFound(profile) };
 
             if (RecordBook::teams[role.id].members.contains(profile.id))
-                return { event.command.channel_id, Embeds::teamPlayerAlreadyRegisteredEmbed(profile, role)};
+                return { event.command.channel_id, TeamEmbeds::teamPlayerAlreadyRegisteredEmbed(profile, role)};
 
             RecordBook::teams[role.id].members.insert(
                     {profile.id, RecordBook::players[profile.id]}
@@ -108,12 +108,12 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
             RecordBook::players[profile.id].teamID = role.id;
             addedPlayers.push_back(profile);
         }
-        return { event.command.channel_id, Embeds::teamAddedPlayersEmbed(addedPlayers, role) };
+        return { event.command.channel_id, TeamEmbeds::teamAddedPlayersEmbed(addedPlayers, role) };
     }
     else if (subcommand.name == "remove"){
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
 
         /* Get the team role from the parameter */
         dpp::role role = interaction.get_resolved_role(
@@ -121,22 +121,22 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
         );
 
         if (!RecordBook::teams.contains(role.id))
-            return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
+            return { event.command.channel_id, TeamEmbeds::teamUnregisteredEmbed(role) };
 
         dpp::user profile = interaction.get_resolved_user(
                 subcommand.get_value<dpp::snowflake>(1)
         );
 
         if (!RecordBook::teams[role.id].members.contains(profile.id))
-            return { event.command.channel_id, Embeds::teamPlayerUnregisteredEmbed(profile, role) };
+            return { event.command.channel_id, TeamEmbeds::teamPlayerUnregisteredEmbed(profile, role) };
 
         RecordBook::teams[role.id].members.erase(profile.id);
 
-        return { event.command.channel_id, Embeds::teamRemovedPlayerEmbed(profile, role)};
+        return { event.command.channel_id, TeamEmbeds::teamRemovedPlayerEmbed(profile, role)};
     }
     else if (subcommand.name == "view"){
         if (subcommand.options.empty()){
-            return { event.command.channel_id, Embeds::teamViewAllEmbed(RecordBook::teams) };
+            return { event.command.channel_id, TeamEmbeds::teamViewAllEmbed(RecordBook::teams) };
         }
         else {
             /* Get the team role from the parameter */
@@ -145,11 +145,11 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
             );
 
             if (!RecordBook::teams.contains(role.id)) {
-                return { event.command.channel_id, Embeds::teamUnregisteredEmbed(role) };
+                return { event.command.channel_id, TeamEmbeds::teamUnregisteredEmbed(role) };
             }
-            return { event.command.channel_id, Embeds::teamViewRoleEmbed(role)};
+            return { event.command.channel_id, TeamEmbeds::teamViewRoleEmbed(role)};
         }
     }
 
-    return { event.command.channel_id, Embeds::testEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::testEmbed() };
 }

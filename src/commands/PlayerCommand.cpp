@@ -40,9 +40,9 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
             );
         }
         if (!RecordBook::players.contains(profile.id))
-            return { event.command.channel_id, Embeds::playerNotFound(profile) };
+            return { event.command.channel_id, PlayerEmbeds::playerNotFound(profile) };
 
-        return { event.command.channel_id, Embeds::playerView(profile) };
+        return { event.command.channel_id, PlayerEmbeds::playerView(profile) };
     }
     else if (subcommand.name == "register"){
         string username = std::get<string>(subcommand.options[0].value);
@@ -50,7 +50,7 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
         if (subcommand.options.size() == 2){
             // ensure that permission requirements are met
             if (!Utilities::checkPerms(interaction))
-                return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+                return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
 
             profile = interaction.get_resolved_user(
                     subcommand.get_value<dpp::snowflake>(1)
@@ -68,12 +68,12 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
         }
 
         if (RecordBook::players[profile.id].containsAlias(username))
-            return { event.command.channel_id, Embeds::playerUsernameExists(profile, username) };
+            return { event.command.channel_id, PlayerEmbeds::playerUsernameExists(profile, username) };
 
         RecordBook::players[profile.id].aliases.push_back(username);
 
-        return { event.command.channel_id, Embeds::playerAddedUsername(profile, username) };
+        return { event.command.channel_id, PlayerEmbeds::playerAddedUsername(profile, username) };
     }
 
-    return { event.command.channel_id, Embeds::testEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::testEmbed() };
 }

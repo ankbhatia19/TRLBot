@@ -6,7 +6,8 @@
 #define TRLBOT_PINGCOMMAND_H
 
 #include <dpp/dpp.h>
-#include "../../include/Embeds.h"
+
+#include "../../embeds/include/UtilityEmbeds.h"
 
 class PingCommand {
 public:

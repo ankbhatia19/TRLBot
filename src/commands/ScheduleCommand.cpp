@@ -39,15 +39,15 @@ dpp::message ScheduleCommand::msg(const dpp::slashcommand_t &event, dpp::cluster
 
     if (subcommand.name == "view"){
         if (subcommand.options.empty()){
-            return { event.command.channel_id, Embeds::scheduleViewAllMatches() };
+            return { event.command.channel_id, ScheduleEmbeds::scheduleViewAllMatches() };
         }
         else {
             int matchID = std::get<int64_t>(subcommand.options[0].value);
             if (!RecordBook::schedule.contains(matchID))
-                return { event.command.channel_id, Embeds::scheduleMatchDoesNotExist(matchID) };
-            return { event.command.channel_id, Embeds::scheduleViewMatch(matchID) };
+                return { event.command.channel_id, ScheduleEmbeds::scheduleMatchDoesNotExist(matchID) };
+            return { event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(matchID) };
         }
     }
 
-    return { event.command.channel_id, Embeds::testEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::testEmbed() };
 }

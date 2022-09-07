@@ -45,7 +45,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
     if (subcommand.name == "create") {
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, Embeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
 
         /* Get the home role from the parameter */
         dpp::role home = interaction.get_resolved_role(
@@ -55,13 +55,13 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                 subcommand.get_value<dpp::snowflake>(1)
         );
         if (!RecordBook::teams.contains(home.id) || !RecordBook::teams.contains(away.id)) {
-            return {event.command.channel_id, Embeds::teamUnregisteredEmbed(home, away)};
+            return {event.command.channel_id, TeamEmbeds::teamUnregisteredEmbed(home, away)};
         }
 
         Match match(home.id, away.id);
         RecordBook::schedule.insert({match.id, match});
 
-        return {event.command.channel_id, Embeds::scheduleViewMatch(match.id) };
+        return {event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(match.id) };
 
     }
     else if (subcommand.name == "submit"){
@@ -69,10 +69,10 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
         string interaction_token = event.command.token;
 
         if (!RecordBook::schedule.contains(matchID)){
-            return { event.command.channel_id, Embeds::matchNotFound(matchID) };
+            return { event.command.channel_id, MatchEmbeds::matchNotFound(matchID) };
         }
         if (RecordBook::schedule[matchID].matchStatus == Match::status::PLAYED){
-            return { event.command.channel_id, Embeds::matchAlreadyPlayed(matchID) };
+            return { event.command.channel_id, MatchEmbeds::matchAlreadyPlayed(matchID) };
         }
 
         int totalNumReplays = subcommand.options.size() - 1;
@@ -126,7 +126,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                         for (string username : RecordBook::players[key].aliases){
                             if (replayData["blue"]["players"][i]["name"].get<std::string>() == username){
                                 if (RecordBook::players[key].teamID == 0){
-                                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
+                                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, UtilityEmbeds::errorEmbed("Please ensure all players are registered to a team.") });
                                     std::ostringstream log_info;
                                     log_info << "Player.team is nullptr: " << RecordBook::players[key].id;
                                     bot.log(dpp::loglevel::ll_debug, log_info.str());
@@ -148,7 +148,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                         for (string username : RecordBook::players[key].aliases){
                             if (replayData["orange"]["players"][i]["name"].get<std::string>() == username){
                                 if (RecordBook::players[key].teamID == 0){
-                                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, Embeds::errorEmbed("Please ensure all players are registered to a team.") });
+                                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, UtilityEmbeds::errorEmbed("Please ensure all players are registered to a team.") });
                                     std::ostringstream log_info;
                                     log_info << "Player.team is nullptr: " << RecordBook::players[key].id;
                                     bot.log(dpp::loglevel::ll_debug, log_info.str());
@@ -178,7 +178,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
 
                 if (!unregistered.empty()){
                     bot.interaction_response_edit(interaction_token, {event.command.channel_id,
-                                                                      Embeds::playersNotRegistered(unregistered)});
+                                                                      MatchEmbeds::matchPlayersNotRegistered(unregistered)});
                     return;
                 }
 
@@ -220,12 +220,12 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                 if (replayNum == totalNumReplays) {
                     RecordBook::schedule[matchID].determineWinner();
                     bot.interaction_response_edit(interaction_token, {event.command.channel_id,
-                                                                      Embeds::matchCompleteEmbed(matchID)});
+                                                                      MatchEmbeds::matchCompleteEmbed(matchID)});
                 }
                 // Replay processing finished
             });
         }
-        return { event.command.channel_id, Embeds::matchReplayProcessing(matchID) };
+        return { event.command.channel_id, MatchEmbeds::matchReplayProcessing(matchID) };
     }
-    return { event.command.channel_id, Embeds::testEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::testEmbed() };
 }

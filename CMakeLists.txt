@@ -20,13 +20,17 @@ add_executable(${PROJECT_NAME}
         src/Match.cpp src/include/Match.h
         src/RecordBook.cpp src/include/RecordBook.h
         src/Team.cpp src/include/Team.h
-        src/Embeds.cpp src/include/Embeds.h
         src/commands/TeamCommand.cpp src/commands/include/TeamCommand.h
         src/commands/MatchCommand.cpp src/commands/include/MatchCommand.h
         src/commands/PlayerCommand.cpp src/commands/include/PlayerCommand.h
         src/commands/ScheduleCommand.cpp src/commands/include/ScheduleCommand.h
         src/commands/PingCommand.cpp src/commands/include/PingCommand.h
         src/Utilities.cpp src/include/Utilities.h
+        src/embeds/UtilityEmbeds.cpp src/embeds/include/UtilityEmbeds.h
+        src/embeds/TeamEmbeds.cpp src/embeds/include/TeamEmbeds.h
+        src/embeds/MatchEmbeds.cpp src/embeds/include/MatchEmbeds.h
+        src/embeds/ScheduleEmbeds.cpp src/embeds/include/ScheduleEmbeds.h
+        src/embeds/PlayerEmbeds.cpp src/embeds/include/PlayerEmbeds.h
 )
 
 # Linking libraries

@@ -12,8 +12,11 @@
 #include <cstdlib>
 #include <filesystem>
 
+#include "../../embeds/include/MatchEmbeds.h"
+#include "../../embeds/include/TeamEmbeds.h"
+#include "../../embeds/include/PlayerEmbeds.h"
+#include "../../embeds/include/ScheduleEmbeds.h"
 
-#include "../../include/Embeds.h"
 #include "../../include/RecordBook.h"
 #include "../../include/Utilities.h"
 

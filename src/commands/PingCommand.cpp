@@ -11,5 +11,5 @@ dpp::slashcommand PingCommand::cmd(dpp::snowflake botID) {
 }
 
 dpp::message PingCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bot) {
-    return { event.command.channel_id, Embeds::pingEmbed(bot.uptime().to_string()) };
+    return { event.command.channel_id, UtilityEmbeds::pingEmbed(bot.uptime().to_string()) };
 }
