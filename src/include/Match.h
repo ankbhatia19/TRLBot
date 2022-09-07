@@ -13,17 +13,13 @@
 
 using namespace std;
 
-class Match;
-class Team;
-
 class Match {
 public:
     Match(unsigned long long homeID, unsigned long long awayID);
     Match();
-    unsigned long long homeID, awayID;
+
     enum status {
         UNPLAYED,
-        RESCHEDULED,
         PLAYED
     };
     enum affiliation {
@@ -36,11 +32,12 @@ public:
         int awayGoals;
     };
 
+    unsigned long long homeID, awayID;
     int id = -1;
     struct tm* matchTime;
-    enum status matchStatus;
-    enum affiliation matchWinner;
-    //vector<score> matchScores;
+    status matchStatus;
+    affiliation matchWinner;
+
     std::map<int, vector<score>> matchScores;
 
     void determineWinner();

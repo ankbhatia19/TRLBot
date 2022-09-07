@@ -10,6 +10,8 @@
 #include "Player.h"
 #include "Match.h"
 #include "RecordBook.h"
+#include "Utilities.h"
+
 using namespace std;
 
 class Embeds {

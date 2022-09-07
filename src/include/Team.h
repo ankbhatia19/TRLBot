@@ -12,7 +12,6 @@
 using namespace std;
 
 class Player;
-class Match;
 
 class Team {
 public:

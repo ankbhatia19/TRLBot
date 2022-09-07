@@ -5,7 +5,7 @@
 #include "src/commands/include/MatchCommand.h"
 #include "src/commands/include/PlayerCommand.h"
 #include "src/commands/include/ScheduleCommand.h"
-#include "src/commands/include/Utilities.h"
+#include "src/include/Utilities.h"
 
 int main() {
     dpp::cluster bot(Utilities::getBotToken(), dpp::intents::i_all_intents);
@@ -43,9 +43,12 @@ int main() {
                     PlayerCommand::cmd(bot.me.id)
             };
 
-            bot.global_bulk_command_create(CommandGroup);
+            bot.global_bulk_command_create(CommandGroup, [](const dpp::confirmation_callback_t &result){
+                Utilities::cmd_init(std::get<dpp::slashcommand_map>(result.value));
+            });
         }
     });
 
     bot.start(dpp::st_wait);
+
 }

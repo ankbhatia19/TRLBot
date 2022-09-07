@@ -10,9 +10,9 @@
 #include <dpp/dpp.h>
 #include "Match.h"
 #include "Team.h"
+
 using namespace std;
 
-class Team;
 class Player {
 
 public:
@@ -35,11 +35,11 @@ public:
         ASSISTS,
         AVG_MVPR
     };
-
     vector<MatchStatistic> stats;
-    int getStatistic(enum statistic stat);
+
+    int getStatistic(statistic stat);
     unsigned long long id;
-    unsigned long long teamID = 0;
+    unsigned long long teamID;
 
     bool containsAlias(string alias);
 };

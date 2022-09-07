@@ -61,7 +61,9 @@ dpp::embed Embeds::teamUnregisteredEmbed(dpp::role home, dpp::role away) {
             .set_title("Error")
             .add_field(
                     "These team(s) have not been registered: ",
-                    unregistered.str() + "Use `/team register` to create a team."
+                    unregistered.str() + "\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "register")
+                    + " to create a team."
             );
 
     return embed;
@@ -71,14 +73,15 @@ dpp::embed Embeds::teamUnregisteredEmbed(dpp::role team) {
     std::ostringstream unregistered;
     unregistered << "";
     if (!RecordBook::teams.contains(team.id)){
-        unregistered << team.get_mention();
+        unregistered << team.get_mention() << "\n";
     }
-    unregistered << "\n";
     dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field(
                     "These team(s) have not been registered: ",
-                    unregistered.str() + "Use `/team register` to create a team."
+                    unregistered.str() + "\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "register")
+                    + " to create a team."
             );
 
     return embed;
@@ -90,7 +93,9 @@ dpp::embed Embeds::teamRegisteredEmbed(dpp::role team) {
             .set_title("Team Created")
             .add_field(
                     "Registered team: ",
-                    team.get_mention() + "\nUse `/team add` to fill the team roster."
+                    team.get_mention() + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "add")
+                    + " to fill the team roster."
             );
 
     return embed;
@@ -102,7 +107,9 @@ dpp::embed Embeds::teamDelistedEmbed(dpp::role team) {
             .set_title("Team Removed")
             .add_field(
                     "Delisted team: ",
-                    team.get_mention() + "\nUse `/team register` to re-register this team."
+                    team.get_mention() + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "register")
+                    + " to re-register this team."
             );
 
     return embed;
@@ -118,7 +125,9 @@ dpp::embed Embeds::teamAddedPlayersEmbed(vector<dpp::user> players, dpp::role te
             .set_title("Player Added")
             .add_field(
                     "Registered player(s): ",
-                    playersStr.str() + "to " + team.get_mention() + "\nUse `/player info` to view the player(s)."
+                    playersStr.str() + "to " + team.get_mention() + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info")
+                    + " to view the player(s)."
             );
 
     return embed;
@@ -130,7 +139,9 @@ dpp::embed Embeds::teamRemovedPlayerEmbed(dpp::user player, dpp::role team) {
             .set_title("Player Removed")
             .add_field(
                     "Unregistered player: ",
-                    player.get_mention() + " from " + team.get_mention() + "\nUse `/player info` to view this player."
+                    player.get_mention() + " from " + team.get_mention() + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info")
+                    + " to view this player."
             );
 
     return embed;
@@ -142,7 +153,9 @@ dpp::embed Embeds::teamPlayerAlreadyRegisteredEmbed(dpp::user player, dpp::role 
             .set_title("Error")
             .add_field(
                     "Player already registered: " ,
-                    player.get_mention() + " is a member of " + team.get_mention() + "\nUse `/team view` to view this team."
+                    player.get_mention() + " is a member of " + team.get_mention() + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "view")
+                    + " to view this team."
             );
 
     return embed;
@@ -154,7 +167,9 @@ dpp::embed Embeds::teamPlayerUnregisteredEmbed(dpp::user player, dpp::role team)
             .set_title("Error")
             .add_field(
                     "Player not registered: " ,
-                    player.get_mention() + "is not a member of " + team.get_mention() + "\nUse `/team view` to view this team."
+                    player.get_mention() + "is not a member of " + team.get_mention() + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "view")
+                    + " to view this team."
             );
 
     return embed;
@@ -380,7 +395,9 @@ dpp::embed Embeds::scheduleMatchDoesNotExist(int id) {
             .set_title("Error")
             .add_field(
                     matchError.str(),
-                    "Use `/match add` to create a match."
+                    "Use "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["match"], "match", "create")
+                    + " to create a match."
             );
 
     return embed;
@@ -448,7 +465,9 @@ dpp::embed Embeds::playerNotFound(dpp::user profile) {
     dpp::embed embed = embedTemplate()
             .set_title("Error")
             .add_field("This player is not registered: ",
-                       profile.get_mention() + "\nUse `/player register` to create a new player account."
+                       profile.get_mention() + "\n\nUse "
+                       + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "register")
+                       + " to create a new player account."
             );
     return embed;
 }
@@ -458,7 +477,9 @@ dpp::embed Embeds::playerUsernameExists(dpp::user profile, string name){
             .set_title("Error")
             .add_field("Duplicate username entered: ",
                        profile.get_mention() + " already has registered the username " + name
-                       + "\nUse `/player info` to view all registered usernames."
+                       + "\n\nUse "
+                       + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info")
+                       + " to view all registered usernames."
             );
     return embed;
 }
@@ -468,7 +489,9 @@ dpp::embed Embeds::playerAddedUsername(dpp::user user, string username) {
             .set_title("Added username")
             .add_field(
                     "Rocket League username registered:",
-                    username + " to " + user.get_mention() + "\nUse `/player info` to view all registered usernames.",
+                    username + " to " + user.get_mention() + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info")
+                    + " to view all registered usernames.",
                     false
             );
 
@@ -498,7 +521,9 @@ dpp::embed Embeds::matchNotFound(int matchID) {
             .set_title("Error")
             .add_field(
                     error.str(),
-                    "Use `/match create` to create a new match.",
+                    "Use "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["match"], "match", "create")
+                    + " to create a new match.",
                     false
             );
 
@@ -513,7 +538,9 @@ dpp::embed Embeds::matchAlreadyPlayed(int matchID) {
             .set_title("Error")
             .add_field(
                     error.str(),
-                    "Use `/match create` to create a new match.",
+                    "Use "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["match"], "match", "create")
+                    + " to create a new match.",
                     false
             );
 
@@ -569,7 +596,9 @@ dpp::embed Embeds::playersNotRegistered(vector<string> unregistered) {
             .set_title("Error Submitting Replays")
             .add_field(
                 "The following players are unregistered:",
-                unregisteredString.str() + "\nUse `player register` to add unknown players.",
+                unregisteredString.str() + "\n\nUse "
+                + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "register")
+                + " to add unknown players.",
                 false
             );
 

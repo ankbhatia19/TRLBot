@@ -5,12 +5,10 @@
 #ifndef TRLBOT_UTILITIES_H
 #define TRLBOT_UTILITIES_H
 
-#include <dpp/dpp.h>
+#include "dpp/dpp.h"
 #include <string>
 #include <fstream>
-#include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
 using namespace std;
 
 class Utilities {
@@ -19,6 +17,9 @@ public:
 
     static string getBotToken();
     static string getBallchasingToken();
+    static void cmd_init(dpp::slashcommand_map cmds);
+
+    static map<string, unsigned long long> cmd_map;
 };
 
 

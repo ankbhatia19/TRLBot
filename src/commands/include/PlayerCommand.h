@@ -7,7 +7,7 @@
 
 #include <dpp/dpp.h>
 #include "../../include/Embeds.h"
-#include "Utilities.h"
+#include "../../include/Utilities.h"
 
 class PlayerCommand {
 public:

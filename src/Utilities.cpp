@@ -4,6 +4,8 @@
 
 #include "include/Utilities.h"
 
+map<string, unsigned long long> Utilities::cmd_map;
+
 bool Utilities::checkPerms(dpp::interaction i) {
     auto roles = i.member.roles;
     for (auto snowflake : roles){
@@ -29,4 +31,9 @@ string Utilities::getBallchasingToken() {
     f.close();
 
     return token;
+}
+
+void Utilities::cmd_init(dpp::slashcommand_map cmds) {
+    for (const auto& [id, _] : cmds)
+        cmd_map.insert({cmds[id].name, id});
 }

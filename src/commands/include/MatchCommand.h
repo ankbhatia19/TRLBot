@@ -15,7 +15,7 @@
 
 #include "../../include/Embeds.h"
 #include "../../include/RecordBook.h"
-#include "Utilities.h"
+#include "../../include/Utilities.h"
 
 class MatchCommand {
 public:
