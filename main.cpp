@@ -43,7 +43,7 @@ int main() {
                     PlayerCommand::cmd(bot.me.id)
             };
 
-            bot.global_bulk_command_create(CommandGroup, [](const dpp::confirmation_callback_t &result){
+            bot.global_bulk_command_create(CommandGroup, [](const dpp::confirmation_callback_t& result){
                 Utilities::cmd_init(std::get<dpp::slashcommand_map>(result.value));
             });
         }
