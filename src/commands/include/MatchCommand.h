@@ -19,6 +19,7 @@
 
 #include "../../include/RecordBook.h"
 #include "../../include/Utilities.h"
+#include "../../include/BallchasingClient.h"
 
 class MatchCommand {
 public:
@@ -26,7 +27,6 @@ public:
     static dpp::message msg(const dpp::slashcommand_t& response, dpp::cluster& bot);
 
 private:
-    static string token;
     struct PlayerRecord{
         string color;
         int index;

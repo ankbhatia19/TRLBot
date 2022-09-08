@@ -17,6 +17,8 @@ public:
 
     static string getBotToken();
     static string getBallchasingToken();
+    static string getBallchasingGroup();
+
     static void cmd_init(dpp::slashcommand_map cmds);
 
     static map<string, unsigned long long> cmd_map;

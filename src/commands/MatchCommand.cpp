@@ -4,8 +4,6 @@
 
 #include "include/MatchCommand.h"
 
-string MatchCommand::token = Utilities::getBallchasingToken();
-
 dpp::slashcommand MatchCommand::cmd(dpp::snowflake botID) {
 
     dpp::slashcommand matchcmd("match", "Add, remove, or submit a match", botID);
@@ -97,26 +95,16 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                 ofs << response.body;
                 ofs.close();
 
-                // Upload the replay to ballchasing
-                httplib::SSLClient client("ballchasing.com");
-                client.enable_server_certificate_verification(true);
+                BallchasingClient ballchasing;
 
-                httplib::MultipartFormDataItems items = {
-                        { "file", dpp::utility::read_file(path), replayName, "multipart/form-data" },
-                };
+                // 1. Upload replay to ballchasing
+                json uploadData = ballchasing.upload(path, replayName);
 
-                auto uploadRes = client.Post("/api/v2/upload?visibility=public", {{"Authorization", MatchCommand::token}}, items);
-                json uploadData = json::parse(uploadRes.value().body);
+                // 2. Patch replay, assign name and group
+                ballchasing.group(matchID, replayName, uploadData["id"].get<std::string>());
 
-                // Download .json from ballchasing api
-                string getEndpoint = "/api/replays/" + uploadData["id"].get<std::string>();
-                json replayData;
-
-                do {
-                    std::this_thread::sleep_for (std::chrono::milliseconds(500));
-                    auto replayRes = client.Get(getEndpoint, {{"Authorization", MatchCommand::token}});
-                    replayData = json::parse(replayRes.value().body);
-                } while (replayData["status"].get<std::string>() == "pending");
+                // 3. Download replay data from ballchasing
+                json replayData = ballchasing.pull(uploadData["id"].get<std::string>());
 
                 // Pre-process replays
                 // Create a map such that get(username) will return color, index, player ID, and home/away
