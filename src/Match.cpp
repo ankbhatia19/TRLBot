@@ -25,6 +25,8 @@ Match::Match(unsigned long long homeID, unsigned long long awayID){
     Match::awayID = awayID;
     Match::matchStatus = status::UNPLAYED;
     Match::matchWinner = affiliation::NONE;
+
+    Match::ballchasingID = "";
 }
 
 Match::Match() {

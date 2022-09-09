@@ -18,7 +18,8 @@ public:
     BallchasingClient();
 
     json upload(string path, string replayName);
-    void group(int matchID, string replayName, string ballchasingID);
+    json create(int matchID);
+    void group(string replayName, string group, string ballchasingID);
     json pull(string ballchasingID);
 
 private:

@@ -20,10 +20,30 @@ json BallchasingClient::upload(string path, string replayName) {
     return json::parse(uploadRes.value().body);
 }
 
-void BallchasingClient::group(int matchID, string replayName, string ballchasingID) {
+json BallchasingClient::create(int matchID) {
+    // create a new subgroup for this match
+    json post = {
+            {"name", std::to_string(matchID)},
+            {"parent", BallchasingClient::group_id},
+            {"player_identification", "by-id"},
+            {"team_identification", "by-player-clusters"}
+    };
+
+    auto postRes = client.Post("/api/groups",
+                               {{"Authorization", BallchasingClient::token}},
+                               to_string(post),
+                               "application/json"
+    );
+
+    return json::parse(postRes.value().body);
+}
+
+
+void BallchasingClient::group(string replayName, string group, string ballchasingID) {
+
     json patch = {
             {"title", replayName},
-            {"group", BallchasingClient::group_id}
+            {"group", group}
     };
 
     auto patchRes = client.Patch("/api/replays/" + ballchasingID,

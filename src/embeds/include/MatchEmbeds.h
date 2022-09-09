@@ -19,6 +19,7 @@ public:
     static dpp::embed matchNotFound(int matchID);
     static dpp::embed matchAlreadyPlayed(int matchID);
     static dpp::embed matchPlayersNotRegistered(vector<string> unregistered);
+    static dpp::embed matchPlayersNotOnTeam(vector<unsigned long long> teamless, int matchID);
 };
 
 

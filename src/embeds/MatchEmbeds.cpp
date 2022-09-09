@@ -87,6 +87,10 @@ dpp::embed MatchEmbeds::matchCompleteEmbed(int matchID) {
         case Match::NONE:
             break;
     }
+    embed.add_field("Ballchasing Group",
+                    "https://ballchasing.com/group/" + RecordBook::schedule[matchID].ballchasingID,
+                    false
+    );
 
     return embed;
 }
@@ -105,6 +109,31 @@ dpp::embed MatchEmbeds::matchPlayersNotRegistered(vector<string> unregistered) {
                     unregisteredString.str() + "\n\nUse "
                     + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "register")
                     + " to add unknown players.",
+                    false
+            );
+
+    return embed;
+}
+
+dpp::embed MatchEmbeds::matchPlayersNotOnTeam(vector<unsigned long long int> teamless, int matchID) {
+    std::ostringstream unregisteredString;
+    for (auto id : teamless){
+        unregisteredString << dpp::find_user(id)->get_mention() << " ";
+    }
+
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Error Submitting Replays")
+            .add_field(
+                    "Please ensure all players are on a team.",
+                    "The following players are not registered to either "
+                    + dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention()
+                    + " or "
+                    + dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention()
+                    + ":\n\n"
+                    + unregisteredString.str()
+                    + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "add")
+                    + " to add players to a team.",
                     false
             );
 

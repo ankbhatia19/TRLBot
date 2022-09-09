@@ -100,8 +100,14 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                 // 1. Upload replay to ballchasing
                 json uploadData = ballchasing.upload(path, replayName);
 
+                // 2. Create a new ballchasing subgroup (if not yet created)
+                if (RecordBook::schedule[matchID].ballchasingID.empty()){
+                    json groupData = ballchasing.create(matchID);
+                    RecordBook::schedule[matchID].ballchasingID = groupData["id"].get<std::string>();
+                }
+
                 // 2. Patch replay, assign name and group
-                ballchasing.group(matchID, replayName, uploadData["id"].get<std::string>());
+                ballchasing.group(replayName, RecordBook::schedule[matchID].ballchasingID, uploadData["id"].get<std::string>());
 
                 // 3. Download replay data from ballchasing
                 json replayData = ballchasing.pull(uploadData["id"].get<std::string>());
@@ -113,13 +119,6 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                     for (const auto& [key, _] : RecordBook::players){
                         for (string username : RecordBook::players[key].aliases){
                             if (replayData["blue"]["players"][i]["name"].get<std::string>() == username){
-                                if (RecordBook::players[key].teamID == 0){
-                                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, UtilityEmbeds::errorEmbed("Please ensure all players are registered to a team.") });
-                                    std::ostringstream log_info;
-                                    log_info << "Player.team is nullptr: " << RecordBook::players[key].id;
-                                    bot.log(dpp::loglevel::ll_debug, log_info.str());
-                                    return;
-                                }
                                 if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].homeID)
                                     playerMap.insert({username, {"blue", i, RecordBook::players[key].id, Match::affiliation::HOME}});
                                 else if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].awayID)
@@ -135,13 +134,6 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                     for (const auto& [key, _] : RecordBook::players){
                         for (string username : RecordBook::players[key].aliases){
                             if (replayData["orange"]["players"][i]["name"].get<std::string>() == username){
-                                if (RecordBook::players[key].teamID == 0){
-                                    bot.interaction_response_edit(interaction_token, { event.command.channel_id, UtilityEmbeds::errorEmbed("Please ensure all players are registered to a team.") });
-                                    std::ostringstream log_info;
-                                    log_info << "Player.team is nullptr: " << RecordBook::players[key].id;
-                                    bot.log(dpp::loglevel::ll_debug, log_info.str());
-                                    return;
-                                }
                                 if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].homeID)
                                     playerMap.insert({username, {"orange", i, RecordBook::players[key].id, Match::affiliation::HOME}});
                                 else if (RecordBook::players[key].teamID == RecordBook::schedule[matchID].awayID)
@@ -165,8 +157,36 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                 }
 
                 if (!unregistered.empty()){
-                    bot.interaction_response_edit(interaction_token, {event.command.channel_id,
-                                                                      MatchEmbeds::matchPlayersNotRegistered(unregistered)});
+                    if (replayNum == totalNumReplays) {
+                        bot.interaction_response_edit(
+                                interaction_token,
+                                {event.command.channel_id, MatchEmbeds::matchPlayersNotRegistered(unregistered)}
+                        );
+                    }
+                    std::ostringstream log_info;
+                    log_info << "Unregistered players found in replay " << replayNum << "/" << totalNumReplays << " (match #" << matchID << ")";
+                    bot.log(dpp::loglevel::ll_debug, log_info.str());
+                    return;
+                }
+
+                // Check if all players are registered to a team - this is necessary
+                // for counting goals and determining match winner
+                vector<unsigned long long> teamless;
+                for (const auto& [key, _] : playerMap){
+                    if (playerMap[key].team == Match::affiliation::NONE)
+                        teamless.emplace_back(playerMap[key].playerID);
+                }
+
+                if (!teamless.empty()){
+                    if (replayNum == totalNumReplays) {
+                        bot.interaction_response_edit(
+                                interaction_token,
+                                {event.command.channel_id, MatchEmbeds::matchPlayersNotOnTeam(teamless, matchID)}
+                        );
+                    }
+                    std::ostringstream log_info;
+                    log_info << "Teamless players found in replay " << replayNum << "/" << totalNumReplays << " (match #" << matchID << ")";
+                    bot.log(dpp::loglevel::ll_debug, log_info.str());
                     return;
                 }
 

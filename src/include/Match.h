@@ -38,6 +38,8 @@ public:
     status matchStatus;
     affiliation matchWinner;
 
+    string ballchasingID;
+
     std::map<int, vector<score>> matchScores;
 
     void determineWinner();
