@@ -105,6 +105,10 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
             RecordBook::teams[role.id].members.insert(
                     {profile.id, RecordBook::players[profile.id]}
             );
+
+            if (RecordBook::players[profile.id].teamID != 0)
+                RecordBook::teams[RecordBook::players[profile.id].teamID].members.erase(profile.id);
+
             RecordBook::players[profile.id].teamID = role.id;
             addedPlayers.push_back(profile);
         }
