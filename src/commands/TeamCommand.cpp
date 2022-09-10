@@ -142,6 +142,7 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
             return { event.command.channel_id, TeamEmbeds::teamPlayerUnregisteredEmbed(profile, role) };
 
         RecordBook::teams[role.id].members.erase(profile.id);
+        RecordBook::players[profile.id].teamID = 0;
 
         return { event.command.channel_id, TeamEmbeds::teamRemovedPlayerEmbed(profile, role)};
     }

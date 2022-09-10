@@ -98,6 +98,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                 path /= replayName; // Add a replay file
                 std::filesystem::create_directories(path.parent_path()); // add directories based on the object path
 
+                // Save the downloaded data to a local file
                 std::ofstream ofs(path, std::ios::out | std::ios::binary);
                 ofs << response.body;
                 ofs.close();
