@@ -11,6 +11,8 @@ class MatchEmbeds {
 
 public:
 
+    static dpp::embed matchHelpEmbed();
+
     // On success
     static dpp::embed matchReplayProcessing(int matchID);
     static dpp::embed matchCompleteEmbed(int matchID);

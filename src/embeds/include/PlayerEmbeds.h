@@ -10,6 +10,8 @@
 class PlayerEmbeds {
 
 public:
+    static dpp::embed playerHelpEmbed();
+
     // On success
     static dpp::embed playerView(dpp::user profile);
     static dpp::embed playerAddedUsername(dpp::user user, string username);

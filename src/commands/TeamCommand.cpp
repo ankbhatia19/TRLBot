@@ -36,6 +36,10 @@ dpp::slashcommand TeamCommand::cmd(dpp::snowflake botID) {
             dpp::command_option(dpp::co_sub_command, "view", "View all teams or the indicated team")
                     .add_option(dpp::command_option(dpp::co_role, "role", "The team role", false))
     );
+    teamcmd.add_option(
+            /* Create another subcommand type option for "help". */
+            dpp::command_option(dpp::co_sub_command, "help", "The help page for this command")
+    );
 
     return teamcmd;
 }
@@ -45,7 +49,10 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
     dpp::command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
 
-    if (subcommand.name == "register"){
+    if (subcommand.name == "help") {
+        return { event.command.channel_id, TeamEmbeds::teamHelpEmbed() };
+    }
+    else if (subcommand.name == "register"){
 
         if (!Utilities::checkPerms(interaction))
             return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };

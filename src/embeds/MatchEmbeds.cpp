@@ -139,3 +139,21 @@ dpp::embed MatchEmbeds::matchPlayersNotOnTeam(vector<unsigned long long int> tea
 
     return embed;
 }
+
+dpp::embed MatchEmbeds::matchHelpEmbed() {
+    std::ostringstream body;
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["match"], "match", "create");
+    body << " `[Home Role]` `[Away Role]`\\*: Create a match between two teams. ";
+    body << "The generated ID will be used to submit replays after match completion.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["match"], "match", "submit");
+    body << " `[Match ID]` `[Replay Files]`: Submit replays for a given match. Currently supports BO5 format (minimum of 3 and maximum of 5 .replay files).\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["match"], "match", "remove");
+    body << "`[Match ID]`\\*: Remove a given match.\n\n";
+    body << "Commands marked by an asterisk (\\*) are only usable by League Staff.";
+
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Help Page: Match")
+            .add_field("Info", body.str(), false);
+
+    return embed;
+}

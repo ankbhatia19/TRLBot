@@ -98,3 +98,22 @@ dpp::embed PlayerEmbeds::playerAddedUsername(dpp::user user, string username) {
 
     return embed;
 }
+
+dpp::embed PlayerEmbeds::playerHelpEmbed() {
+    std::ostringstream body;
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "register");
+    body << " `[Username]`: Register a Rocket League username. This step is required for all players.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "register");
+    body << " `[Username]` `[Player]`\\*: Register a Rocket League username to the provided player.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info");
+    body << ": View your player card with all tracked statistics and registered usernames.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info");
+    body << "`[Player]`: View the player card of the provided player.\n\n";
+    body << "Commands marked by an asterisk (\\*) are only usable by League Staff.";
+
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Help Page: Player")
+            .add_field("Info", body.str(), false);
+
+    return embed;
+}

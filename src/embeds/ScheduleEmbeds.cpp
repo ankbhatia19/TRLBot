@@ -166,3 +166,21 @@ dpp::embed ScheduleEmbeds::scheduleMatchDoesNotExist(int id) {
 
     return embed;
 }
+
+dpp::embed ScheduleEmbeds::scheduleHelpEmbed() {
+    std::ostringstream body;
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["schedule"], "schedule", "view");
+    body << ": View all matches, divided into unplayed and completed groups.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["schedule"], "schedule", "view");
+    body << " `[Match ID]`: View the details of the desired match. The result differs depending on whether the match has been completed or not.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["schedule"], "schedule", "edit");
+    body << " `[Match ID]` `[Date]` `[Time]` (Under Construction): Set the desired match to be played at the provided time.\n\n";
+
+    body << "Commands marked by an asterisk (\\*) are only usable by League Staff.";
+
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Help Page: Schedule")
+            .add_field("Info", body.str(), false);
+
+    return embed;
+}

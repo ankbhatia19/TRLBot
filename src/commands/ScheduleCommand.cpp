@@ -28,6 +28,10 @@ dpp::slashcommand ScheduleCommand::cmd(dpp::snowflake botID) {
                     .add_option(dpp::command_option(dpp::co_string, "date", "The date to schedule this match", true))
                     .add_option(dpp::command_option(dpp::co_string, "time", "The time to schedule this match", true))
     );
+    schedcmd.add_option(
+            /* Create another subcommand type option for "help". */
+            dpp::command_option(dpp::co_sub_command, "help", "The help page for this command")
+    );
 
     return schedcmd;
 }
@@ -37,7 +41,10 @@ dpp::message ScheduleCommand::msg(const dpp::slashcommand_t &event, dpp::cluster
     dpp::command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
 
-    if (subcommand.name == "view"){
+    if (subcommand.name == "help") {
+        return { event.command.channel_id, ScheduleEmbeds::scheduleHelpEmbed() };
+    }
+    else if (subcommand.name == "view"){
         if (subcommand.options.empty()){
             return { event.command.channel_id, ScheduleEmbeds::scheduleViewAllMatches() };
         }

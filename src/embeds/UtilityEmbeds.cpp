@@ -47,6 +47,27 @@ dpp::embed UtilityEmbeds::pingEmbed(std::string uptime) {
     return embed;
 }
 
+dpp::embed UtilityEmbeds::helpEmbed() {
+    std::ostringstream body;
+
+    body << "There are four groups of commands available for use:\n\n";
+    body << "`/match`: Create, remove, and submit replays for a match.\n";
+    body << "More info: " << dpp::utility::slashcommand_mention(Utilities::cmd_map["match"], "match", "help") << "\n\n";
+    body << "`/team`: Manage and view registered teams as well as add or remove players from a team.\n";
+    body << "More info: " << dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "help") << "\n\n";
+    body << "`/player`: Register Rocket League usernames and view stats of a player.\n";
+    body << "More info: " << dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "help") << "\n\n";
+    body << "`/schedule`: View all scheduled matches, or the details of a particular match.\n";
+    body << "More info: " << dpp::utility::slashcommand_mention(Utilities::cmd_map["schedule"], "schedule", "help") << "\n\n";
+    body << "Tip: You can interact with the above mentioned slashcommands to automatically fill the command in for you!";
+
+    dpp::embed embed = embedTemplate()
+            .set_title("Help Page")
+            .add_field("Info", body.str(), false);
+
+    return embed;
+}
+
 dpp::embed UtilityEmbeds::insufficientPermsEmbed(dpp::interaction interaction) {
 
     dpp::embed embed = embedTemplate()

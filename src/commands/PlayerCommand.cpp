@@ -18,6 +18,10 @@ dpp::slashcommand PlayerCommand::cmd(dpp::snowflake botID) {
                     .add_option(dpp::command_option(dpp::co_string, "name", "The username to add", true))
                     .add_option(dpp::command_option(dpp::co_user, "user", "The user to which the username should be added", false))
     );
+    playercmd.add_option(
+            /* Create another subcommand type option for "help". */
+            dpp::command_option(dpp::co_sub_command, "help", "The help page for this command")
+    );
 
     return playercmd;
 }
@@ -27,7 +31,10 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
     dpp::command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
 
-    if (subcommand.name == "info"){
+    if (subcommand.name == "help") {
+        return { event.command.channel_id, PlayerEmbeds::playerHelpEmbed() };
+    }
+    else if (subcommand.name == "info"){
         dpp::user profile;
         if (subcommand.options.empty()){
             // view info of self

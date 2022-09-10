@@ -11,6 +11,8 @@
 class ScheduleEmbeds {
 
 public:
+    static dpp::embed scheduleHelpEmbed();
+
     // On Success
     static dpp::embed scheduleViewAllMatches();
     static dpp::embed scheduleViewMatch(int id);

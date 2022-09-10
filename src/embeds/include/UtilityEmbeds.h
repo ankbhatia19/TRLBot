@@ -20,6 +20,8 @@ class UtilityEmbeds {
 public:
     static dpp::embed pingEmbed(string uptime);
 
+    static dpp::embed helpEmbed();
+
     static dpp::embed insufficientPermsEmbed(dpp::interaction interaction);
 
     static dpp::embed loadingEmbed();

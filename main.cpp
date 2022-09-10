@@ -1,6 +1,7 @@
 #include <dpp/dpp.h>
 
 #include "src/commands/include/PingCommand.h"
+#include "src/commands/include/HelpCommand.h"
 #include "src/commands/include/TeamCommand.h"
 #include "src/commands/include/MatchCommand.h"
 #include "src/commands/include/PlayerCommand.h"
@@ -18,6 +19,9 @@ int main() {
 
         if (interaction.get_command_name() == "ping") {
             event.reply(PingCommand::msg(event, bot));
+        }
+        else if (interaction.get_command_name() == "help"){
+            event.reply(HelpCommand::msg(event, bot));
         }
         else if (interaction.get_command_name() == "match"){
             event.reply(MatchCommand::msg(event, bot));
@@ -37,6 +41,7 @@ int main() {
         if (dpp::run_once<struct register_bot_commands>()) {
             vector<dpp::slashcommand> CommandGroup = {
                     PingCommand::cmd(bot.me.id),
+                    HelpCommand::cmd(bot.me.id),
                     MatchCommand::cmd(bot.me.id),
                     TeamCommand::cmd(bot.me.id),
                     ScheduleCommand::cmd(bot.me.id),

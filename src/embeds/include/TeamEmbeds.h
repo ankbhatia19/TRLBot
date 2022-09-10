@@ -10,6 +10,8 @@
 class TeamEmbeds {
 
 public:
+    static dpp::embed teamHelpEmbed();
+
     // On Error
     static dpp::embed teamUnregisteredEmbed(dpp::role home, dpp::role away);
     static dpp::embed teamUnregisteredEmbed(dpp::role team);

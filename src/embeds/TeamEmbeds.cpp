@@ -196,3 +196,25 @@ dpp::embed TeamEmbeds::teamViewRoleEmbed(dpp::role team) {
 
     return embed;
 }
+
+dpp::embed TeamEmbeds::teamHelpEmbed() {
+    std::ostringstream body;
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "register");
+    body << " `[Team Role]`\\*: Register a role as a valid TRL team.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "delist");
+    body << " `[Team Role]`\\*: Remove a role from being a valid TRL team.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "add");
+    body << " `[Team Role]` `[Players]`\\*: Add players to the provided team. Supports a minimum of one and a maximum of three players to be added at the same time.\n"
+            "**Players may only join one team at a time, and will automatically be removed from other teams they are registered in.**\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "view");
+    body << ": View all registered teams.\n\n";
+    body << dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "view");
+    body << " `[Team Role]`: View the team card and statistics of the provided team.\n\n";
+    body << "Commands marked by an asterisk (\\*) are only usable by League Staff.";
+
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Help Page: Team")
+            .add_field("Info", body.str(), false);
+
+    return embed;
+}

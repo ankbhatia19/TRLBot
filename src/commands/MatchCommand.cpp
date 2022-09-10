@@ -30,6 +30,10 @@ dpp::slashcommand MatchCommand::cmd(dpp::snowflake botID) {
             dpp::command_option(dpp::co_sub_command, "remove", "Remove a match")
                     .add_option(dpp::command_option(dpp::co_number, "id", "The match ID to be removed", true))
     );
+    matchcmd.add_option(
+            /* Create another subcommand type option for "help". */
+            dpp::command_option(dpp::co_sub_command, "help", "The help page for this command")
+    );
 
     return matchcmd;
 }
@@ -40,7 +44,10 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
     dpp::command_interaction cmd_data = interaction.get_command_interaction();
     auto subcommand = cmd_data.options[0];
 
-    if (subcommand.name == "create") {
+    if (subcommand.name == "help") {
+        return { event.command.channel_id, MatchEmbeds::matchHelpEmbed() };
+    }
+    else if (subcommand.name == "create") {
 
         if (!Utilities::checkPerms(interaction))
             return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
