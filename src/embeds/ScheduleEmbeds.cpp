@@ -7,26 +7,15 @@
 dpp::embed ScheduleEmbeds::scheduleViewAllMatches() {
     std::ostringstream  unplayedMatchIDs;
     std::ostringstream unplayedHomeTeams, unplayedAwayTeams;
-
-    std::ostringstream  playedMatchIDs;
-    std::ostringstream playedHomeTeams, playedAwayTeams;
-    vector<Match> playedMatches, unplayedMatches;
+    vector<Match> unplayedMatches;
 
     // Sort matches by stats
     for (const auto& [key, _] : RecordBook::schedule){
         if (RecordBook::schedule[key].matchStatus == Match::status::UNPLAYED){
             unplayedMatches.emplace_back(RecordBook::schedule[key]);
         }
-        else if (RecordBook::schedule[key].matchStatus == Match::status::PLAYED){
-            playedMatches.emplace_back(RecordBook::schedule[key]);
-        }
     }
 
-    if (playedMatches.empty()){
-        playedMatchIDs << "None";
-        playedHomeTeams << "None";
-        playedAwayTeams << "None";
-    }
     if (unplayedMatches.empty()){
         unplayedMatchIDs << "None";
         unplayedHomeTeams << "None";
@@ -36,11 +25,6 @@ dpp::embed ScheduleEmbeds::scheduleViewAllMatches() {
         unplayedMatchIDs << match.id << "\n";
         unplayedHomeTeams << dpp::find_role(match.homeID)->get_mention() << "\n";
         unplayedAwayTeams << dpp::find_role(match.awayID)->get_mention() << "\n";
-    }
-    for (Match match : playedMatches){
-        playedMatchIDs << match.id << "\n";
-        playedHomeTeams << dpp::find_role(match.homeID)->get_mention() << "\n";
-        playedAwayTeams << dpp::find_role(match.awayID)->get_mention() << "\n";
     }
 
     dpp::embed embed = UtilityEmbeds::embedTemplate()
@@ -63,26 +47,6 @@ dpp::embed ScheduleEmbeds::scheduleViewAllMatches() {
             .add_field(
                     "Away",
                     unplayedAwayTeams.str(),
-                    true
-            )
-            .add_field(
-                    "__Completed__",
-                    "_ _",
-                    false
-            )
-            .add_field(
-                    "Match ID",
-                    playedMatchIDs.str(),
-                    true
-            )
-            .add_field(
-                    "Home",
-                    playedHomeTeams.str(),
-                    true
-            )
-            .add_field(
-                    "Away",
-                    playedAwayTeams.str(),
                     true
             );
 

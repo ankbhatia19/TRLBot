@@ -85,12 +85,38 @@ dpp::embed PlayerEmbeds::playerUsernameExists(dpp::user profile, string name){
     return embed;
 }
 
+dpp::embed PlayerEmbeds::playerUsernameDoesNotExist(dpp::user profile, string name){
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Error")
+            .add_field("Username not found: ",
+                       profile.get_mention() + " does not have the username " + name
+                       + "\n\nUse "
+                       + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info")
+                       + " to view all registered usernames."
+            );
+    return embed;
+}
+
 dpp::embed PlayerEmbeds::playerAddedUsername(dpp::user user, string username) {
     dpp::embed embed = UtilityEmbeds::embedTemplate()
             .set_title("Added username")
             .add_field(
                     "Rocket League username registered:",
                     username + " to " + user.get_mention() + "\n\nUse "
+                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info")
+                    + " to view all registered usernames.",
+                    false
+            );
+
+    return embed;
+}
+
+dpp::embed PlayerEmbeds::playerRemovedUsername(dpp::user user, string username) {
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Removed username")
+            .add_field(
+                    "Rocket League username unregistered:",
+                    username + " from " + user.get_mention() + "\n\nUse "
                     + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info")
                     + " to view all registered usernames.",
                     false
