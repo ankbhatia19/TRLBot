@@ -17,6 +17,7 @@ class Player {
 
 public:
     Player(unsigned long long id);
+    Player(nlohmann::json);
     Player();
     vector<string> aliases;
 
@@ -42,6 +43,8 @@ public:
     unsigned long long teamID;
 
     bool containsAlias(string alias);
+
+    nlohmann::json to_json();
 };
 
 

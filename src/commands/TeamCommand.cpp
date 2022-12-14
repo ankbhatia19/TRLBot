@@ -63,7 +63,8 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
         if (RecordBook::teams.contains(role.id))
             return { event.command.channel_id, UtilityEmbeds::errorEmbed("Team [" + role.name + "] already exists.") };
 
-        RecordBook::teams.insert({role.id, {role.id}});
+        RecordBook::teams.insert({role.id, {(unsigned long long)role.id}});
+        RecordBook::save_team(role.id);
         return { event.command.channel_id, TeamEmbeds::teamRegisteredEmbed(role) };
     }
     else  if (subcommand.name == "delist"){
@@ -118,7 +119,9 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
 
             RecordBook::players[profile.id].teamID = role.id;
             addedPlayers.push_back(profile);
+            RecordBook::save_player(profile.id);
         }
+        RecordBook::save_team(role.id);
         return { event.command.channel_id, TeamEmbeds::teamAddedPlayersEmbed(addedPlayers, role) };
     }
     else if (subcommand.name == "remove"){
@@ -143,7 +146,8 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
 
         RecordBook::teams[role.id].members.erase(profile.id);
         RecordBook::players[profile.id].teamID = 0;
-
+        RecordBook::save_player(profile.id);
+        RecordBook::save_team(role.id);
         return { event.command.channel_id, TeamEmbeds::teamRemovedPlayerEmbed(profile, role)};
     }
     else if (subcommand.name == "view"){

@@ -9,6 +9,12 @@
 #include "src/include/Utilities.h"
 
 int main() {
+
+    // Load all saved data
+    RecordBook::fill_schedule();
+    RecordBook::fill_players();
+    RecordBook::fill_teams();
+
     dpp::cluster bot(Utilities::getBotToken(), dpp::intents::i_all_intents);
 
     bot.on_log(dpp::utility::cout_logger());

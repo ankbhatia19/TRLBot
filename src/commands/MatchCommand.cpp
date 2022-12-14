@@ -237,6 +237,13 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                     RecordBook::schedule[matchID].determineWinner();
                     bot.interaction_response_edit(interaction_token, {event.command.channel_id,
                                                                       MatchEmbeds::matchCompleteEmbed(matchID)});
+                    // Save match data to json
+                    RecordBook::save_match(matchID);
+                    for (const auto& [key, _] : playerMap){
+                        RecordBook::save_player(playerMap[key].playerID);
+                    }
+                    RecordBook::save_team(RecordBook::schedule[matchID].homeID);
+                    RecordBook::save_team(RecordBook::schedule[matchID].awayID);
                 }
                 // Replay processing finished
             });

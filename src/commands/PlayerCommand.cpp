@@ -85,7 +85,7 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
         }
 
         if (!RecordBook::players.contains(profile.id)){
-            RecordBook::players.insert({profile.id, {profile.id}});
+            RecordBook::players.insert({profile.id, {(unsigned long long)profile.id}});
             std::ostringstream log_info;
             log_info << "Player created: " << profile.id;
             bot.log(dpp::loglevel::ll_info, log_info.str());
@@ -97,6 +97,7 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
         }
 
         RecordBook::players[profile.id].aliases.push_back(username);
+        RecordBook::save_player(profile.id);
 
         return { event.command.channel_id, PlayerEmbeds::playerAddedUsername(profile, username) };
     }
@@ -128,6 +129,8 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
                 ),
                 RecordBook::players[profile.id].aliases.end()
         );
+
+        RecordBook::save_player(profile.id);
 
         return { event.command.channel_id, PlayerEmbeds::playerRemovedUsername(profile, username) };
     }

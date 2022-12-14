@@ -17,12 +17,14 @@ class Team {
 public:
     Team();
     Team(unsigned long long id);
+    Team(nlohmann::json);
 
     int wins, losses;
     int differential;
     unsigned long long id;
 
     map<unsigned long long, Player> members;
+    nlohmann::json to_json();
 };
 
 

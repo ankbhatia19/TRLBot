@@ -31,7 +31,8 @@ add_executable(${PROJECT_NAME}
         src/embeds/MatchEmbeds.cpp src/embeds/include/MatchEmbeds.h
         src/embeds/ScheduleEmbeds.cpp src/embeds/include/ScheduleEmbeds.h
         src/embeds/PlayerEmbeds.cpp src/embeds/include/PlayerEmbeds.h
-        src/BallchasingClient.cpp src/include/BallchasingClient.h src/commands/HelpCommand.cpp src/commands/include/HelpCommand.h)
+        src/BallchasingClient.cpp src/include/BallchasingClient.h
+        src/commands/HelpCommand.cpp src/commands/include/HelpCommand.h)
 
 # Linking libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC

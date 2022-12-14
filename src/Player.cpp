@@ -14,6 +14,24 @@ Player::Player() {
     Player::teamID = 0;
 }
 
+Player::Player(nlohmann::json json) {
+    id = json["id"];
+    teamID = json["teamID"];
+    for (auto stat : json["stats"]){
+        stats.emplace_back(MatchStatistic{
+                stat["matchID"],
+                stat["shots"],
+                stat["goals"],
+                stat["saves"],
+                stat["assists"]
+        });
+    }
+
+    for (std::string alias : json["aliases"]){
+        aliases.emplace_back(alias);
+    }
+}
+
 int Player::getStatistic(Player::statistic stat) {
     double total = 0;
 
@@ -50,4 +68,25 @@ bool Player::containsAlias(string alias) {
     }
     return false;
 }
+
+nlohmann::json Player::to_json() {
+    nlohmann::json json;
+    json["id"] = id;
+    json["teamID"] = teamID;
+    for (int i = 0; i < stats.size(); i++){
+        json["stats"][i]["matchID"] = stats[i].matchID;
+        json["stats"][i]["shots"] = stats[i].shots;
+        json["stats"][i]["goals"] = stats[i].goals;
+        json["stats"][i]["saves"] = stats[i].saves;
+        json["stats"][i]["assists"] = stats[i].assists;
+    }
+
+    for (int i = 0; i < aliases.size(); i++){
+        json["aliases"][i] = aliases[i];
+    }
+
+    return json;
+}
+
+
 

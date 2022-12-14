@@ -6,6 +6,7 @@
 #define TRLBOT_RECORDBOOK_H
 
 #include <vector>
+#include <thread>
 #include <dpp/dpp.h>
 
 #include "Match.h"
@@ -23,6 +24,15 @@ public:
     static map<unsigned long long, Match> schedule;
     static map<unsigned long long, Team> teams;
     static map<unsigned long long, Player> players;
+
+    static void save_match(unsigned long long);
+    static void save_team(unsigned long long);
+    static void save_player(unsigned long long);
+
+
+    static void fill_schedule();
+    static void fill_teams();
+    static void fill_players();
 };
 
 

@@ -29,6 +29,25 @@ Match::Match(unsigned long long homeID, unsigned long long awayID){
     Match::ballchasingID = "";
 }
 
+Match::Match(nlohmann::json json) {
+    id = json["id"];
+    homeID = json["teams"]["home"];
+    awayID = json["teams"]["away"];
+    matchStatus = json["match"]["status"];
+    matchWinner = json["match"]["winner"];
+    ballchasingID = json["ballchasing_id"];
+
+    // We use 1 indexing for the replays, so the 0th index is always null
+    for (int replayNum = 1; replayNum < json["match"]["scores"].size(); replayNum++){
+        matchScores.insert({replayNum, vector<Match::score>()});
+        matchScores[replayNum].emplace_back(Match::score{
+                json["match"]["scores"][replayNum]["home"],
+                json["match"]["scores"][replayNum]["away"]
+        });
+    }
+    allIDs.push_back(id);
+}
+
 Match::Match() {
     id = -1;
     Match::homeID = 0;
@@ -36,6 +55,7 @@ Match::Match() {
     Match::matchStatus = status::UNPLAYED;
     Match::matchWinner = affiliation::NONE;
 }
+
 
 void Match::determineWinner() {
 
@@ -74,3 +94,27 @@ void Match::determineWinner() {
     }
     matchStatus = status::PLAYED;
 }
+
+nlohmann::json Match::to_json() {
+    nlohmann::json json;
+    json["id"] = id;
+    json["teams"]["home"] = homeID;
+    json["teams"]["away"] = awayID;
+    json["match"]["status"] = (int)matchStatus;
+    json["match"]["winner"] = (int)matchWinner;
+    json["ballchasing_id"] = ballchasingID;
+
+    for (const auto& [key, _] : matchScores) {
+        int homeGoals = 0, awayGoals = 0;
+        for (auto score: matchScores[key]) {
+            homeGoals += score.homeGoals;
+            awayGoals += score.awayGoals;
+        }
+        std::cout << "Added score " << homeGoals << " / " << awayGoals << std::endl;
+        json["match"]["scores"][key]["home"] = homeGoals;
+        json["match"]["scores"][key]["away"] = awayGoals;
+    }
+
+    return json;
+}
+
