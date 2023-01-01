@@ -7,7 +7,7 @@
 
 #include <dpp/dpp.h>
 
-#include "../../embeds/include/UtilityEmbeds.h"
+#include "UtilityEmbeds.h"
 
 class PingCommand {
 public:

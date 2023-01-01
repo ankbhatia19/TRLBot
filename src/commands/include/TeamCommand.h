@@ -7,12 +7,12 @@
 
 #include <dpp/dpp.h>
 
-#include "../../embeds/include/MatchEmbeds.h"
-#include "../../embeds/include/TeamEmbeds.h"
-#include "../../embeds/include/PlayerEmbeds.h"
-#include "../../embeds/include/ScheduleEmbeds.h"
+#include "MatchEmbeds.h"
+#include "TeamEmbeds.h"
+#include "PlayerEmbeds.h"
+#include "ScheduleEmbeds.h"
 
-#include "../../include/Utilities.h"
+#include "Utilities.h"
 
 class TeamCommand {
 public:

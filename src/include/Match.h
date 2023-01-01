@@ -8,7 +8,10 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <ctime>
+#include <random>
 #include <dpp/dpp.h>
+
 #include "Team.h"
 #include "RecordBook.h"
 
@@ -36,7 +39,7 @@ public:
 
     unsigned long long homeID, awayID;
     int id = -1;
-    struct tm* matchTime;
+    std::tm matchTime{};
     status matchStatus;
     affiliation matchWinner;
 

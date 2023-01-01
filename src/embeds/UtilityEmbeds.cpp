@@ -2,7 +2,7 @@
 // Created by ankit on 9/7/22.
 //
 
-#include "include/UtilityEmbeds.h"
+#include "UtilityEmbeds.h"
 
 dpp::embed UtilityEmbeds::embedTemplate() {
     /* create the embed */

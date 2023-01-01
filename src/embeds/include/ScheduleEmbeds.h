@@ -19,6 +19,7 @@ public:
 
     // On Error
     static dpp::embed scheduleMatchDoesNotExist(int id);
+    static dpp::embed scheduleInvalidTime();
 };
 
 

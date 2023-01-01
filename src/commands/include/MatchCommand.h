@@ -12,14 +12,14 @@
 #include <cstdlib>
 #include <filesystem>
 
-#include "../../embeds/include/MatchEmbeds.h"
-#include "../../embeds/include/TeamEmbeds.h"
-#include "../../embeds/include/PlayerEmbeds.h"
-#include "../../embeds/include/ScheduleEmbeds.h"
+#include "MatchEmbeds.h"
+#include "TeamEmbeds.h"
+#include "PlayerEmbeds.h"
+#include "ScheduleEmbeds.h"
 
-#include "../../include/RecordBook.h"
-#include "../../include/Utilities.h"
-#include "../../include/BallchasingClient.h"
+#include "RecordBook.h"
+#include "Utilities.h"
+#include "BallchasingClient.h"
 
 class MatchCommand {
 public:

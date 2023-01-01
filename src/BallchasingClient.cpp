@@ -2,7 +2,7 @@
 // Created by ankit on 9/8/22.
 //
 
-#include "include/BallchasingClient.h"
+#include "BallchasingClient.h"
 
 string BallchasingClient::token = Utilities::getBallchasingToken();
 string BallchasingClient::group_id = Utilities::getBallchasingGroup();

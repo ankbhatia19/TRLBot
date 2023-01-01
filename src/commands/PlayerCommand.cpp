@@ -2,7 +2,7 @@
 // Created by ankit on 8/28/22.
 //
 
-#include "include/PlayerCommand.h"
+#include "PlayerCommand.h"
 
 dpp::slashcommand PlayerCommand::cmd(dpp::snowflake botID) {
     dpp::slashcommand playercmd("player", "Register, remove, and view stats of a player", botID);

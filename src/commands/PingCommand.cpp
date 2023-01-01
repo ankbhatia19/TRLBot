@@ -2,7 +2,7 @@
 // Created by ankit on 8/28/22.
 //
 
-#include "include/PingCommand.h"
+#include "PingCommand.h"
 
 dpp::slashcommand PingCommand::cmd(dpp::snowflake botID) {
     dpp::slashcommand pingcmd("ping", "Pong!", botID);

@@ -14,26 +14,17 @@ add_subdirectory(libs/DPP)
 # Add cpp-httplib as a dependency
 add_subdirectory(libs/cpp-httplib)
 
-add_executable(${PROJECT_NAME}
-        main.cpp
-        src/Player.cpp src/include/Player.h
-        src/Match.cpp src/include/Match.h
-        src/RecordBook.cpp src/include/RecordBook.h
-        src/Team.cpp src/include/Team.h
-        src/commands/TeamCommand.cpp src/commands/include/TeamCommand.h
-        src/commands/MatchCommand.cpp src/commands/include/MatchCommand.h
-        src/commands/PlayerCommand.cpp src/commands/include/PlayerCommand.h
-        src/commands/ScheduleCommand.cpp src/commands/include/ScheduleCommand.h
-        src/commands/PingCommand.cpp src/commands/include/PingCommand.h
-        src/Utilities.cpp src/include/Utilities.h
-        src/embeds/UtilityEmbeds.cpp src/embeds/include/UtilityEmbeds.h
-        src/embeds/TeamEmbeds.cpp src/embeds/include/TeamEmbeds.h
-        src/embeds/MatchEmbeds.cpp src/embeds/include/MatchEmbeds.h
-        src/embeds/ScheduleEmbeds.cpp src/embeds/include/ScheduleEmbeds.h
-        src/embeds/PlayerEmbeds.cpp src/embeds/include/PlayerEmbeds.h
-        src/BallchasingClient.cpp src/include/BallchasingClient.h
-        src/commands/HelpCommand.cpp src/commands/include/HelpCommand.h
+# Create target
+add_executable(${PROJECT_NAME} main.cpp)
+
+# Set C++ version
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        CXX_STANDARD 20
+        CXX_STANDARD_REQUIRED ON
 )
+
+# Add all project dirs
+add_subdirectory(src)
 
 # Copy quotes json
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/quotes.json
@@ -55,13 +46,15 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
         $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:CPPHTTPLIB_OPENSSL_SUPPORT>
 )
 
-# Specify includes
-target_include_directories(${PROJECT_NAME} PRIVATE
+# Specify includes for dpp
+target_include_directories(${PROJECT_NAME} PUBLIC
         libs/DPP/include
 )
 
-# Set C++ version
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        CXX_STANDARD 20
-        CXX_STANDARD_REQUIRED ON
+# More user includes for QOL
+target_include_directories(${PROJECT_NAME} PUBLIC
+        src/include
+        src/commands/include
+        src/embeds/include
 )
+

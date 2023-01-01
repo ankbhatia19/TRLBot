@@ -8,11 +8,11 @@
 #include <dpp/dpp.h>
 #include <string>
 
-#include "../../include/Match.h"
-#include "../../include/Player.h"
-#include "../../include/Team.h"
-#include "../../include/RecordBook.h"
-#include "../../include/Utilities.h"
+#include "Match.h"
+#include "Player.h"
+#include "Team.h"
+#include "RecordBook.h"
+#include "Utilities.h"
 
 using namespace std;
 

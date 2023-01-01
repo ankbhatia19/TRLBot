@@ -2,7 +2,7 @@
 // Created by ankit on 8/28/22.
 //
 
-#include "include/TeamCommand.h"
+#include "TeamCommand.h"
 
 dpp::slashcommand TeamCommand::cmd(dpp::snowflake botID) {
     dpp::slashcommand teamcmd("team", "Edit and view team information and members", botID);

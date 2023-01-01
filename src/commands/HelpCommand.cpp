@@ -2,7 +2,7 @@
 // Created by ankit on 9/9/22.
 //
 
-#include "include/HelpCommand.h"
+#include "HelpCommand.h"
 
 dpp::slashcommand HelpCommand::cmd(dpp::snowflake botID) {
     dpp::slashcommand helpcmd("help", "A description of all available functions.", botID);

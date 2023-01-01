@@ -2,7 +2,7 @@
 // Created by ankit on 9/7/22.
 //
 
-#include "include/ScheduleEmbeds.h"
+#include "ScheduleEmbeds.h"
 
 dpp::embed ScheduleEmbeds::scheduleViewAllMatches() {
     std::ostringstream  unplayedMatchIDs;
@@ -61,7 +61,7 @@ dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
     std::ostringstream matchIDstr;
     std::ostringstream homeTeamPlayers;
     std::ostringstream awayTeamPlayers;
-    std::ostringstream scheduledTime;
+    std::ostringstream matchStatus;
     std::ostringstream lobbyInfo;
 
     matchIDstr << "Match ID: " << match.id;
@@ -80,8 +80,13 @@ dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
     for (const auto& [id, _] : RecordBook::teams[match.awayID].members)
         awayTeamPlayers << dpp::find_user(id)->get_mention() << "\n";
 
-    if (match.matchTime == nullptr)
-        scheduledTime << "None";
+    if (match.matchStatus == Match::status::PLAYED)
+        matchStatus << "Complete";
+    else{
+        char formatted_time[50];
+        std::strftime(formatted_time, sizeof(formatted_time), "%x at %I:%M %p", &match.matchTime);
+        matchStatus << "To be played: " << formatted_time << " PST.";
+    }
 
     lobbyInfo << "**User: ** trl\n**Pass: ** " << match.id;
     dpp::embed embed = UtilityEmbeds::embedTemplate()
@@ -101,11 +106,11 @@ dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
                     awayTeamPlayers.str(),
                     true
             )
-                    /*.add_field(
-                            "Scheduled Time",
-                            scheduledTime.str(),
-                            false
-                    )*/
+            .add_field(
+                    "Match Status",
+                    matchStatus.str(),
+                    false
+            )
             .add_field(
                     "Lobby Info",
                     lobbyInfo.str(),
@@ -145,6 +150,20 @@ dpp::embed ScheduleEmbeds::scheduleHelpEmbed() {
     dpp::embed embed = UtilityEmbeds::embedTemplate()
             .set_title("Help Page: Schedule")
             .add_field("Info", body.str(), false);
+
+    return embed;
+}
+
+dpp::embed ScheduleEmbeds::scheduleInvalidTime() {
+    std::ostringstream body;
+    body << "You have entered an invalid time.";
+
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Error")
+            .add_field(
+                    body.str(),
+                    "Please use a 12-hour format with meridiems (AM/PM). Eg: 8:00pm"
+            );
 
     return embed;
 }

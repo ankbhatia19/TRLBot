@@ -2,7 +2,7 @@
 // Created by ankit on 9/4/22.
 //
 
-#include "include/Utilities.h"
+#include "Utilities.h"
 
 map<string, unsigned long long> Utilities::cmd_map;
 
@@ -59,8 +59,8 @@ string Utilities::getQuote() {
     std::random_device rd;
     std::mt19937 mt(rd());
     int quotes_size = data["quotes"].size();
-    std::uniform_real_distribution<double> dist(0, (quotes_size - 1));
+    std::uniform_real_distribution<double> dist(0, (quotes_size));
 
-    return data["quotes"][dist(mt)];
+    return data["quotes"][(int)dist(mt)];
 }
 

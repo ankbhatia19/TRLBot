@@ -2,16 +2,16 @@
 // Created by ankit on 8/24/22.
 //
 
-#include "include/Match.h"
-#include <ctime>
-#include <cstdlib>
+#include "Match.h"
 
 vector<int> Match::allIDs;
 
 int generateID(){
-    time_t lt = time(NULL);
-    srand(lt);
-    return (rand() % 90000) + 10000; // always return a 5 digit random id
+    // Get a random number
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> dist(10000, 100000);
+    return dist(mt); // always return a 5 digit random id
 }
 
 Match::Match(unsigned long long homeID, unsigned long long awayID){
@@ -27,6 +27,9 @@ Match::Match(unsigned long long homeID, unsigned long long awayID){
     Match::matchWinner = affiliation::NONE;
 
     Match::ballchasingID = "";
+
+    std::time_t temp = time(nullptr);
+    matchTime = *(std::localtime(&temp));
 }
 
 Match::Match(nlohmann::json json) {
@@ -48,6 +51,8 @@ Match::Match(nlohmann::json json) {
         });
     }
     allIDs.push_back(id);
+    std::time_t temp = time(nullptr);
+    matchTime = *(std::localtime(&temp));
 }
 
 Match::Match() {
@@ -56,6 +61,8 @@ Match::Match() {
     Match::awayID = 0;
     Match::matchStatus = status::UNPLAYED;
     Match::matchWinner = affiliation::NONE;
+    std::time_t temp = time(nullptr);
+    matchTime = *(std::localtime(&temp));
 }
 
 

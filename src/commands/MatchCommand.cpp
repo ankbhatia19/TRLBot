@@ -2,7 +2,7 @@
 // Created by ankit on 8/28/22.
 //
 
-#include "include/MatchCommand.h"
+#include "MatchCommand.h"
 
 dpp::slashcommand MatchCommand::cmd(dpp::snowflake botID) {
 

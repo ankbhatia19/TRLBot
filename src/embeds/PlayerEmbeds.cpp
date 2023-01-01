@@ -2,7 +2,7 @@
 // Created by ankit on 9/7/22.
 //
 
-#include "include/PlayerEmbeds.h"
+#include "PlayerEmbeds.h"
 
 dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
 

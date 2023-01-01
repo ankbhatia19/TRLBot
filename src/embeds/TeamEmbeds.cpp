@@ -2,7 +2,7 @@
 // Created by ankit on 9/7/22.
 //
 
-#include "include/TeamEmbeds.h"
+#include "TeamEmbeds.h"
 
 dpp::embed TeamEmbeds::teamUnregisteredEmbed(dpp::role home, dpp::role away) {
     std::ostringstream unregistered;

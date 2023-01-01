@@ -2,7 +2,7 @@
 // Created by ankit on 8/28/22.
 //
 
-#include "include/ScheduleCommand.h"
+#include "ScheduleCommand.h"
 
 dpp::slashcommand ScheduleCommand::cmd(dpp::snowflake botID) {
     dpp::slashcommand schedcmd("schedule", "View and edit the schedule", botID);
@@ -25,7 +25,14 @@ dpp::slashcommand ScheduleCommand::cmd(dpp::snowflake botID) {
                                     .set_min_value(10000)
                                     .set_max_value(99999)
                     )
-                    .add_option(dpp::command_option(dpp::co_string, "date", "The date to schedule this match", true))
+                    .add_option(dpp::command_option(dpp::co_integer, "month", "The month to schedule this match", true)
+                                    .set_min_value(1)
+                                    .set_max_value(12)
+                    )
+                    .add_option(dpp::command_option(dpp::co_integer, "day", "The day to schedule this match", true)
+                                        .set_min_value(1)
+                                        .set_max_value(31)
+                    )
                     .add_option(dpp::command_option(dpp::co_string, "time", "The time to schedule this match", true))
     );
     schedcmd.add_option(
@@ -54,6 +61,33 @@ dpp::message ScheduleCommand::msg(const dpp::slashcommand_t &event, dpp::cluster
                 return { event.command.channel_id, ScheduleEmbeds::scheduleMatchDoesNotExist(matchID) };
             return { event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(matchID) };
         }
+    }
+    else if (subcommand.name == "edit"){
+        int matchID = std::get<int64_t>(subcommand.options[0].value);
+        if (!RecordBook::schedule.contains(matchID))
+            return { event.command.channel_id, ScheduleEmbeds::scheduleMatchDoesNotExist(matchID) };
+
+        string time = std::get<string>(subcommand.options[3].value);
+
+        if (!std::regex_match(time, std::regex("((1[0-2]|0?[1-9]):([0-5][0-9]) ?([AaPp][Mm]))"))){
+            return { event.command.channel_id, ScheduleEmbeds::scheduleInvalidTime() };
+        }
+
+        // Convert to all lowercase
+        std::transform(time.begin(), time.end(), time.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+
+        RecordBook::schedule[matchID].matchTime.tm_hour = std::stoi(time.substr(0, time.find(':')));
+        RecordBook::schedule[matchID].matchTime.tm_min = std::stoi(time.substr(time.find(':') + 1, 2));
+        RecordBook::schedule[matchID].matchTime.tm_mon = std::get<int64_t>(subcommand.options[1].value) - 1;
+        RecordBook::schedule[matchID].matchTime.tm_mday = std::get<int64_t>(subcommand.options[2].value);
+
+        if (time.find("pm") != std::string::npos)
+            RecordBook::schedule[matchID].matchTime.tm_hour += 12;
+        if (time.find("am") && (RecordBook::schedule[matchID].matchTime.tm_hour == 12))
+            RecordBook::schedule[matchID].matchTime.tm_hour -= 12;
+
+        return { event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(matchID) };
     }
 
     return { event.command.channel_id, UtilityEmbeds::testEmbed() };
