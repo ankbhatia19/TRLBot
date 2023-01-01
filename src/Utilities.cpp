@@ -48,3 +48,19 @@ void Utilities::cmd_init(dpp::slashcommand_map cmds) {
         cmd_map.insert({cmds[id].name, id});
 }
 
+string Utilities::getQuote() {
+
+    // Open quotes file
+    std::ifstream f("quotes.json");
+    json data = json::parse(f);
+    f.close();
+
+    // Get a random quote
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    int quotes_size = data["quotes"].size();
+    std::uniform_real_distribution<double> dist(0, (quotes_size - 1));
+
+    return data["quotes"][dist(mt)];
+}
+

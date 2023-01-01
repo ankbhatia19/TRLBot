@@ -54,11 +54,9 @@ dpp::embed MatchEmbeds::matchAlreadyPlayed(int matchID) {
 }
 
 dpp::embed MatchEmbeds::matchCompleteEmbed(int matchID) {
-    std::ostringstream title;
-    title << "Match #" << matchID << " Complete";
 
     dpp::embed embed = UtilityEmbeds::embedTemplate()
-            .set_title(title.str());
+            .set_title((std::ostringstream{} << "Match #" << matchID).str());
 
     embed.add_field("Home", dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention(), true);
     embed.add_field("Away", dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention(), true);
@@ -77,12 +75,19 @@ dpp::embed MatchEmbeds::matchCompleteEmbed(int matchID) {
         allStats += gameStats.str() + "\n";
     }
     embed.add_field("Game Stats", "```" + headerLine.str() + "\n" + allStats + "```", false);
+    std::ostringstream winnerLine;
     switch (RecordBook::schedule[matchID].matchWinner){
         case (Match::affiliation::HOME):
-            embed.add_field("Winner", dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention(), false);
+            winnerLine << dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention();
+            winnerLine << " **(" << RecordBook::schedule[matchID].seriesScore.homeGoals;
+            winnerLine << " - " << RecordBook::schedule[matchID].seriesScore.awayGoals << ")**";
+            embed.add_field("Winner", winnerLine.str(), false);
             break;
         case (Match::affiliation::AWAY):
-            embed.add_field("Winner", dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention(), false);
+            winnerLine << dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention();
+            winnerLine << " **(" << RecordBook::schedule[matchID].seriesScore.awayGoals;
+            winnerLine << " - " << RecordBook::schedule[matchID].seriesScore.homeGoals << ")**";
+            embed.add_field("Winner", winnerLine.str(), false);
             break;
         case Match::NONE:
             break;

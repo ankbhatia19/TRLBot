@@ -8,9 +8,8 @@ dpp::embed UtilityEmbeds::embedTemplate() {
     /* create the embed */
     dpp::embed embed = dpp::embed()
             .set_color(dpp::colors::wrx_blue)
-            .set_footer(dpp::embed_footer().set_text("TRLBot • Created by Waycey"))
-            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_topright_noBG.png")
-            .set_timestamp(time(0));
+            .set_footer(dpp::embed_footer().set_text(Utilities::getQuote()))
+            .set_thumbnail("https://raw.githubusercontent.com/ankbhatia19/TRLBot/master/assets/TRL_logo_topright_noBG.png");
 
     return embed;
 }

@@ -8,6 +8,7 @@
 #include "dpp/dpp.h"
 #include <string>
 #include <fstream>
+#include <random>
 
 using namespace std;
 
@@ -18,6 +19,8 @@ public:
     static string getBotToken();
     static string getBallchasingToken();
     static string getBallchasingGroup();
+
+    static string getQuote();
 
     static void cmd_init(dpp::slashcommand_map cmds);
 

@@ -16,6 +16,17 @@ Team::Team() {
     differential = 0;
 }
 
+Team::Team(nlohmann::json json) {
+    id = json["id"];
+    wins = json["stats"]["wins"];
+    losses = json["stats"]["losses"];
+    differential = json["stats"]["differential"];
+
+    for (const auto& member : json["members"]){
+        members.insert({member, RecordBook::players[member]});
+    }
+}
+
 nlohmann::json Team::to_json() {
     nlohmann::json json;
     json["id"] = id;
@@ -28,15 +39,4 @@ nlohmann::json Team::to_json() {
     }
 
     return json;
-}
-
-Team::Team(nlohmann::json json) {
-    id = json["id"];
-    wins = json["stats"]["wins"];
-    losses = json["stats"]["losses"];
-    differential = json["stats"]["differential"];
-
-    for (const auto& member : json["members"]){
-        members.insert({member, RecordBook::players[member]});
-    }
 }

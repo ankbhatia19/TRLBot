@@ -43,6 +43,7 @@ public:
     string ballchasingID;
 
     std::map<int, vector<score>> matchScores;
+    score seriesScore;
 
     void determineWinner();
 

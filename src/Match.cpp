@@ -35,6 +35,8 @@ Match::Match(nlohmann::json json) {
     awayID = json["teams"]["away"];
     matchStatus = json["match"]["status"];
     matchWinner = json["match"]["winner"];
+    seriesScore.homeGoals = json["match"]["score"]["home"];
+    seriesScore.awayGoals = json["match"]["score"]["away"];
     ballchasingID = json["ballchasing_id"];
 
     // We use 1 indexing for the replays, so the 0th index is always null
@@ -59,7 +61,8 @@ Match::Match() {
 
 void Match::determineWinner() {
 
-    int homeWins = 0, awayWins = 0;
+    seriesScore.homeGoals = 0;
+    seriesScore.awayGoals = 0;
 
     for (const auto& [key, _] : matchScores){
         int homeGoals = 0, awayGoals = 0;
@@ -67,20 +70,20 @@ void Match::determineWinner() {
             homeGoals += score.homeGoals;
             awayGoals += score.awayGoals;
         }
-        (homeGoals > awayGoals) ? homeWins++ : awayWins++;
+
         if (homeGoals > awayGoals){
-            homeWins++;
+            seriesScore.homeGoals++;
             RecordBook::teams[homeID].differential++;
             RecordBook::teams[awayID].differential--;
         }
         else {
-            awayWins++;
+            seriesScore.awayGoals++;
             RecordBook::teams[homeID].differential--;
             RecordBook::teams[awayID].differential++;
         }
     }
 
-    if (homeWins > awayWins){
+    if (seriesScore.homeGoals > seriesScore.awayGoals){
         matchWinner = affiliation::HOME;
 
         RecordBook::teams[homeID].wins++;
@@ -102,6 +105,8 @@ nlohmann::json Match::to_json() {
     json["teams"]["away"] = awayID;
     json["match"]["status"] = (int)matchStatus;
     json["match"]["winner"] = (int)matchWinner;
+    json["match"]["score"]["home"] = seriesScore.homeGoals;
+    json["match"]["score"]["away"] = seriesScore.awayGoals;
     json["ballchasing_id"] = ballchasingID;
 
     for (const auto& [key, _] : matchScores) {

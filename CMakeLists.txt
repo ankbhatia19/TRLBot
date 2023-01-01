@@ -32,7 +32,16 @@ add_executable(${PROJECT_NAME}
         src/embeds/ScheduleEmbeds.cpp src/embeds/include/ScheduleEmbeds.h
         src/embeds/PlayerEmbeds.cpp src/embeds/include/PlayerEmbeds.h
         src/BallchasingClient.cpp src/include/BallchasingClient.h
-        src/commands/HelpCommand.cpp src/commands/include/HelpCommand.h)
+        src/commands/HelpCommand.cpp src/commands/include/HelpCommand.h
+)
+
+# Copy quotes json
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/quotes.json
+        ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+
+# Copy config json
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.json
+        ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
 # Linking libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC
