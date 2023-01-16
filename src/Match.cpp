@@ -130,3 +130,21 @@ nlohmann::json Match::to_json() {
     return json;
 }
 
+bool Match::operator<(const Match &rhs) const {
+
+    // please.. don't ask
+    if (matchTime.tm_mon == rhs.matchTime.tm_mon){
+        if (matchTime.tm_mday == rhs.matchTime.tm_mday){
+            if (matchTime.tm_hour == rhs.matchTime.tm_hour){
+                if (matchTime.tm_min == rhs.matchTime.tm_min){
+                    return true;
+                }
+                return (matchTime.tm_min < rhs.matchTime.tm_min);
+            }
+            return (matchTime.tm_hour < rhs.matchTime.tm_hour);
+        }
+        return (matchTime.tm_mday < rhs.matchTime.tm_mday);
+    }
+    return (matchTime.tm_mon < rhs.matchTime.tm_mon);
+}
+

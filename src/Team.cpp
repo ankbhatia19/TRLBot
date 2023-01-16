@@ -40,3 +40,9 @@ nlohmann::json Team::to_json() {
 
     return json;
 }
+
+bool Team::operator<(const Team &rhs) const {
+    // Counterintuitive, yes; but a higher ranked team has a higher differential
+    // hence it should be given a smaller index in the sorted vector
+    return (differential > rhs.differential);
+}

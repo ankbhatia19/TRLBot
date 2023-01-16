@@ -43,6 +43,17 @@ string Utilities::getBallchasingGroup() {
     return group;
 }
 
+
+unsigned long long Utilities::getScoreReportChannel() {
+    std::ifstream f("config.json");
+    json data = json::parse(f);
+    unsigned long long channel = data["report_channel"].get<unsigned long long>();
+    f.close();
+
+    return channel;
+}
+
+
 void Utilities::cmd_init(dpp::slashcommand_map cmds) {
     for (const auto& [id, _] : cmds)
         cmd_map.insert({cmds[id].name, id});

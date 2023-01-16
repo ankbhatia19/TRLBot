@@ -17,14 +17,14 @@ add_subdirectory(libs/cpp-httplib)
 # Create target
 add_executable(${PROJECT_NAME} main.cpp)
 
+# Add all project dirs
+add_subdirectory(src)
+
 # Set C++ version
 set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
 )
-
-# Add all project dirs
-add_subdirectory(src)
 
 # Copy quotes json
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/quotes.json
@@ -50,11 +50,3 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PUBLIC
         libs/DPP/include
 )
-
-# More user includes for QOL
-target_include_directories(${PROJECT_NAME} PUBLIC
-        src/include
-        src/commands/include
-        src/embeds/include
-)
-

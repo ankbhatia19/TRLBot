@@ -16,6 +16,9 @@ dpp::embed ScheduleEmbeds::scheduleViewAllMatches() {
         }
     }
 
+    // Sort by time
+    std::sort(unplayedMatches.begin(), unplayedMatches.end());
+
     if (unplayedMatches.empty()){
         unplayedMatchIDs << "None";
         unplayedHomeTeams << "None";
@@ -84,8 +87,8 @@ dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
         matchStatus << "Complete";
     else{
         char formatted_time[50];
-        std::strftime(formatted_time, sizeof(formatted_time), "%x at %I:%M %p", &match.matchTime);
-        matchStatus << "To be played: " << formatted_time << " PST.";
+        std::strftime(formatted_time, sizeof(formatted_time), "%m/%e/%y, %I:%M%p", &match.matchTime);
+        matchStatus << "Incomplete (Scheduled Time: " << formatted_time << " PST.)";
     }
 
     lobbyInfo << "**User: ** trl\n**Pass: ** " << match.id;
@@ -163,6 +166,71 @@ dpp::embed ScheduleEmbeds::scheduleInvalidTime() {
             .add_field(
                     body.str(),
                     "Please use a 12-hour format with meridiems (AM/PM). Eg: 8:00pm"
+            );
+
+    return embed;
+}
+
+dpp::embed ScheduleEmbeds::scheduleViewTeamMatches(unsigned long long int role) {
+    std::ostringstream  unplayedMatchIDs;
+    std::ostringstream unplayedTeams;
+    std::ostringstream unplayedTimes;
+    vector<Match> unplayedMatches;
+
+    // Only show unplayed matches of the designated team
+    for (const auto& [key, _] : RecordBook::schedule){
+        if ((RecordBook::schedule[key].homeID == role || RecordBook::schedule[key].awayID == role)
+            && (RecordBook::schedule[key].matchStatus == Match::status::UNPLAYED)){
+            unplayedMatches.emplace_back(RecordBook::schedule[key]);
+        }
+    }
+
+    // Sort displayed matches by time
+    std::sort(unplayedMatches.begin(), unplayedMatches.end());
+
+    if (unplayedMatches.empty()){
+        unplayedMatchIDs << "None";
+        unplayedTeams << "None";
+        unplayedTimes << "None";
+    }
+    for (Match match : unplayedMatches){
+        unplayedMatchIDs << match.id << "\n";
+        if (match.homeID == role)
+            unplayedTeams << dpp::find_role(match.awayID)->get_mention() << "\n";
+        else
+            unplayedTeams << dpp::find_role(match.homeID)->get_mention() << "\n";
+
+        char formatted_time[50];
+        std::strftime(formatted_time, sizeof(formatted_time), "%m/%e/%y, %I:%M%p", &match.matchTime);
+        unplayedTimes << formatted_time << "\n";
+    }
+
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Scheduled Matches")
+            .add_field(
+                "Team",
+                dpp::find_role(role)->get_mention(),
+                false
+            )
+            .add_field(
+                    "__Unplayed__",
+                    "_ _",
+                    false
+            )
+            .add_field(
+                    "Match ID",
+                    unplayedMatchIDs.str(),
+                    true
+            )
+            .add_field(
+                    "Versus",
+                    unplayedTeams.str(),
+                    true
+            )
+            .add_field(
+                    "Time",
+                    unplayedTimes.str(),
+                    true
             );
 
     return embed;

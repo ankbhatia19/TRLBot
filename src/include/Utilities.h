@@ -19,6 +19,7 @@ public:
     static string getBotToken();
     static string getBallchasingToken();
     static string getBallchasingGroup();
+    static unsigned long long getScoreReportChannel();
 
     static string getQuote();
 

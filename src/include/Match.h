@@ -39,7 +39,7 @@ public:
 
     unsigned long long homeID, awayID;
     int id = -1;
-    std::tm matchTime{};
+    std::tm matchTime;
     status matchStatus;
     affiliation matchWinner;
 
@@ -51,6 +51,8 @@ public:
     void determineWinner();
 
     nlohmann::json to_json();
+
+    bool operator<(const Match& rhs) const;
 
 private:
     static vector<int> allIDs;

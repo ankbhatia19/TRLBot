@@ -49,9 +49,6 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
     }
     else if (subcommand.name == "create") {
 
-        if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
-
         /* Get the home role from the parameter */
         dpp::role home = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
@@ -68,6 +65,23 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
 
         return {event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(match.id) };
 
+    }
+    else if (subcommand.name == "remove"){
+
+        if (!Utilities::checkPerms(interaction))
+            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
+
+        int matchID = std::get<int64_t>(subcommand.options[0].value);
+
+        if (!RecordBook::schedule.contains(matchID)){
+            return { event.command.channel_id, MatchEmbeds::matchNotFound(matchID) };
+        }
+        if (RecordBook::schedule[matchID].matchStatus == Match::status::PLAYED){
+            return { event.command.channel_id, MatchEmbeds::matchAlreadyPlayed(matchID) };
+        }
+
+        RecordBook::schedule.erase(matchID);
+        return { event.command.channel_id, MatchEmbeds::matchRemoved(matchID) };
     }
     else if (subcommand.name == "submit"){
         int matchID = std::get<int64_t>(subcommand.options[0].value);
@@ -237,6 +251,8 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                     RecordBook::schedule[matchID].determineWinner();
                     bot.interaction_response_edit(interaction_token, {event.command.channel_id,
                                                                       MatchEmbeds::matchCompleteEmbed(matchID)});
+                    // Also send match completion embed to a separate match reporting channel
+                    bot.message_create({Utilities::getScoreReportChannel(), MatchEmbeds::matchCompleteEmbed(matchID)});
                     // Save match data to json
                     RecordBook::save_match(matchID);
                     for (const auto& [key, _] : playerMap){

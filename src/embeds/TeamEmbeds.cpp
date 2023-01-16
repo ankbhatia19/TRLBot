@@ -3,6 +3,7 @@
 //
 
 #include "TeamEmbeds.h"
+#include <ranges>
 
 dpp::embed TeamEmbeds::teamUnregisteredEmbed(dpp::role home, dpp::role away) {
     std::ostringstream unregistered;
@@ -135,19 +136,38 @@ dpp::embed TeamEmbeds::teamPlayerUnregisteredEmbed(dpp::user player, dpp::role t
 dpp::embed TeamEmbeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
 
     std::ostringstream teamList;
-    std::ostringstream teamCount;
+    std::ostringstream teamDiff;
 
     if (teams.empty())
         teamList << "No registered teams.";
 
-    for (const auto& [key, _] : teams){
-        teamList << dpp::find_role(key)->get_mention() << "\n";
+    auto team_vals = std::views::values(teams);
+    std::vector<Team> team_vector{ team_vals.begin(), team_vals.end() };
+    // Sort by game differential
+    std::sort(team_vector.begin(), team_vector.end());
+    for (auto team : team_vector){
+        teamList << dpp::find_role(team.id)->get_mention() << "\n";
+
+        if (team.differential > 0)
+            teamDiff << "+" << team.differential << "\n";
+        else if (team.differential < 0)
+            teamDiff << team.differential << "\n";
+        else
+            teamDiff << " " << team.differential << "\n";
     }
-    teamCount << "Registered Teams: " << teams.size();
 
     dpp::embed embed = UtilityEmbeds::embedTemplate()
-            .set_title("__Teams__")
-            .add_field(teamCount.str(), teamList.str());
+            .set_title("Team Leaderboard")
+            .add_field(
+                    "Team",
+                    teamList.str(),
+                    true
+            )
+            .add_field(
+                    "Differential",
+                    teamDiff.str(),
+                    true
+            );
 
     return embed;
 }

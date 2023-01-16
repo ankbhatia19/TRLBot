@@ -25,6 +25,8 @@ public:
 
     map<unsigned long long, Player> members;
     nlohmann::json to_json();
+
+    bool operator<(const Team& rhs) const;
 };
 
 

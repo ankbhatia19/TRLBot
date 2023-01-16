@@ -162,3 +162,11 @@ dpp::embed MatchEmbeds::matchHelpEmbed() {
 
     return embed;
 }
+
+dpp::embed MatchEmbeds::matchRemoved(int matchID) {
+    dpp::embed embed = UtilityEmbeds::embedTemplate()
+            .set_title("Match Removed")
+            .add_field("The following match has been removed:", std::to_string(matchID), false);
+
+    return embed;
+}

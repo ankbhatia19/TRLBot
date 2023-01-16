@@ -16,6 +16,7 @@ public:
     // On success
     static dpp::embed matchReplayProcessing(int matchID);
     static dpp::embed matchCompleteEmbed(int matchID);
+    static dpp::embed matchRemoved(int matchID);
 
     // On Error
     static dpp::embed matchNotFound(int matchID);

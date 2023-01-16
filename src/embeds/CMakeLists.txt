@@ -7,3 +7,5 @@ target_sources(${CMAKE_PROJECT_NAME} PUBLIC
         TeamEmbeds.cpp
         UtilityEmbeds.cpp
 )
+
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC include)

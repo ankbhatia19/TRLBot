@@ -16,6 +16,7 @@ public:
     // On Success
     static dpp::embed scheduleViewAllMatches();
     static dpp::embed scheduleViewMatch(int id);
+    static dpp::embed scheduleViewTeamMatches(unsigned long long role);
 
     // On Error
     static dpp::embed scheduleMatchDoesNotExist(int id);
