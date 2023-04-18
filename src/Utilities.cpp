@@ -47,7 +47,7 @@ string Utilities::getBallchasingGroup() {
 unsigned long long Utilities::getScoreReportChannel() {
     std::ifstream f("config.json");
     json data = json::parse(f);
-    unsigned long long channel = data["report_channel"].get<unsigned long long>();
+    unsigned long long channel = data["report_channel"].get<long>();
     f.close();
 
     return channel;
