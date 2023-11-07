@@ -39,6 +39,7 @@ public:
     vector<MatchStatistic> stats;
 
     int getStatistic(statistic stat);
+    double getStatisticAvg(statistic stat);
     unsigned long long id;
     unsigned long long teamID;
 

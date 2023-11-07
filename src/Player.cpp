@@ -56,9 +56,13 @@ int Player::getStatistic(Player::statistic stat) {
             // (Goals) + (Assists * 0.75) + (Saves * 0.6) + (Shots / 3) ) / Games Played
             for (auto game : stats)
                 total += 250 + (250 * (game.goals + (game.assists * 0.75) + (game.saves * 0.6) + (game.shots / 3.0)));
-            return round(total / stats.size());
+            return (int)total;
     }
     return 0;
+}
+
+double Player::getStatisticAvg(Player::statistic stat) {
+    return (getStatistic(stat) / stats.size());
 }
 
 bool Player::containsAlias(string alias) {
