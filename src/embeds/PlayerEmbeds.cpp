@@ -10,18 +10,19 @@ dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
 
     std::ostringstream stats;
     if (player.stats.empty()){
-        stats << "Goals:        " << 0 << "\n";
-        stats << "Saves:        " << 0 << "\n";
-        stats << "Shots:        " << 0 << "\n";
-        stats << "Assists:      " << 0 << "\n";
-        stats << "TRL MMR:      " << 0 << "\n";
+        stats << "Goals:     " << 0 << "\n";
+        stats << "Saves:     " << 0 << "\n";
+        stats << "Shots:     " << 0 << "\n";
+        stats << "Assists:   " << 0 << "\n";
+        stats << "TRL MMR:   " << 0 << "\n";
     }
     else {
-        stats << "Goals:        " << player.getStatistic(Player::GOALS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::GOALS)      << "]" << "\n";
-        stats << "Saves:        " << player.getStatistic(Player::SAVES)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SAVES)      << "]" << "\n";
-        stats << "Shots:        " << player.getStatistic(Player::SHOTS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SHOTS)      << "]" << "\n";
-        stats << "Assists:      " << player.getStatistic(Player::ASSISTS)       << "   [" << setprecision(3) << player.getStatisticAvg(Player::ASSISTS)    << "]" << "\n";
-        stats << "TRL MMR:      " << (int)player.getStatisticAvg(Player::AVG_MVPR)   << "\n";
+        stats << "Goals:     " << player.getStatistic(Player::GOALS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::GOALS)      << "]" << "\n";
+        stats << "Saves:     " << player.getStatistic(Player::SAVES)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SAVES)      << "]" << "\n";
+        stats << "Shots:     " << player.getStatistic(Player::SHOTS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SHOTS)      << "]" << "\n";
+        stats << "Assists:   " << player.getStatistic(Player::ASSISTS)       << "   [" << setprecision(3) << player.getStatisticAvg(Player::ASSISTS)    << "]" << "\n";
+        stats << "Games      " << (int)player.getStatistic(Player::NUM_GAMES)       << "\n";
+        stats << "TRL MMR:   " << (int)player.getStatisticAvg(Player::AVG_MVPR)     << "\n";
     }
 
     std::ostringstream usernames;

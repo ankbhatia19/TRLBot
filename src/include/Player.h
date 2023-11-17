@@ -34,6 +34,7 @@ public:
         GOALS,
         SAVES,
         ASSISTS,
+        NUM_GAMES,
         AVG_MVPR
     };
     vector<MatchStatistic> stats;
