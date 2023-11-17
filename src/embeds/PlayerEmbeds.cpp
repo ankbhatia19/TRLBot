@@ -18,10 +18,10 @@ dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
         stats << "TRL MMR: " << 0 << "\n";
     }
     else {
-        stats << "Goals:   " << player.getStatistic(Player::GOALS)         << "\t[" << setprecision(3) << player.getStatisticAvg(Player::GOALS)      << "]" << "\n";
-        stats << "Saves:   " << player.getStatistic(Player::SAVES)         << "\t[" << setprecision(3) << player.getStatisticAvg(Player::SAVES)      << "]" << "\n";
-        stats << "Shots:   " << player.getStatistic(Player::SHOTS)         << "\t[" << setprecision(3) << player.getStatisticAvg(Player::SHOTS)      << "]" << "\n";
-        stats << "Assists: " << player.getStatistic(Player::ASSISTS)       << "\t[" << setprecision(3) << player.getStatisticAvg(Player::ASSISTS)    << "]" << "\n";
+        stats << "Goals:   " << player.getStatistic(Player::GOALS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::GOALS)      << "]" << "\n";
+        stats << "Saves:   " << player.getStatistic(Player::SAVES)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SAVES)      << "]" << "\n";
+        stats << "Shots:   " << player.getStatistic(Player::SHOTS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SHOTS)      << "]" << "\n";
+        stats << "Assists: " << player.getStatistic(Player::ASSISTS)       << "   [" << setprecision(3) << player.getStatisticAvg(Player::ASSISTS)    << "]" << "\n";
         stats << "Games:   " << (int)player.getStatistic(Player::NUM_GAMES)       << "\n";
         stats << "TRL MMR: " << (int)player.getStatisticAvg(Player::AVG_MVPR)     << "\n";
     }
