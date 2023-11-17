@@ -21,7 +21,7 @@ dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
         stats << "Saves:        " << player.getStatistic(Player::SAVES)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SAVES)      << "]" << "\n";
         stats << "Shots:        " << player.getStatistic(Player::SHOTS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SHOTS)      << "]" << "\n";
         stats << "Assists:      " << player.getStatistic(Player::ASSISTS)       << "   [" << setprecision(3) << player.getStatisticAvg(Player::ASSISTS)    << "]" << "\n";
-        stats << "TRL MMR:      " << player.getStatisticAvg(Player::AVG_MVPR)   << "\n";
+        stats << "TRL MMR:      " << setprecision(4) << player.getStatisticAvg(Player::AVG_MVPR)   << "\n";
     }
 
     std::ostringstream usernames;
