@@ -62,7 +62,7 @@ int Player::getStatistic(Player::statistic stat) {
 }
 
 double Player::getStatisticAvg(Player::statistic stat) {
-    return (getStatistic(stat) / stats.size());
+    return ((double)getStatistic(stat) / stats.size());
 }
 
 bool Player::containsAlias(string alias) {

@@ -17,11 +17,11 @@ dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
         stats << "TRL MMR:      " << 0 << "\n";
     }
     else {
-        stats << "Goals:        " << player.getStatisticAvg(Player::GOALS) << "\n";
-        stats << "Saves:        " << player.getStatisticAvg(Player::SAVES) << "\n";
-        stats << "Shots:        " << player.getStatisticAvg(Player::SHOTS) << "\n";
-        stats << "Assists:      " << player.getStatisticAvg(Player::ASSISTS) << "\n";
-        stats << "TRL MMR:      " << player.getStatisticAvg(Player::AVG_MVPR) << "\n";
+        stats << "Goals:        " << player.getStatistic(Player::GOALS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::GOALS)      << "]" << "\n";
+        stats << "Saves:        " << player.getStatistic(Player::SAVES)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SAVES)      << "]" << "\n";
+        stats << "Shots:        " << player.getStatistic(Player::SHOTS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SHOTS)      << "]" << "\n";
+        stats << "Assists:      " << player.getStatistic(Player::ASSISTS)       << "   [" << setprecision(3) << player.getStatisticAvg(Player::ASSISTS)    << "]" << "\n";
+        stats << "TRL MMR:      " << player.getStatisticAvg(Player::AVG_MVPR)   << "\n";
     }
 
     std::ostringstream usernames;
