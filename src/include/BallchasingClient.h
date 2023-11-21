@@ -8,10 +8,12 @@
 #include <httplib.h>
 #include <dpp/dpp.h>
 #include <string>
+#include <nlohmann/json.hpp>
 
 #include "Utilities.h"
 
 using namespace std;
+using json = nlohmann::json;
 
 class BallchasingClient {
 public:

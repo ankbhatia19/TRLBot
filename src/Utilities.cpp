@@ -7,7 +7,7 @@
 map<string, unsigned long long> Utilities::cmd_map;
 
 bool Utilities::checkPerms(dpp::interaction i) {
-    auto roles = i.member.roles;
+    auto roles = i.member.get_roles();
     for (auto snowflake : roles){
         if (dpp::find_role(snowflake)->name == "League Staff")
             return true;

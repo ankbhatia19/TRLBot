@@ -56,7 +56,8 @@ dpp::message ScheduleCommand::msg(const dpp::slashcommand_t &event, dpp::cluster
 
             // Check if any of the user's roles are a team role
             for (const auto& [role, _] : RecordBook::teams){
-                if (std::find(event.command.member.roles.begin(), event.command.member.roles.end(), (dpp::snowflake)role) != event.command.member.roles.end()){
+
+                if (std::find(event.command.member.get_roles().begin(), event.command.member.get_roles().end(), (dpp::snowflake)role) != event.command.member.get_roles().end()){
                     return { event.command.channel_id, ScheduleEmbeds::scheduleViewTeamMatches(role) };
                 }
             }

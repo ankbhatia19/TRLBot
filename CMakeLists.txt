@@ -1,5 +1,8 @@
+## aarch64 cross compilation broken for the time being, pls fix dpp
+# set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/raspi.toolchain.cmake)
+
 cmake_minimum_required(VERSION 3.22)
-project(TRLBot VERSION 1.0 DESCRIPTION "A discord bot")
+project(TRLBot VERSION 1.0 DESCRIPTION "A discord bot for Triton Rocket League.")
 set(CMAKE_CXX_STANDARD 20)
 
 #set(OPENSSL_USE_STATIC_LIBS TRUE)

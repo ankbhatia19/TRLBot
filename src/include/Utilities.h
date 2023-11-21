@@ -6,11 +6,13 @@
 #define TRLBOT_UTILITIES_H
 
 #include "dpp/dpp.h"
+#include <nlohmann/json.hpp>
 #include <string>
 #include <fstream>
 #include <random>
 
 using namespace std;
+using json = nlohmann::json;
 
 class Utilities {
 public:

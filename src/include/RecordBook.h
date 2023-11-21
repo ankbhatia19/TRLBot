@@ -8,12 +8,14 @@
 #include <vector>
 #include <thread>
 #include <dpp/dpp.h>
+#include <nlohmann/json.hpp>
 
 #include "Match.h"
 #include "Player.h"
 #include "Team.h"
 
 using namespace std;
+using json = nlohmann::json;
 
 class Match;
 class Team;
