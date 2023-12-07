@@ -11,12 +11,8 @@ __Required Packages:__
 
 ```shell
 sudo apt install                    \  
-   qemu-user                        \  
-   qemu-user-static                 \  
-   gcc-aarch64-linux-gnu            \  
-   g++-aarch64-linux-gnu            \  
-   binutils-aarch64-linux-gnu       \  
-   binutils-aarch64-linux-gnu-dbg   \
+   libssl-dev                       \
+   zlib1g-dev                       \
    cmake                            \
    ninja-build                      \
    build-essential  
