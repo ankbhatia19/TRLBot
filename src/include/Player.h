@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <dpp/dpp.h>
+#include "SQLiteCpp/SQLiteCpp.h"
 #include "Match.h"
 #include "Team.h"
 
@@ -47,6 +48,12 @@ public:
     bool containsAlias(string alias);
 
     nlohmann::json to_json();
+
+    static void table_init(SQLite::Database& db);
+
+    static void table_upsert(SQLite::Database& db, int64_t player_id, const string& username);
+
+    static int64_t table_get(SQLite::Database& db, const string& username);
 };
 
 

@@ -9,10 +9,12 @@
 #include <thread>
 #include <dpp/dpp.h>
 #include <nlohmann/json.hpp>
+#include <SQLiteCpp/SQLiteCpp.h>
 
 #include "Match.h"
 #include "Player.h"
 #include "Team.h"
+#include "Game.h"
 
 using namespace std;
 using json = nlohmann::json;

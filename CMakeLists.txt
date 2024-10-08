@@ -17,6 +17,9 @@ add_subdirectory(libs/DPP)
 # Add cpp-httplib as a dependency
 add_subdirectory(libs/cpp-httplib)
 
+# Add sqlite-cpp as a dep
+add_subdirectory(libs/sqlitecpp)
+
 # Create target
 add_executable(${PROJECT_NAME} main.cpp)
 
@@ -43,6 +46,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
         $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:OpenSSL::Crypto>
         httplib
         dpp
+        SQLiteCpp
+        sqlite3
+        pthread
+        dl
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC

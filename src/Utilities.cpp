@@ -75,3 +75,20 @@ string Utilities::getQuote() {
     return data["quotes"][(int)dist(mt)];
 }
 
+// Helper function to bind values dynamically
+void Utilities::bind_val(SQLite::Statement& stmt, int index, const json& value) {
+    if (value.is_null()) {
+        stmt.bind(index, nullptr); // Bind NULL for null values
+    } else if (value.is_boolean()) {
+        stmt.bind(index, value.get<bool>());
+    } else if (value.is_number_integer()) {
+        stmt.bind(index, value.get<int64_t>());
+    } else if (value.is_number_float()) {
+        stmt.bind(index, value.get<double>());
+    } else if (value.is_string()) {
+        stmt.bind(index, value.get<std::string>());
+    } else {
+        throw std::runtime_error("Unsupported JSON type");
+    }
+}
+

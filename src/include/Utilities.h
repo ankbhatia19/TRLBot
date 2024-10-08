@@ -7,6 +7,7 @@
 
 #include "dpp/dpp.h"
 #include <nlohmann/json.hpp>
+#include "SQLiteCpp/SQLiteCpp.h"
 #include <string>
 #include <fstream>
 #include <random>
@@ -28,6 +29,8 @@ public:
     static void cmd_init(dpp::slashcommand_map cmds);
 
     static map<string, unsigned long long> cmd_map;
+
+    static void bind_val(SQLite::Statement& stmt, int index, const json& value);
 };
 
 

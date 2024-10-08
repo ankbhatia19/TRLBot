@@ -84,6 +84,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
         return { event.command.channel_id, MatchEmbeds::matchRemoved(matchID) };
     }
     else if (subcommand.name == "submit"){
+
         int matchID = std::get<int64_t>(subcommand.options[0].value);
         string interaction_token = event.command.token;
 
@@ -106,6 +107,9 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
             string replayName = filename.str();
 
             bot.request(replay.url, dpp::http_method::m_get, [&bot, &event, interaction_token, matchID, replayName, replayNum, totalNumReplays](const dpp::http_request_completion_t& response) {
+
+                SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
+                Game::table_init(db);
 
                 // Download a replay
                 std::filesystem::path path{ "Replays" }; // creates a local replays folder
@@ -133,6 +137,14 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
 
                 // 3. Download replay data from ballchasing
                 json replayData = ballchasing.pull(uploadData["id"].get<std::string>());
+
+                for (auto player_json : replayData["blue"]["players"]){
+                    Game::insert(db, Player::table_get(db, player_json["name"]), matchID, replayNum, player_json["stats"]);
+                }
+
+                for (auto player_json : replayData["orange"]["players"]){
+                    Game::insert(db, Player::table_get(db, player_json["name"]), matchID, replayNum, player_json["stats"]);
+                }
 
                 // Pre-process replays
                 // Create a map such that get(username) will return color, index, player ID, and home/away
@@ -166,6 +178,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                         }
                     }
                 }
+
 
                 // Check if all players are accounted for- if not, generate an error
                 vector<string> unregistered;
@@ -247,6 +260,8 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                 std::ostringstream log_info;
                 log_info << "Submitted replay " << replayNum << "/" << totalNumReplays << " (match #" << matchID << ")";
                 bot.log(dpp::loglevel::ll_info, log_info.str());
+
+
                 if (replayNum == totalNumReplays) {
                     RecordBook::schedule[matchID].determineWinner();
                     bot.interaction_response_edit(interaction_token, {event.command.channel_id,

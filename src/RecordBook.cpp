@@ -101,3 +101,16 @@ void RecordBook::fill_teams() {
         teams.insert({data["id"], Team{data}});
     }
 }
+//
+//void RecordBook::create_matches_table(SQLite::Database &db) {
+//    db.exec("CREATE TABLE IF NOT EXISTS Matches ("
+//            "id INTEGER PRIMARY KEY, "
+//            "home_id INTEGER NOT NULL, "
+//            "away_id INTEGER NOT NULL, "
+//            "match_status INTEGER, "
+//            "ballchasing_id TEXT, "
+//            "match_time INTEGER, " // Unix timestamp
+//    );
+
+
+//}

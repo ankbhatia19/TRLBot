@@ -5,6 +5,7 @@ add_subdirectory(embeds)
 target_sources(${CMAKE_PROJECT_NAME} PUBLIC
         BallchasingClient.cpp
         Match.cpp
+        Game.cpp
         Player.cpp
         RecordBook.cpp
         Team.cpp

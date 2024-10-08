@@ -84,6 +84,10 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
             profile = interaction.get_issuing_user();
         }
 
+        SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
+        Player::table_init(db);
+        Player::table_upsert(db, profile.id, username);
+
         if (!RecordBook::players.contains(profile.id)){
             RecordBook::players.insert({profile.id, {(unsigned long long)profile.id}});
             std::ostringstream log_info;
