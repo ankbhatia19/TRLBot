@@ -14,7 +14,6 @@
 #include <SQLiteCpp/SQLiteCpp.h>
 
 #include "Team.h"
-#include "RecordBook.h"
 
 using namespace std;
 

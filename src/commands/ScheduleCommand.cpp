@@ -54,50 +54,22 @@ dpp::message ScheduleCommand::msg(const dpp::slashcommand_t &event, dpp::cluster
     else if (subcommand.name == "view"){
         if (subcommand.options.empty()){
 
-            // Check if any of the user's roles are a team role
-            for (const auto& [role, _] : RecordBook::teams){
-
-                if (std::find(event.command.member.get_roles().begin(), event.command.member.get_roles().end(), (dpp::snowflake)role) != event.command.member.get_roles().end()){
-                    return { event.command.channel_id, ScheduleEmbeds::scheduleViewTeamMatches(role) };
-                }
-            }
-
-            return { event.command.channel_id, ScheduleEmbeds::scheduleViewAllMatches() };
+            return { event.command.channel_id, UtilityEmbeds::testEmbed() };
         }
         else {
-            int matchID = std::get<int64_t>(subcommand.options[0].value);
-            if (!RecordBook::schedule.contains(matchID))
-                return { event.command.channel_id, ScheduleEmbeds::scheduleMatchDoesNotExist(matchID) };
-            return { event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(matchID) };
+            SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
+            int match_id = std::get<int64_t>(subcommand.options[0].value);
+
+            if (!Match::has_id(db, match_id))
+                return { event.command.channel_id, ScheduleEmbeds::scheduleMatchDoesNotExist(match_id) };
+
+            return { event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(match_id) };
         }
     }
     else if (subcommand.name == "edit"){
         int matchID = std::get<int64_t>(subcommand.options[0].value);
-        if (!RecordBook::schedule.contains(matchID))
-            return { event.command.channel_id, ScheduleEmbeds::scheduleMatchDoesNotExist(matchID) };
 
-        string time = std::get<string>(subcommand.options[3].value);
-
-        if (!std::regex_match(time, std::regex("((1[0-2]|0?[1-9]):([0-5][0-9]) ?([AaPp][Mm]))"))){
-            return { event.command.channel_id, ScheduleEmbeds::scheduleInvalidTime() };
-        }
-
-        // Convert to all lowercase
-        std::transform(time.begin(), time.end(), time.begin(),[](unsigned char c){
-            return std::tolower(c);
-        });
-
-        RecordBook::schedule[matchID].matchTime.tm_hour = std::stoi(time.substr(0, time.find(':')));
-        RecordBook::schedule[matchID].matchTime.tm_min = std::stoi(time.substr(time.find(':') + 1, 2));
-        RecordBook::schedule[matchID].matchTime.tm_mon = std::get<int64_t>(subcommand.options[1].value) - 1;
-        RecordBook::schedule[matchID].matchTime.tm_mday = std::get<int64_t>(subcommand.options[2].value);
-        // Handle edge cases
-        if (time.find("pm") != std::string::npos)
-            RecordBook::schedule[matchID].matchTime.tm_hour += 12;
-        if ((time.find("am") != std::string::npos) && (RecordBook::schedule[matchID].matchTime.tm_hour == 12))
-            RecordBook::schedule[matchID].matchTime.tm_hour -= 12;
-
-        return { event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(matchID) };
+        return { event.command.channel_id, UtilityEmbeds::testEmbed() };
     }
 
     return { event.command.channel_id, UtilityEmbeds::testEmbed() };

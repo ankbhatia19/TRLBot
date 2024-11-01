@@ -66,45 +66,6 @@ Match::Match() {
 }
 
 
-void Match::determineWinner() {
-
-    seriesScore.homeGoals = 0;
-    seriesScore.awayGoals = 0;
-
-    for (const auto& [key, _] : matchScores){
-        int homeGoals = 0, awayGoals = 0;
-        for (auto score : matchScores[key]){
-            homeGoals += score.homeGoals;
-            awayGoals += score.awayGoals;
-        }
-
-        if (homeGoals > awayGoals){
-            seriesScore.homeGoals++;
-            RecordBook::teams[homeID].differential++;
-            RecordBook::teams[awayID].differential--;
-        }
-        else {
-            seriesScore.awayGoals++;
-            RecordBook::teams[homeID].differential--;
-            RecordBook::teams[awayID].differential++;
-        }
-    }
-
-    if (seriesScore.homeGoals > seriesScore.awayGoals){
-        matchWinner = affiliation::HOME;
-
-        RecordBook::teams[homeID].wins++;
-        RecordBook::teams[awayID].losses++;
-    }
-    else{
-        matchWinner = affiliation::AWAY;
-
-        RecordBook::teams[homeID].losses++;
-        RecordBook::teams[awayID].wins++;
-    }
-    matchStatus = status::PLAYED;
-}
-
 nlohmann::json Match::to_json() {
     nlohmann::json json;
     json["id"] = id;

@@ -4,57 +4,6 @@
 
 #include "ScheduleEmbeds.h"
 
-dpp::embed ScheduleEmbeds::scheduleViewAllMatches() {
-    std::ostringstream  unplayedMatchIDs;
-    std::ostringstream unplayedHomeTeams, unplayedAwayTeams;
-    vector<Match> unplayedMatches;
-
-    // Sort matches by stats
-    for (const auto& [key, _] : RecordBook::schedule){
-        if (RecordBook::schedule[key].matchStatus == Match::status::UNPLAYED){
-            unplayedMatches.emplace_back(RecordBook::schedule[key]);
-        }
-    }
-
-    // Sort by time
-    std::sort(unplayedMatches.begin(), unplayedMatches.end());
-
-    if (unplayedMatches.empty()){
-        unplayedMatchIDs << "None";
-        unplayedHomeTeams << "None";
-        unplayedAwayTeams << "None";
-    }
-    for (Match match : unplayedMatches){
-        unplayedMatchIDs << match.id << "\n";
-        unplayedHomeTeams << dpp::find_role(match.homeID)->get_mention() << "\n";
-        unplayedAwayTeams << dpp::find_role(match.awayID)->get_mention() << "\n";
-    }
-
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
-            .set_title("All Scheduled Matches")
-            .add_field(
-                    "__Unplayed__",
-                    "_ _",
-                    false
-            )
-            .add_field(
-                    "Match ID",
-                    unplayedMatchIDs.str(),
-                    true
-            )
-            .add_field(
-                    "Home",
-                    unplayedHomeTeams.str(),
-                    true
-            )
-            .add_field(
-                    "Away",
-                    unplayedAwayTeams.str(),
-                    true
-            );
-
-    return embed;
-}
 
 dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
     SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
@@ -156,71 +105,6 @@ dpp::embed ScheduleEmbeds::scheduleInvalidTime() {
             .add_field(
                     body.str(),
                     "Please use a 12-hour format with meridiems (AM/PM). Eg: 8:00pm"
-            );
-
-    return embed;
-}
-
-dpp::embed ScheduleEmbeds::scheduleViewTeamMatches(unsigned long long int role) {
-    std::ostringstream  unplayedMatchIDs;
-    std::ostringstream unplayedTeams;
-    std::ostringstream unplayedTimes;
-    vector<Match> unplayedMatches;
-
-    // Only show unplayed matches of the designated team
-    for (const auto& [key, _] : RecordBook::schedule){
-        if ((RecordBook::schedule[key].homeID == role || RecordBook::schedule[key].awayID == role)
-            && (RecordBook::schedule[key].matchStatus == Match::status::UNPLAYED)){
-            unplayedMatches.emplace_back(RecordBook::schedule[key]);
-        }
-    }
-
-    // Sort displayed matches by time
-    std::sort(unplayedMatches.begin(), unplayedMatches.end());
-
-    if (unplayedMatches.empty()){
-        unplayedMatchIDs << "None";
-        unplayedTeams << "None";
-        unplayedTimes << "None";
-    }
-    for (Match match : unplayedMatches){
-        unplayedMatchIDs << match.id << "\n";
-        if (match.homeID == role)
-            unplayedTeams << dpp::find_role(match.awayID)->get_mention() << "\n";
-        else
-            unplayedTeams << dpp::find_role(match.homeID)->get_mention() << "\n";
-
-        char formatted_time[50];
-        std::strftime(formatted_time, sizeof(formatted_time), "%m/%e/%y, %I:%M%p", &match.matchTime);
-        unplayedTimes << formatted_time << "\n";
-    }
-
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
-            .set_title("Scheduled Matches")
-            .add_field(
-                "Team",
-                dpp::find_role(role)->get_mention(),
-                false
-            )
-            .add_field(
-                    "__Unplayed__",
-                    "_ _",
-                    false
-            )
-            .add_field(
-                    "Match ID",
-                    unplayedMatchIDs.str(),
-                    true
-            )
-            .add_field(
-                    "Versus",
-                    unplayedTeams.str(),
-                    true
-            )
-            .add_field(
-                    "Time",
-                    unplayedTimes.str(),
-                    true
             );
 
     return embed;

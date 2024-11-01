@@ -59,6 +59,12 @@ public:
     static int64_t get_team(SQLite::Database& db, const string& username);
     static int64_t get_team(SQLite::Database& db, int64_t player_id);
 
+    static bool has_id(SQLite::Database& db, int64_t player_id);
+
+    static double get_war(SQLite::Database& db, int64_t player_id);
+
+    static vector<string> get_names(SQLite::Database& db, int64_t player_id);
+
     double get_statistic(SQLite::Database& db, statistic stat);
     double get_statistic(SQLite::Database& db, statistic stat, int64_t match_id);
 };

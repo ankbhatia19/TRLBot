@@ -16,30 +16,6 @@ Team::Team() {
     differential = 0;
 }
 
-Team::Team(nlohmann::json json) {
-    id = json["id"];
-    wins = json["stats"]["wins"];
-    losses = json["stats"]["losses"];
-    differential = json["stats"]["differential"];
-
-    for (const auto& member : json["members"]){
-        members.insert({member, RecordBook::players[member]});
-    }
-}
-
-nlohmann::json Team::to_json() {
-    nlohmann::json json;
-    json["id"] = id;
-    json["stats"]["wins"] = wins;
-    json["stats"]["losses"] = losses;
-    json["stats"]["differential"] = differential;
-
-    for (const auto& [key, _] : members){
-        json["members"].emplace_back(key);
-    }
-
-    return json;
-}
 
 bool Team::operator<(const Team &rhs) const {
     // Counterintuitive, yes; but a higher ranked team has a higher differential

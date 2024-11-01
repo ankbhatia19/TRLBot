@@ -7,7 +7,6 @@ target_sources(${CMAKE_PROJECT_NAME} PUBLIC
         Match.cpp
         Game.cpp
         Player.cpp
-        RecordBook.cpp
         Team.cpp
         Utilities.cpp
 )

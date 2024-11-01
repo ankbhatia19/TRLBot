@@ -41,6 +41,9 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
         return { event.command.channel_id, PlayerEmbeds::playerHelpEmbed() };
     }
     else if (subcommand.name == "info"){
+
+        SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
+
         dpp::user profile;
         if (subcommand.options.empty())
             // view info of self
@@ -50,7 +53,8 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
             profile = interaction.get_resolved_user(
                     subcommand.get_value<dpp::snowflake>(0)
             );
-        if (!RecordBook::players.contains(profile.id))
+
+        if (!Player::has_id(db, profile.id))
             return { event.command.channel_id, PlayerEmbeds::playerNotFound(profile) };
 
         return { event.command.channel_id, PlayerEmbeds::playerView(profile) };
@@ -72,7 +76,6 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
         }
 
         SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
-        Player::table_init(db);
 
         if (Player::add_name(db, profile.id, username))
             return { event.command.channel_id, PlayerEmbeds::playerAddedUsername(profile, username) };
@@ -80,37 +83,8 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
             return { event.command.channel_id, PlayerEmbeds::playerUsernameExists(*dpp::find_user(profile.id), username) };
     }
     else if (subcommand.name == "unregister"){
-        string username = std::get<string>(subcommand.options[0].value);
-        dpp::user profile;
-        if (subcommand.options.size() == 2){
-            // ensure that permission requirements are met
-            if (!Utilities::checkPerms(interaction))
-                return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
 
-            profile = interaction.get_resolved_user(
-                    subcommand.get_value<dpp::snowflake>(1)
-            );
-        }
-        else {
-            profile = interaction.get_issuing_user();
-        }
-
-        if (!RecordBook::players[profile.id].containsAlias(username)){
-            return { event.command.channel_id, PlayerEmbeds::playerUsernameDoesNotExist(profile, username) };
-        }
-
-        RecordBook::players[profile.id].aliases.erase(
-                std::remove(
-                    RecordBook::players[profile.id].aliases.begin(),
-                    RecordBook::players[profile.id].aliases.end(),
-                    username
-                ),
-                RecordBook::players[profile.id].aliases.end()
-        );
-
-        RecordBook::save_player(profile.id);
-
-        return { event.command.channel_id, PlayerEmbeds::playerRemovedUsername(profile, username) };
+        return { event.command.channel_id, UtilityEmbeds::testEmbed() };
     }
 
     return { event.command.channel_id, UtilityEmbeds::testEmbed() };

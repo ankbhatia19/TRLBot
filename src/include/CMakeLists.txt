@@ -3,7 +3,6 @@ target_sources(${CMAKE_PROJECT_NAME} PUBLIC
         Match.h
         Game.h
         Player.h
-        RecordBook.h
         Team.h
         Utilities.h
 )

@@ -5,46 +5,6 @@
 #include "TeamEmbeds.h"
 #include <ranges>
 
-dpp::embed TeamEmbeds::teamUnregisteredEmbed(dpp::role home, dpp::role away) {
-    std::ostringstream unregistered;
-
-    if (!RecordBook::teams.contains(home.id)){
-        unregistered << home.get_mention() << "\n";
-    }
-    if (!RecordBook::teams.contains(away.id)){
-        unregistered << away.get_mention() << " \n";
-    }
-
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
-            .set_title("Error")
-            .add_field(
-                    "These team(s) have not been registered: ",
-                    unregistered.str() + "\nUse "
-                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "register")
-                    + " to create a team."
-            );
-
-    return embed;
-}
-
-dpp::embed TeamEmbeds::teamUnregisteredEmbed(dpp::role team) {
-    std::ostringstream unregistered;
-    unregistered << "";
-    if (!RecordBook::teams.contains(team.id)){
-        unregistered << team.get_mention() << "\n";
-    }
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
-            .set_title("Error")
-            .add_field(
-                    "These team(s) have not been registered: ",
-                    unregistered.str() + "\nUse "
-                    + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "register")
-                    + " to create a team."
-            );
-
-    return embed;
-}
-
 dpp::embed TeamEmbeds::teamRegisteredEmbed(dpp::role team) {
 
     dpp::embed embed = UtilityEmbeds::embedTemplate()
@@ -172,50 +132,6 @@ dpp::embed TeamEmbeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
     return embed;
 }
 
-dpp::embed TeamEmbeds::teamViewRoleEmbed(dpp::role team) {
-    std::ostringstream players;
-    std::ostringstream stats;
-
-    Team thisTeam = RecordBook::teams[team.id];
-
-    if (thisTeam.members.empty()){
-        players << "None\n";
-    }
-    for (const auto& [id, _] : thisTeam.members){
-        if (dpp::find_user(id) == nullptr)
-            return UtilityEmbeds::errorEmbed("Member list is still being loaded. Try again in a few minutes.");
-
-        players << dpp::find_user(id)->get_mention() << "\n";
-    }
-
-    stats << "Series Wins:          " << thisTeam.wins << "\n";
-    stats << "Series Losses:        " << thisTeam.losses << "\n";
-    if (thisTeam.differential > 0)
-        stats << "Game Differential:   +" << thisTeam.differential << "\n";
-    else if (thisTeam.differential < 0)
-        stats << "Game Differential:   " << thisTeam.differential << "\n";
-    else
-        stats << "Game Differential:    " << thisTeam.differential << "\n";
-
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
-            .set_title("Team Card")
-            .add_field(
-                    "Team",
-                    team.get_mention(),
-                    true
-            )
-            .add_field(
-                    "Roster",
-                    players.str(),
-                    true
-            )
-            .add_field(
-                    "Stats",
-                    "```" + stats.str() + "```"
-            );
-
-    return embed;
-}
 
 dpp::embed TeamEmbeds::teamHelpEmbed() {
     std::ostringstream body;

@@ -6,37 +6,25 @@
 
 dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
 
-    Player player = RecordBook::players[profile.id];
+    SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
 
     std::ostringstream stats;
-    if (player.stats.empty()){
-        stats << "Goals:   " << 0 << "\n";
-        stats << "Saves:   " << 0 << "\n";
-        stats << "Shots:   " << 0 << "\n";
-        stats << "Assists: " << 0 << "\n";
-        stats << "Games:   " << 0 << "\n";
-        stats << "TRL MMR: " << 0 << "\n";
-    }
-    else {
-        stats << "Goals:   " << player.getStatistic(Player::GOALS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::GOALS)      << "]" << "\n";
-        stats << "Saves:   " << player.getStatistic(Player::SAVES)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SAVES)      << "]" << "\n";
-        stats << "Shots:   " << player.getStatistic(Player::SHOTS)         << "   [" << setprecision(3) << player.getStatisticAvg(Player::SHOTS)      << "]" << "\n";
-        stats << "Assists: " << player.getStatistic(Player::ASSISTS)       << "   [" << setprecision(3) << player.getStatisticAvg(Player::ASSISTS)    << "]" << "\n";
-        stats << "Games:   " << (int)player.getStatistic(Player::NUM_GAMES)       << "\n";
-        stats << "TRL MMR: " << (int)player.getStatisticAvg(Player::AVG_MVPR)     << "\n";
-    }
+    stats << "TRL WAR: " << setprecision(3) << Player::get_war(db, profile.id) << "\n";
 
     std::ostringstream usernames;
-    if (player.aliases.empty())
+    vector<string> aliases = Player::get_names(db, profile.id);
+
+    if (aliases.empty())
         usernames << "None";
-    for (auto name : player.aliases)
+    for (auto name : aliases)
         usernames << name << "\n";
 
     std::ostringstream team;
-    if (player.teamID == 0)
+    int64_t team_id = Player::get_team(db, profile.id);
+    if (team_id == 0)
         team << "None";
     else
-        team << dpp::find_role(player.teamID)->get_mention();
+        team << dpp::find_role(team_id)->get_mention();
 
     dpp::embed embed = UtilityEmbeds::embedTemplate()
             .set_title("Player Card")
