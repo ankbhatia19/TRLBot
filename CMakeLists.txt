@@ -33,10 +33,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/quotes.json
         ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
-# Copy config json
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.json
-        ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-
 # Linking libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC
         $<$<BOOL:${HTTPLIB_IS_USING_OPENSSL}>:OpenSSL::SSL>
