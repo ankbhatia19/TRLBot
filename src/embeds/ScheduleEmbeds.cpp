@@ -57,41 +57,41 @@ dpp::embed ScheduleEmbeds::scheduleViewAllMatches() {
 }
 
 dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
-    Match match = RecordBook::schedule[id];
-    if (match.matchStatus == Match::status::PLAYED)
+    SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
+
+    if (!Match::has_id(db, id))
+        return MatchEmbeds::matchNotFound(id);
+
+    if (Match::get_status(db, id) == Match::status::PLAYED)
         return MatchEmbeds::matchCompleteEmbed(id);
 
     std::ostringstream matchIDstr;
     std::ostringstream homeTeamPlayers;
     std::ostringstream awayTeamPlayers;
-    std::ostringstream matchStatus;
-    std::ostringstream lobbyInfo;
+    matchIDstr << "Match ID: " << id;
 
-    matchIDstr << "Match ID: " << match.id;
+    int64_t home_id = Match::get_team(db, id, Match::HOME);
+    int64_t away_id = Match::get_team(db, id, Match::AWAY);
 
-    homeTeamPlayers << dpp::find_role(match.homeID)->get_mention() << "\n_ _\n__Roster__\n";
-    awayTeamPlayers << dpp::find_role(match.awayID)->get_mention() << "\n_ _\n__Roster__\n";
-    if (RecordBook::teams[match.homeID].members.empty())
+
+    vector<int64_t> home_players = Team::get_players(db, home_id);
+    vector<int64_t> away_players = Team::get_players(db, away_id);
+
+    homeTeamPlayers << dpp::find_role(home_id)->get_mention() << "\n_ _\n__Roster__\n";
+    awayTeamPlayers << dpp::find_role(away_id)->get_mention() << "\n_ _\n__Roster__\n";
+
+    if (home_players.empty())
         homeTeamPlayers << "None\n";
 
-    if (RecordBook::teams[match.awayID].members.empty())
+    if (away_players.empty())
         awayTeamPlayers << "None\n";
 
-    for (const auto& [id, _] : RecordBook::teams[match.homeID].members)
-        homeTeamPlayers << dpp::find_user(id)->get_mention() << "\n";
+    for (auto player_id : home_players)
+        homeTeamPlayers << dpp::find_user(player_id)->get_mention() << "\n";
 
-    for (const auto& [id, _] : RecordBook::teams[match.awayID].members)
-        awayTeamPlayers << dpp::find_user(id)->get_mention() << "\n";
+    for (auto player_id : away_players)
+        awayTeamPlayers << dpp::find_user(player_id)->get_mention() << "\n";
 
-    if (match.matchStatus == Match::status::PLAYED)
-        matchStatus << "Complete";
-    else{
-        char formatted_time[50];
-        std::strftime(formatted_time, sizeof(formatted_time), "%m/%e/%y, %I:%M%p", &match.matchTime);
-        matchStatus << "Incomplete (Scheduled Time: " << formatted_time << " PST.)";
-    }
-
-    lobbyInfo << "**User: ** trl\n**Pass: ** " << match.id;
     dpp::embed embed = UtilityEmbeds::embedTemplate()
             .set_title(matchIDstr.str())
             .add_field(
@@ -107,16 +107,6 @@ dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
             .add_field(
                     "Away",
                     awayTeamPlayers.str(),
-                    true
-            )
-            .add_field(
-                    "Match Status",
-                    matchStatus.str(),
-                    false
-            )
-            .add_field(
-                    "Lobby Info",
-                    lobbyInfo.str(),
                     true
             );
 

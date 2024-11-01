@@ -10,10 +10,11 @@
 
 int main() {
 
-    // Load all saved data
-    RecordBook::fill_schedule();
-    RecordBook::fill_players();
-    RecordBook::fill_teams();
+    SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
+    Player::table_init(db);
+    Game::table_init(db);
+    Team::table_init(db);
+    Match::table_init(db);
 
     dpp::cluster bot(Utilities::getBotToken(), dpp::intents::i_all_intents);
 

@@ -58,42 +58,44 @@ dpp::embed MatchEmbeds::matchCompleteEmbed(int matchID) {
     dpp::embed embed = UtilityEmbeds::embedTemplate()
             .set_title((std::ostringstream{} << "Match #" << matchID).str());
 
-    embed.add_field("Home", dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention(), true);
-    embed.add_field("Away", dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention(), true);
+
+    SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
+    vector<Match::score> scores = Match::tally(db, matchID);
+
+    embed.add_field("Home", dpp::find_role(scores[0].home_team)->get_mention(), true);
+    embed.add_field("Away", dpp::find_role(scores[0].away_team)->get_mention(), true);
 
     string allStats;
-    std::ostringstream headerLine;
-    headerLine << "            " << "Home" << "    " << "Away";
-    for (const auto& [key, _] : RecordBook::schedule[matchID].matchScores){
-        int homeGoals = 0, awayGoals = 0;
-        for (auto score : RecordBook::schedule[matchID].matchScores[key]){
-            homeGoals += score.homeGoals;
-            awayGoals += score.awayGoals;
-        }
-        std::ostringstream gameStats;
-        gameStats << "Game #" << key << "      " << homeGoals << "       " << awayGoals;
-        allStats += gameStats.str() + "\n";
+
+    Match::score series_score{0, 0, 0, 0, 0};
+    allStats += (std::ostringstream{} << "            " << "Home" << "    " << "Away\n").str();
+    for (int i = 0; i < scores.size(); i++){
+        allStats += (std::ostringstream{}<< "Game #" << i << "      " << scores[i].homeGoals << "       " << scores[i].awayGoals).str() + "\n";
+
+        if (scores[i].homeGoals > scores[i].awayGoals)
+            series_score.homeGoals++;
+        if (scores[i].awayGoals > scores[i].homeGoals)
+            series_score.awayGoals++;
     }
-    embed.add_field("Game Stats", "```" + headerLine.str() + "\n" + allStats + "```", false);
+
+    embed.add_field("Game Stats", "```" + allStats + "```", false);
+
     std::ostringstream winnerLine;
-    switch (RecordBook::schedule[matchID].matchWinner){
-        case (Match::affiliation::HOME):
-            winnerLine << dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention();
-            winnerLine << " **(" << RecordBook::schedule[matchID].seriesScore.homeGoals;
-            winnerLine << " - " << RecordBook::schedule[matchID].seriesScore.awayGoals << ")**";
-            embed.add_field("Winner", winnerLine.str(), false);
-            break;
-        case (Match::affiliation::AWAY):
-            winnerLine << dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention();
-            winnerLine << " **(" << RecordBook::schedule[matchID].seriesScore.awayGoals;
-            winnerLine << " - " << RecordBook::schedule[matchID].seriesScore.homeGoals << ")**";
-            embed.add_field("Winner", winnerLine.str(), false);
-            break;
-        case Match::NONE:
-            break;
+    if (series_score.homeGoals > series_score.awayGoals) {
+        winnerLine << dpp::find_role(scores[0].home_team)->get_mention();
+        winnerLine << " **(" << series_score.homeGoals;
+        winnerLine << " - " << series_score.awayGoals << ")**";
+        embed.add_field("Winner", winnerLine.str(), false);
     }
+    if (series_score.awayGoals > series_score.homeGoals) {
+        winnerLine << dpp::find_role(scores[0].away_team)->get_mention();
+        winnerLine << " **(" << series_score.awayGoals;
+        winnerLine << " - " << series_score.homeGoals << ")**";
+        embed.add_field("Winner", winnerLine.str(), false);
+    }
+
     embed.add_field("Ballchasing Group",
-                    "https://ballchasing.com/group/" + RecordBook::schedule[matchID].ballchasingID,
+                    "https://ballchasing.com/group/" + Match::get_ballchasing_id(db, matchID),
                     false
     );
 
@@ -120,7 +122,7 @@ dpp::embed MatchEmbeds::matchPlayersNotRegistered(vector<string> unregistered) {
     return embed;
 }
 
-dpp::embed MatchEmbeds::matchPlayersNotOnTeam(vector<unsigned long long int> teamless, int matchID) {
+dpp::embed MatchEmbeds::matchPlayersNotOnTeam(vector<int64_t> teamless, int matchID) {
     std::ostringstream unregisteredString;
     for (auto id : teamless){
         unregisteredString << dpp::find_user(id)->get_mention() << " ";
@@ -130,11 +132,11 @@ dpp::embed MatchEmbeds::matchPlayersNotOnTeam(vector<unsigned long long int> tea
             .set_title("Error Submitting Replays")
             .add_field(
                     "Please ensure all players are on a team.",
-                    "The following players are not registered to either "
-                    + dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention()
-                    + " or "
-                    + dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention()
-                    + ":\n\n"
+                    "The following players are not registered to either team: "
+                    //+ dpp::find_role(RecordBook::schedule[matchID].homeID)->get_mention()
+                    //+ " or "
+                    //+ dpp::find_role(RecordBook::schedule[matchID].awayID)->get_mention()
+                    //+ ":\n\n"
                     + unregisteredString.str()
                     + "\n\nUse "
                     + dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "add")

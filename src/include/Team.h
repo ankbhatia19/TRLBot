@@ -7,8 +7,11 @@
 
 #include <vector>
 #include <dpp/dpp.h>
+#include <SQLiteCpp/SQLiteCpp.h>
+
 #include "Player.h"
 #include "Match.h"
+#include "Utilities.h"
 using namespace std;
 
 class Player;
@@ -27,6 +30,13 @@ public:
     nlohmann::json to_json();
 
     bool operator<(const Team& rhs) const;
+
+    static void table_init(SQLite::Database& db);
+
+    static Utilities::ErrorCode add_team(SQLite::Database& db, int64_t team_id);
+    static Utilities::ErrorCode add_player(SQLite::Database& db, int64_t team_id, int64_t player_id);
+
+    static vector<int64_t> get_players(SQLite::Database& db, int64_t team_id);
 };
 
 

@@ -31,6 +31,14 @@ public:
     static map<string, unsigned long long> cmd_map;
 
     static void bind_val(SQLite::Statement& stmt, int index, const json& value);
+
+    enum ErrorCode{
+        kError = 0,
+        kSuccess = 1,
+        kPlayerNotRegistered = 2,
+        kUsernameExists = 3,
+
+    };
 };
 
 

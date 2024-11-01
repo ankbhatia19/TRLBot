@@ -9,6 +9,7 @@
 #include <string>
 #include <dpp/dpp.h>
 #include "SQLiteCpp/SQLiteCpp.h"
+#include "Utilities.h"
 #include "Match.h"
 #include "Team.h"
 
@@ -51,9 +52,15 @@ public:
 
     static void table_init(SQLite::Database& db);
 
-    static void table_upsert(SQLite::Database& db, int64_t player_id, const string& username);
+    static Utilities::ErrorCode add_name(SQLite::Database& db, int64_t player_id, const string& username);
+    static Utilities::ErrorCode add_team(SQLite::Database& db, int64_t player_id, int64_t team_id);
 
-    static int64_t table_get(SQLite::Database& db, const string& username);
+    static int64_t get_id(SQLite::Database& db, const string& username);
+    static int64_t get_team(SQLite::Database& db, const string& username);
+    static int64_t get_team(SQLite::Database& db, int64_t player_id);
+
+    double get_statistic(SQLite::Database& db, statistic stat);
+    double get_statistic(SQLite::Database& db, statistic stat, int64_t match_id);
 };
 
 

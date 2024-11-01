@@ -42,29 +42,16 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
     }
     else if (subcommand.name == "info"){
         dpp::user profile;
-        if (subcommand.options.empty()){
+        if (subcommand.options.empty())
             // view info of self
             profile = interaction.get_issuing_user();
-        }
-        else {
+        else
             // view info of tagged player
             profile = interaction.get_resolved_user(
                     subcommand.get_value<dpp::snowflake>(0)
             );
-        }
         if (!RecordBook::players.contains(profile.id))
             return { event.command.channel_id, PlayerEmbeds::playerNotFound(profile) };
-
-        cout << "Player ID: " << RecordBook::players[profile.id].id << endl;
-        cout << "Team ID: " << RecordBook::players[profile.id].teamID << endl;
-        cout << "Stats List: " << endl;
-        for (auto stat : RecordBook::players[profile.id].stats){
-            cout << "{" << stat.matchID << ", "<< stat.goals << ", "<< stat.shots << ", "<< stat.assists << ", " << stat.saves << "}" << endl;
-        }
-        cout << "Aliases List: " << endl;
-        for (auto name : RecordBook::players[profile.id].aliases){
-            cout << name << endl;
-        }
 
         return { event.command.channel_id, PlayerEmbeds::playerView(profile) };
     }
@@ -84,26 +71,13 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
             profile = interaction.get_issuing_user();
         }
 
-        SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
+        SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
         Player::table_init(db);
-        Player::table_upsert(db, profile.id, username);
 
-        if (!RecordBook::players.contains(profile.id)){
-            RecordBook::players.insert({profile.id, {(unsigned long long)profile.id}});
-            std::ostringstream log_info;
-            log_info << "Player created: " << profile.id;
-            bot.log(dpp::loglevel::ll_info, log_info.str());
-        }
-
-        for (const auto& [id, _] : RecordBook::players){
-            if (RecordBook::players[id].containsAlias(username))
-                return { event.command.channel_id, PlayerEmbeds::playerUsernameExists(*dpp::find_user(id), username) };
-        }
-
-        RecordBook::players[profile.id].aliases.push_back(username);
-        RecordBook::save_player(profile.id);
-
-        return { event.command.channel_id, PlayerEmbeds::playerAddedUsername(profile, username) };
+        if (Player::add_name(db, profile.id, username))
+            return { event.command.channel_id, PlayerEmbeds::playerAddedUsername(profile, username) };
+        else
+            return { event.command.channel_id, PlayerEmbeds::playerUsernameExists(*dpp::find_user(profile.id), username) };
     }
     else if (subcommand.name == "unregister"){
         string username = std::get<string>(subcommand.options[0].value);

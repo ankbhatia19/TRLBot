@@ -17,7 +17,7 @@ Player::Player() {
 Player::Player(nlohmann::json json) {
     id = json["id"];
     teamID = json["teamID"];
-    for (auto stat : json["stats"]){
+    for (auto stat: json["stats"]) {
         stats.emplace_back(MatchStatistic{
                 stat["matchID"],
                 stat["shots"],
@@ -27,7 +27,7 @@ Player::Player(nlohmann::json json) {
         });
     }
 
-    for (std::string alias : json["aliases"]){
+    for (std::string alias: json["aliases"]) {
         aliases.emplace_back(alias);
     }
 }
@@ -35,40 +35,40 @@ Player::Player(nlohmann::json json) {
 int Player::getStatistic(Player::statistic stat) {
     double total = 0;
 
-    switch (stat){
+    switch (stat) {
         case (GOALS):
-            for (auto game : stats)
+            for (auto game: stats)
                 total += game.goals;
-            return (int)total;
+            return (int) total;
         case (ASSISTS):
-            for (auto game : stats)
+            for (auto game: stats)
                 total += game.assists;
-            return (int)total;
+            return (int) total;
         case (SAVES):
-            for (auto game : stats)
+            for (auto game: stats)
                 total += game.saves;
-            return (int)total;
+            return (int) total;
         case (SHOTS):
-            for (auto game : stats)
+            for (auto game: stats)
                 total += game.shots;
-            return (int)total;
+            return (int) total;
         case (NUM_GAMES):
-            return (int)stats.size();
+            return (int) stats.size();
         case (AVG_MVPR):
             // (Goals) + (Assists * 0.75) + (Saves * 0.6) + (Shots / 3) ) / Games Played
-            for (auto game : stats)
+            for (auto game: stats)
                 total += 250 + (250 * (game.goals + (game.assists * 0.75) + (game.saves * 0.6) + (game.shots / 3.0)));
-            return (int)total;
+            return (int) total;
     }
     return 0;
 }
 
 double Player::getStatisticAvg(Player::statistic stat) {
-    return ((double)getStatistic(stat) / stats.size());
+    return ((double) getStatistic(stat) / stats.size());
 }
 
 bool Player::containsAlias(string alias) {
-    for (string username : aliases){
+    for (string username: aliases) {
         if (alias == username)
             return true;
     }
@@ -79,7 +79,7 @@ nlohmann::json Player::to_json() {
     nlohmann::json json;
     json["id"] = id;
     json["teamID"] = teamID;
-    for (int i = 0; i < stats.size(); i++){
+    for (int i = 0; i < stats.size(); i++) {
         json["stats"][i]["matchID"] = stats[i].matchID;
         json["stats"][i]["shots"] = stats[i].shots;
         json["stats"][i]["goals"] = stats[i].goals;
@@ -87,7 +87,7 @@ nlohmann::json Player::to_json() {
         json["stats"][i]["assists"] = stats[i].assists;
     }
 
-    for (int i = 0; i < aliases.size(); i++){
+    for (int i = 0; i < aliases.size(); i++) {
         json["aliases"][i] = aliases[i];
     }
 
@@ -99,94 +99,125 @@ void Player::table_init(SQLite::Database &db) {
         db.exec(
                 "CREATE TABLE IF NOT EXISTS player_ids ("
                 "player_id INTEGER NOT NULL, "
+                "team_id INTEGER, "
                 "usernames TEXT, "
                 "PRIMARY KEY (player_id));"
         );
         std::cout << "player_ids table initialized successfully." << std::endl;
-    } catch (const SQLite::Exception& e) {
+    } catch (const SQLite::Exception &e) {
         std::cerr << "SQLite error while initializing table: " << e.what() << std::endl;
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         std::cerr << "Standard error while initializing table: " << e.what() << std::endl;
     }
 }
 
-void Player::table_upsert(SQLite::Database& db, int64_t player_id, const std::string& username) {
-    try {
-        // Prepare a statement to fetch the current usernames as JSON
-        SQLite::Statement select_query(db, "SELECT usernames FROM player_ids WHERE player_id = ?;");
-        select_query.bind(1, player_id);
+Utilities::ErrorCode Player::add_team(SQLite::Database &db, int64_t player_id, int64_t team_id) {
 
-        std::string currentUsernamesJson;
+    SQLite::Statement query(db, R"(
+        UPDATE player_ids
+        SET team_id = ?
+        WHERE player_id = ?
+    )");
 
-        // Execute the query and get the current usernames
-        if (select_query.executeStep()) {
-            currentUsernamesJson = select_query.getColumn(0).getText();
-        }
+    // Bind the parameters: team_id and player_id
+    query.bind(1, team_id);
+    query.bind(2, player_id);
 
-        // Convert current usernames JSON to a vector of strings
-        nlohmann::json jsonUsernames;
-        std::vector<std::string> usernames;
+    if (query.exec() == 0)  // if there were no changes made
+        return Utilities::ErrorCode::kPlayerNotRegistered;
 
-        // If the JSON is an array, extract the existing usernames
-        if (!currentUsernamesJson.empty()) {
-            jsonUsernames = nlohmann::json::parse(currentUsernamesJson);
-            if (jsonUsernames.is_array()) {
-                usernames = jsonUsernames.get<std::vector<std::string>>();
-            }
-        }
-
-        // Check if the username already exists in the vector (exact match)
-        if (std::find(usernames.begin(), usernames.end(), username) == usernames.end()) {
-            // Only add the new username if it doesn't already exist
-            usernames.push_back(username);
-        }
-
-        // Convert the updated usernames vector back to JSON
-        nlohmann::json updatedUsernamesJson = usernames;
-        std::string updatedUsernamesJsonString = updatedUsernamesJson.dump();
-
-        // Prepare the upsert statement
-        SQLite::Statement upsertQuery(db,
-                                      "INSERT INTO player_ids (player_id, usernames) VALUES (?, ?) "
-                                      "ON CONFLICT(player_id) DO UPDATE SET usernames = ?;");
-
-        // Bind the values to the query
-        upsertQuery.bind(1, player_id);
-        upsertQuery.bind(2, updatedUsernamesJsonString);
-        upsertQuery.bind(3, updatedUsernamesJsonString);
-
-        // Execute the upsert query
-        upsertQuery.exec();
-
-        std::cout << "Upserted player ID: " << player_id << " with usernames: " << updatedUsernamesJsonString << std::endl;
-    } catch (const SQLite::Exception& e) {
-        std::cerr << "SQLite error while upserting player ID: " << e.what() << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Standard error while upserting player ID: " << e.what() << std::endl;
-    }
+    return Utilities::ErrorCode::kSuccess;
 }
 
-int64_t Player::table_get(SQLite::Database &db, const string &username) {
-    // Prepare the query
-    std::string query = R"(
-            SELECT player_id
-            FROM player_ids,
-                 json_each(usernames) AS username
-            WHERE username.value = ?
-        )";
+Utilities::ErrorCode Player::add_name(SQLite::Database &db, int64_t player_id, const std::string &username) {
+    // Prepare a statement to fetch the current usernames as JSON
+    SQLite::Statement select_query(db, R"(
+            SELECT usernames
+            FROM player_ids
+            WHERE player_id = ?;
+        )");
+    select_query.bind(1, player_id);
+
+    std::string currentUsernamesJson;
+
+    // Execute the query and get the current usernames (if there are any)
+    if (select_query.executeStep())
+        currentUsernamesJson = select_query.getColumn(0).getText();
+
+    // Convert current usernames JSON to a vector of strings
+    nlohmann::json jsonUsernames;
+    std::vector <std::string> usernames;
+
+    // If the JSON is an array, extract the existing usernames
+    if (!currentUsernamesJson.empty()) {
+        jsonUsernames = nlohmann::json::parse(currentUsernamesJson);
+
+        if (jsonUsernames.is_array())
+            usernames = jsonUsernames.get < std::vector < std::string >> ();
+    }
+
+    // Check if the username already exists in the vector (exact match)
+    if (std::find(usernames.begin(), usernames.end(), username) != usernames.end())
+        return Utilities::ErrorCode::kUsernameExists;
+
+    // Only add the new username if it doesn't already exist
+    usernames.push_back(username);
+
+    // Convert the updated usernames vector back to JSON
+    nlohmann::json updatedUsernamesJson = usernames;
+    std::string updatedUsernamesJsonString = updatedUsernamesJson.dump();
+
+    // Prepare the upsert statement
+    SQLite::Statement upsertQuery(db, R"(
+            INSERT INTO player_ids (player_id, usernames) VALUES (?, ?)
+            ON CONFLICT(player_id) DO UPDATE SET usernames = ?;
+        )");
+
+    // Bind the values to the query
+    upsertQuery.bind(1, player_id);
+    upsertQuery.bind(2, updatedUsernamesJsonString);
+    upsertQuery.bind(3, updatedUsernamesJsonString);
+
+    // Execute the upsert query
+    if (upsertQuery.exec() > 0)
+        return Utilities::ErrorCode::kSuccess;
+
+    return Utilities::ErrorCode::kError;
+}
+
+int64_t Player::get_id(SQLite::Database &db, const string &username) {
 
     // Prepare the statement
-    SQLite::Statement queryStmt(db, query);
+    SQLite::Statement queryStmt(db, R"(
+            SELECT player_id
+            FROM player_ids
+            JOIN json_each(player_ids.usernames) AS username
+            WHERE username.value = ?
+        )");
     queryStmt.bind(1, username); // Bind the input username
 
     // Execute the query and retrieve results
-    while (queryStmt.executeStep()) {
+    if (queryStmt.executeStep())
         return queryStmt.getColumn(0).getInt64();
-    }
 
     return 0;
 }
 
+int64_t Player::get_team(SQLite::Database &db, int64_t player_id) {
+    std::string query = R"(
+            SELECT team_id
+            FROM player_ids
+            WHERE player_id = ?
+        )";
+
+    SQLite::Statement statement(db, query);
+    statement.bind(1, player_id);
+
+    if (statement.executeStep())
+        return statement.getColumn(0).getInt64();
+
+    return 0;
+}
 
 
 
