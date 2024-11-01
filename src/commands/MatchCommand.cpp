@@ -178,6 +178,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                                 interaction_token,
                                 {event.command.channel_id, MatchEmbeds::complete(matchID)}
                         );
+                        bot.message_create({Utilities::getScoreReportChannel(), MatchEmbeds::complete(matchID)});
                     }
                 }
                 // Replay processing finished

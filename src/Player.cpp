@@ -34,60 +34,37 @@ Utilities::ErrorCode Player::add_team(SQLite::Database &db, int64_t player_id, i
     return Utilities::ErrorCode::kSuccess;
 }
 
-Utilities::ErrorCode Player::add_name(SQLite::Database &db, int64_t player_id, const std::string &username) {
-    // Prepare a statement to fetch the current usernames as JSON
-    SQLite::Statement select_query(db, R"(
-            SELECT usernames
-            FROM player_ids
+bool Player::add_name(SQLite::Database &db, int64_t player_id, const string &username) {
+
+    if (has_name(db, username))
+        return false;
+
+    if (!has_id(db, player_id)){
+        SQLite::Statement query(db, R"(
+            INSERT INTO player_ids (player_id, usernames) VALUES (?, ?)
+        )");
+
+        query.bind(1, player_id);
+        query.bind(2, json(vector<string>{username}).dump());
+
+        if (query.exec())
+            return true;
+    }
+    else {
+        SQLite::Statement query(db, R"(
+            UPDATE player_ids
+            SET usernames = json_set(usernames, '$[#]', ?)
             WHERE player_id = ?;
         )");
-    select_query.bind(1, player_id);
 
-    std::string currentUsernamesJson;
+        query.bind(1, username);
+        query.bind(2, player_id);
 
-    // Execute the query and get the current usernames (if there are any)
-    if (select_query.executeStep())
-        currentUsernamesJson = select_query.getColumn(0).getText();
-
-    // Convert current usernames JSON to a vector of strings
-    nlohmann::json jsonUsernames;
-    std::vector <std::string> usernames;
-
-    // If the JSON is an array, extract the existing usernames
-    if (!currentUsernamesJson.empty()) {
-        jsonUsernames = nlohmann::json::parse(currentUsernamesJson);
-
-        if (jsonUsernames.is_array())
-            usernames = jsonUsernames.get < std::vector < std::string >> ();
+        if (query.exec())
+            return true;
     }
 
-    // Check if the username already exists in the vector (exact match)
-    if (std::find(usernames.begin(), usernames.end(), username) != usernames.end())
-        return Utilities::ErrorCode::kUsernameExists;
-
-    // Only add the new username if it doesn't already exist
-    usernames.push_back(username);
-
-    // Convert the updated usernames vector back to JSON
-    nlohmann::json updatedUsernamesJson = usernames;
-    std::string updatedUsernamesJsonString = updatedUsernamesJson.dump();
-
-    // Prepare the upsert statement
-    SQLite::Statement upsertQuery(db, R"(
-            INSERT INTO player_ids (player_id, usernames) VALUES (?, ?)
-            ON CONFLICT(player_id) DO UPDATE SET usernames = ?;
-        )");
-
-    // Bind the values to the query
-    upsertQuery.bind(1, player_id);
-    upsertQuery.bind(2, updatedUsernamesJsonString);
-    upsertQuery.bind(3, updatedUsernamesJsonString);
-
-    // Execute the upsert query
-    if (upsertQuery.exec() > 0)
-        return Utilities::ErrorCode::kSuccess;
-
-    return Utilities::ErrorCode::kError;
+    return false;
 }
 
 int64_t Player::get_id(SQLite::Database &db, const string &username) {
@@ -197,6 +174,25 @@ vector<string> Player::get_names(SQLite::Database &db, int64_t player_id) {
     }
 
     return {};
+}
+
+bool Player::has_name(SQLite::Database &db, const string& username) {
+    SQLite::Statement query(db, R"(
+        SELECT
+            COUNT(*)
+        FROM
+            player_ids,
+            json_each(usernames) AS username
+        WHERE
+            username.value = ?;
+    )");
+
+    query.bind(1, username);
+
+    if (query.executeStep())
+        return query.getColumn(0).getInt() > 0;
+
+    return false;
 }
 
 

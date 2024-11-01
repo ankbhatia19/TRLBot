@@ -81,7 +81,7 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
             return { event.command.channel_id, PlayerEmbeds::added_username(profile, username) };
         else
             return { event.command.channel_id,
-                     PlayerEmbeds::error_duplicate_username(*dpp::find_user(profile.id), username) };
+                     PlayerEmbeds::error_duplicate_username(*dpp::find_user(Player::get_id(db, username)), username) };
     }
     else if (subcommand.name == "unregister"){
 

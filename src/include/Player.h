@@ -52,8 +52,10 @@ public:
 
     static void table_init(SQLite::Database& db);
 
-    static Utilities::ErrorCode add_name(SQLite::Database& db, int64_t player_id, const string& username);
+    static bool add_name(SQLite::Database& db, int64_t player_id, const string &username);
     static Utilities::ErrorCode add_team(SQLite::Database& db, int64_t player_id, int64_t team_id);
+
+    static bool has_name(SQLite::Database& db, const string& username);
 
     static int64_t get_id(SQLite::Database& db, const string& username);
     static int64_t get_team(SQLite::Database& db, const string& username);
