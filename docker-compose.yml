@@ -1,0 +1,13 @@
+services:
+  trlbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - BALLCHASING_TOKEN=${BALLCHASING_TOKEN}
+      - BALLCHASING_GROUP=${BALLCHASING_GROUP}
+      - REPORT_CHANNEL=${REPORT_CHANNEL}
+    volumes:
+      - ./cmake-build-debug/rocket_league.db:/app/build/rocket_league.db:rw
+    restart: unless-stopped

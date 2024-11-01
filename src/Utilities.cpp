@@ -16,41 +16,25 @@ bool Utilities::checkPerms(dpp::interaction i) {
 }
 
 string Utilities::getBotToken() {
-    std::ifstream f("config.json");
-    json data = json::parse(f);
-    string token = data["bot_token"].get<string>();
-    f.close();
-
-    return token;
+    const char* botToken = std::getenv("BOT_TOKEN");
+    return botToken ? std::string(botToken) : "";
 }
 
 string Utilities::getBallchasingToken() {
-    std::ifstream f("config.json");
-    json data = json::parse(f);
-    string token = data["ballchasing_token"].get<string>();
-    f.close();
-
-    return token;
+    const char* ballchasingToken = std::getenv("BALLCHASING_TOKEN");
+    return ballchasingToken ? std::string(ballchasingToken) : "";
 }
 
 
 string Utilities::getBallchasingGroup() {
-    std::ifstream f("config.json");
-    json data = json::parse(f);
-    string group = data["ballchasing_group"].get<string>();
-    f.close();
-
-    return group;
+    const char* ballchasingGroup = std::getenv("BALLCHASING_GROUP");
+    return ballchasingGroup ? std::string(ballchasingGroup) : "";
 }
 
 
 unsigned long long Utilities::getScoreReportChannel() {
-    std::ifstream f("config.json");
-    json data = json::parse(f);
-    unsigned long long channel = data["report_channel"].get<long>();
-    f.close();
-
-    return channel;
+    const char* reportChannel = std::getenv("REPORT_CHANNEL");
+    return reportChannel ? std::stoll(reportChannel) : 0;
 }
 
 

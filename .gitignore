@@ -1,3 +1,4 @@
+.env
 cmake-build-debug
 .idea
 config.json
