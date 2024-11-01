@@ -11,5 +11,5 @@ dpp::slashcommand HelpCommand::cmd(dpp::snowflake botID) {
 }
 
 dpp::message HelpCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bot) {
-    return { event.command.channel_id, UtilityEmbeds::helpEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::help() };
 }

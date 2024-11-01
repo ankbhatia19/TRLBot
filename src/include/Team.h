@@ -18,19 +18,7 @@ class Player;
 
 class Team {
 public:
-    Team();
-    Team(unsigned long long id);
-    Team(nlohmann::json);
-
-    int wins, losses;
-    int differential;
-    unsigned long long id;
-
-    map<unsigned long long, Player> members;
-    nlohmann::json to_json();
-
-    bool operator<(const Team& rhs) const;
-
+    
     static void table_init(SQLite::Database& db);
 
     static Utilities::ErrorCode add_team(SQLite::Database& db, int64_t team_id);

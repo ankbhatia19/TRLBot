@@ -4,7 +4,7 @@
 
 #include "PlayerEmbeds.h"
 
-dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
+dpp::embed PlayerEmbeds::view(dpp::user profile) {
 
     SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
 
@@ -26,7 +26,7 @@ dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
     else
         team << dpp::find_role(team_id)->get_mention();
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Player Card")
             .add_field(
                     "Player",
@@ -48,12 +48,11 @@ dpp::embed PlayerEmbeds::playerView(dpp::user profile) {
                     usernames.str(),
                     false
             );
-
     return embed;
 }
 
-dpp::embed PlayerEmbeds::playerNotFound(dpp::user profile) {
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+dpp::embed PlayerEmbeds::error_not_found(dpp::user profile) {
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field("This player is not registered: ",
                        profile.get_mention() + "\n\nUse "
@@ -63,8 +62,8 @@ dpp::embed PlayerEmbeds::playerNotFound(dpp::user profile) {
     return embed;
 }
 
-dpp::embed PlayerEmbeds::playerUsernameExists(dpp::user profile, string name){
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+dpp::embed PlayerEmbeds::error_duplicate_username(dpp::user profile, string name){
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field("Duplicate username entered: ",
                        profile.get_mention() + " already has registered the username " + name
@@ -75,8 +74,8 @@ dpp::embed PlayerEmbeds::playerUsernameExists(dpp::user profile, string name){
     return embed;
 }
 
-dpp::embed PlayerEmbeds::playerUsernameDoesNotExist(dpp::user profile, string name){
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+dpp::embed PlayerEmbeds::error_missing_username(dpp::user profile, string name){
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field("Username not found: ",
                        profile.get_mention() + " does not have the username " + name
@@ -87,8 +86,8 @@ dpp::embed PlayerEmbeds::playerUsernameDoesNotExist(dpp::user profile, string na
     return embed;
 }
 
-dpp::embed PlayerEmbeds::playerAddedUsername(dpp::user user, string username) {
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+dpp::embed PlayerEmbeds::added_username(dpp::user user, string username) {
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Added username")
             .add_field(
                     "Rocket League username registered:",
@@ -101,8 +100,8 @@ dpp::embed PlayerEmbeds::playerAddedUsername(dpp::user user, string username) {
     return embed;
 }
 
-dpp::embed PlayerEmbeds::playerRemovedUsername(dpp::user user, string username) {
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+dpp::embed PlayerEmbeds::removed_username(dpp::user user, string username) {
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Removed username")
             .add_field(
                     "Rocket League username unregistered:",
@@ -115,7 +114,7 @@ dpp::embed PlayerEmbeds::playerRemovedUsername(dpp::user user, string username) 
     return embed;
 }
 
-dpp::embed PlayerEmbeds::playerHelpEmbed() {
+dpp::embed PlayerEmbeds::help() {
     std::ostringstream body;
     body << dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "register");
     body << " `[Username]`: Register a Rocket League username. This step is required for all players.\n\n";
@@ -127,7 +126,7 @@ dpp::embed PlayerEmbeds::playerHelpEmbed() {
     body << "`[Player]`: View the player card of the provided player.\n\n";
     body << "Commands marked by an asterisk (\\*) are only usable by League Staff.";
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Help Page: Player")
             .add_field("Info", body.str(), false);
 

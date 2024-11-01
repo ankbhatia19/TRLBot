@@ -5,9 +5,9 @@
 #include "TeamEmbeds.h"
 #include <ranges>
 
-dpp::embed TeamEmbeds::teamRegisteredEmbed(dpp::role team) {
+dpp::embed TeamEmbeds::registered(dpp::role team) {
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Team Created")
             .add_field(
                     "Registered team: ",
@@ -19,9 +19,9 @@ dpp::embed TeamEmbeds::teamRegisteredEmbed(dpp::role team) {
     return embed;
 }
 
-dpp::embed TeamEmbeds::teamDelistedEmbed(dpp::role team) {
+dpp::embed TeamEmbeds::delisted(dpp::role team) {
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Team Removed")
             .add_field(
                     "Delisted team: ",
@@ -33,17 +33,17 @@ dpp::embed TeamEmbeds::teamDelistedEmbed(dpp::role team) {
     return embed;
 }
 
-dpp::embed TeamEmbeds::teamAddedPlayersEmbed(vector<dpp::user> players, dpp::role team) {
+dpp::embed TeamEmbeds::added_players(vector<int64_t> users, int64_t team) {
 
-    std::ostringstream playersStr;
-    for (auto user : players)
-        playersStr << user.get_mention() + " ";
+    std::ostringstream players;
+    for (auto user : users)
+        players << dpp::find_user(user)->get_mention() + " ";
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Player Added")
             .add_field(
                     "Registered player(s): ",
-                    playersStr.str() + "to " + team.get_mention() + "\n\nUse "
+                    players.str() + "to " + dpp::find_role(team)->get_mention() + "\n\nUse "
                     + dpp::utility::slashcommand_mention(Utilities::cmd_map["player"], "player", "info")
                     + " to view the player(s)."
             );
@@ -51,9 +51,9 @@ dpp::embed TeamEmbeds::teamAddedPlayersEmbed(vector<dpp::user> players, dpp::rol
     return embed;
 }
 
-dpp::embed TeamEmbeds::teamRemovedPlayerEmbed(dpp::user player, dpp::role team) {
+dpp::embed TeamEmbeds::removed_player(dpp::user player, dpp::role team) {
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Player Removed")
             .add_field(
                     "Unregistered player: ",
@@ -65,9 +65,9 @@ dpp::embed TeamEmbeds::teamRemovedPlayerEmbed(dpp::user player, dpp::role team) 
     return embed;
 }
 
-dpp::embed TeamEmbeds::teamPlayerAlreadyRegisteredEmbed(dpp::user player, dpp::role team) {
+dpp::embed TeamEmbeds::error_duplicate_player(dpp::user player, dpp::role team) {
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field(
                     "Player already registered: " ,
@@ -79,9 +79,9 @@ dpp::embed TeamEmbeds::teamPlayerAlreadyRegisteredEmbed(dpp::user player, dpp::r
     return embed;
 }
 
-dpp::embed TeamEmbeds::teamPlayerUnregisteredEmbed(dpp::user player, dpp::role team) {
+dpp::embed TeamEmbeds::error_player_not_on_team(dpp::user player, dpp::role team) {
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field(
                     "Player not registered: " ,
@@ -93,30 +93,13 @@ dpp::embed TeamEmbeds::teamPlayerUnregisteredEmbed(dpp::user player, dpp::role t
     return embed;
 }
 
-dpp::embed TeamEmbeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
+dpp::embed TeamEmbeds::view(vector<int64_t> teams) {
 
     std::ostringstream teamList;
     std::ostringstream teamDiff;
 
-    if (teams.empty())
-        teamList << "No registered teams.";
 
-    auto team_vals = std::views::values(teams);
-    std::vector<Team> team_vector{ team_vals.begin(), team_vals.end() };
-    // Sort by game differential
-    std::sort(team_vector.begin(), team_vector.end());
-    for (auto team : team_vector){
-        teamList << dpp::find_role(team.id)->get_mention() << "\n";
-
-        if (team.differential > 0)
-            teamDiff << "+" << team.differential << "\n";
-        else if (team.differential < 0)
-            teamDiff << team.differential << "\n";
-        else
-            teamDiff << " " << team.differential << "\n";
-    }
-
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Team Leaderboard")
             .add_field(
                     "Team",
@@ -133,7 +116,7 @@ dpp::embed TeamEmbeds::teamViewAllEmbed(map<unsigned long long, Team> teams) {
 }
 
 
-dpp::embed TeamEmbeds::teamHelpEmbed() {
+dpp::embed TeamEmbeds::help() {
     std::ostringstream body;
     body << dpp::utility::slashcommand_mention(Utilities::cmd_map["team"], "team", "register");
     body << " `[Team Role]`\\*: Register a role as a valid TRL team.\n\n";
@@ -148,7 +131,7 @@ dpp::embed TeamEmbeds::teamHelpEmbed() {
     body << " `[Team Role]`: View the team card and statistics of the provided team.\n\n";
     body << "Commands marked by an asterisk (\\*) are only usable by League Staff.";
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Help Page: Team")
             .add_field("Info", body.str(), false);
 

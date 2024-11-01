@@ -32,6 +32,8 @@ public:
 
     static void bind_val(SQLite::Statement& stmt, int index, const json& value);
 
+    static SQLite::Database get_db();
+
     enum ErrorCode{
         kError = 0,
         kSuccess = 1,

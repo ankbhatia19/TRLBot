@@ -14,14 +14,12 @@
 #include <SQLiteCpp/SQLiteCpp.h>
 
 #include "Team.h"
+#include "Game.h"
 
 using namespace std;
 
 class Match {
 public:
-    Match(unsigned long long homeID, unsigned long long awayID);
-    Match(nlohmann::json json);
-    Match();
 
     enum status {
         UNPLAYED = 0,
@@ -32,30 +30,13 @@ public:
         AWAY,
         NONE
     };
-    struct score{
-        int game_num;
-        int64_t home_team;
-        int64_t away_team;
-        int homeGoals;
-        int awayGoals;
+
+    struct series_score {
+        int64_t home_id;
+        int64_t away_id;
+        int home_score;
+        int away_score;
     };
-    std::map<int, vector<score>> matchScores;
-
-    unsigned long long homeID, awayID;
-    int id = -1;
-    std::tm matchTime;
-    status matchStatus;
-    affiliation matchWinner;
-
-    string ballchasingID;
-
-    score seriesScore;
-
-    void determineWinner();
-
-    nlohmann::json to_json();
-
-    bool operator<(const Match& rhs) const;
 
     static void table_init(SQLite::Database& db);
 
@@ -68,10 +49,8 @@ public:
 
     static int64_t get_team(SQLite::Database &db, int64_t match_id, Match::affiliation affilation);
     static bool has_id(SQLite::Database& db, int64_t match_id);
-    static vector<score> tally(SQLite::Database& db, int64_t match_id);
-
-private:
-    static vector<int> allIDs;
+    static vector<Game::score> tally(SQLite::Database& db, int64_t match_id);
+    static Match::series_score score(SQLite::Database& db, int64_t match_id);
 };
 
 #endif //TRLBOT_MATCH_H

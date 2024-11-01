@@ -50,12 +50,12 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "help") {
-        return { event.command.channel_id, TeamEmbeds::teamHelpEmbed() };
+        return { event.command.channel_id, TeamEmbeds::help() };
     }
     else if (subcommand.name == "register"){
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::error_missing_perms(interaction) };
         /* Get the team role from the parameter */
         dpp::role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
@@ -65,33 +65,33 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
 
         Team::add_team(db, role.id);
 
-        return { event.command.channel_id, TeamEmbeds::teamRegisteredEmbed(role) };
+        return { event.command.channel_id, TeamEmbeds::registered(role) };
     }
     else  if (subcommand.name == "delist"){
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::error_missing_perms(interaction) };
 
         /* Get the team role from the parameter */
         dpp::role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
-        return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+        return { event.command.channel_id, UtilityEmbeds::test() };
     }
     else if (subcommand.name == "add") {
 
         SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::error_missing_perms(interaction) };
 
         /* Get the team role from the parameter */
         dpp::role role = interaction.get_resolved_role(
                 subcommand.get_value<dpp::snowflake>(0)
         );
 
-        vector<dpp::user> addedPlayers;
+        vector<int64_t> added;
         for (int i = 1; i < subcommand.options.size(); i++){
             dpp::user profile = interaction.get_resolved_user(
                     subcommand.get_value<dpp::snowflake>(i)
@@ -99,15 +99,15 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
 
             Team::add_player(db, role.id, profile.id);
             Player::add_team(db, profile.id, role.id);
-            addedPlayers.emplace_back(profile);
+            added.emplace_back(profile.id);
 
         }
-        return { event.command.channel_id, TeamEmbeds::teamAddedPlayersEmbed(addedPlayers, role) };
+        return { event.command.channel_id, TeamEmbeds::added_players(added, role.id) };
     }
     else if (subcommand.name == "remove"){
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::error_missing_perms(interaction) };
 
         /* Get the team role from the parameter */
         dpp::role role = interaction.get_resolved_role(
@@ -118,11 +118,11 @@ dpp::message TeamCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& bo
                 subcommand.get_value<dpp::snowflake>(1)
         );
 
-        return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+        return { event.command.channel_id, UtilityEmbeds::test() };
     }
     else if (subcommand.name == "view"){
-        return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+        return { event.command.channel_id, UtilityEmbeds::test() };
     }
 
-    return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::test() };
 }

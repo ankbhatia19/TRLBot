@@ -4,11 +4,11 @@
 
 #include "MatchEmbeds.h"
 
-dpp::embed MatchEmbeds::matchReplayProcessing(int matchID) {
+dpp::embed MatchEmbeds::replay_processing(int matchID) {
     std::ostringstream processing;
     processing << "Processing replay for match " << matchID;
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Replay Processing")
             .add_field(
                     processing.str(),
@@ -19,11 +19,11 @@ dpp::embed MatchEmbeds::matchReplayProcessing(int matchID) {
     return embed;
 }
 
-dpp::embed MatchEmbeds::matchNotFound(int matchID) {
+dpp::embed MatchEmbeds::error_not_found(int matchID) {
     std::ostringstream error;
     error << "Match not found for Match #" << matchID;
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field(
                     error.str(),
@@ -36,11 +36,11 @@ dpp::embed MatchEmbeds::matchNotFound(int matchID) {
     return embed;
 }
 
-dpp::embed MatchEmbeds::matchAlreadyPlayed(int matchID) {
+dpp::embed MatchEmbeds::error_duplicate_submission(int matchID) {
     std::ostringstream error;
     error << "Match #" << matchID << " has already been submitted.";
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field(
                     error.str(),
@@ -53,46 +53,42 @@ dpp::embed MatchEmbeds::matchAlreadyPlayed(int matchID) {
     return embed;
 }
 
-dpp::embed MatchEmbeds::matchCompleteEmbed(int matchID) {
-
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
-            .set_title((std::ostringstream{} << "Match #" << matchID).str());
-
+dpp::embed MatchEmbeds::complete(int matchID) {
 
     SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
-    vector<Match::score> scores = Match::tally(db, matchID);
 
-    embed.add_field("Home", dpp::find_role(scores[0].home_team)->get_mention(), true);
-    embed.add_field("Away", dpp::find_role(scores[0].away_team)->get_mention(), true);
+    dpp::embed embed = UtilityEmbeds::base()
+            .set_title((std::ostringstream{} << "Match #" << matchID).str());
 
-    string allStats;
+    // first = home, second = away
+    auto series_score = Match::score(db, matchID);
+    auto game_scores = Match::tally(db, matchID);
 
-    Match::score series_score{0, 0, 0, 0, 0};
-    allStats += (std::ostringstream{} << "            " << "Home" << "    " << "Away\n").str();
-    for (int i = 0; i < scores.size(); i++){
-        allStats += (std::ostringstream{}<< "Game #" << i << "      " << scores[i].homeGoals << "       " << scores[i].awayGoals).str() + "\n";
+    embed.add_field("Home", dpp::find_role(series_score.home_id)->get_mention(), true);
+    embed.add_field("Away", dpp::find_role(series_score.away_id)->get_mention(), true);
 
-        if (scores[i].homeGoals > scores[i].awayGoals)
-            series_score.homeGoals++;
-        if (scores[i].awayGoals > scores[i].homeGoals)
-            series_score.awayGoals++;
+
+    std::ostringstream stats;
+    stats << "            " << "Home" << "    " << "Away" << std::endl;
+
+    for (auto score : game_scores)
+        stats << "Game #" << score.game_num << "      " << score.home_goals << "       " << score.away_goals << std::endl;
+
+    embed.add_field("Game Stats", "```" + stats.str() + "```", false);
+
+    std::ostringstream winner;
+    if (series_score.home_score > series_score.away_score) {
+        winner << dpp::find_role(series_score.home_id)->get_mention();
+        winner << " **(" << series_score.home_score;
+        winner << " - " << series_score.away_score << ")**";
+    }
+    if (series_score.away_score > series_score.home_score) {
+        winner << dpp::find_role(series_score.away_id)->get_mention();
+        winner << " **(" << series_score.away_score;
+        winner << " - " << series_score.home_score << ")**";
     }
 
-    embed.add_field("Game Stats", "```" + allStats + "```", false);
-
-    std::ostringstream winnerLine;
-    if (series_score.homeGoals > series_score.awayGoals) {
-        winnerLine << dpp::find_role(scores[0].home_team)->get_mention();
-        winnerLine << " **(" << series_score.homeGoals;
-        winnerLine << " - " << series_score.awayGoals << ")**";
-        embed.add_field("Winner", winnerLine.str(), false);
-    }
-    if (series_score.awayGoals > series_score.homeGoals) {
-        winnerLine << dpp::find_role(scores[0].away_team)->get_mention();
-        winnerLine << " **(" << series_score.awayGoals;
-        winnerLine << " - " << series_score.homeGoals << ")**";
-        embed.add_field("Winner", winnerLine.str(), false);
-    }
+    embed.add_field("Winner", winner.str(), false);
 
     embed.add_field("Ballchasing Group",
                     "https://ballchasing.com/group/" + Match::get_ballchasing_id(db, matchID),
@@ -102,14 +98,14 @@ dpp::embed MatchEmbeds::matchCompleteEmbed(int matchID) {
     return embed;
 }
 
-dpp::embed MatchEmbeds::matchPlayersNotRegistered(vector<string> unregistered) {
+dpp::embed MatchEmbeds::error_missing_username(vector<string> unregistered) {
 
     std::ostringstream unregisteredString;
     for (string username : unregistered){
         unregisteredString << "\"" << username << "\" ";
     }
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error Submitting Replays")
             .add_field(
                     "The following players are unregistered:",
@@ -122,13 +118,13 @@ dpp::embed MatchEmbeds::matchPlayersNotRegistered(vector<string> unregistered) {
     return embed;
 }
 
-dpp::embed MatchEmbeds::matchPlayersNotOnTeam(vector<int64_t> teamless, int matchID) {
+dpp::embed MatchEmbeds::error_missing_team(vector<int64_t> teamless, int matchID) {
     std::ostringstream unregisteredString;
     for (auto id : teamless){
         unregisteredString << dpp::find_user(id)->get_mention() << " ";
     }
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error Submitting Replays")
             .add_field(
                     "Please ensure all players are on a team.",
@@ -147,7 +143,7 @@ dpp::embed MatchEmbeds::matchPlayersNotOnTeam(vector<int64_t> teamless, int matc
     return embed;
 }
 
-dpp::embed MatchEmbeds::matchHelpEmbed() {
+dpp::embed MatchEmbeds::help() {
     std::ostringstream body;
     body << dpp::utility::slashcommand_mention(Utilities::cmd_map["match"], "match", "create");
     body << " `[Home Role]` `[Away Role]`\\*: Create a match between two teams. ";
@@ -158,15 +154,15 @@ dpp::embed MatchEmbeds::matchHelpEmbed() {
     body << "`[Match ID]`\\*: Remove a given match.\n\n";
     body << "Commands marked by an asterisk (\\*) are only usable by League Staff.";
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Help Page: Match")
             .add_field("Info", body.str(), false);
 
     return embed;
 }
 
-dpp::embed MatchEmbeds::matchRemoved(int matchID) {
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+dpp::embed MatchEmbeds::removed(int matchID) {
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Match Removed")
             .add_field("The following match has been removed:", std::to_string(matchID), false);
 

@@ -49,28 +49,28 @@ dpp::message ScheduleCommand::msg(const dpp::slashcommand_t &event, dpp::cluster
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "help") {
-        return { event.command.channel_id, ScheduleEmbeds::scheduleHelpEmbed() };
+        return { event.command.channel_id, ScheduleEmbeds::help() };
     }
     else if (subcommand.name == "view"){
         if (subcommand.options.empty()){
 
-            return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+            return { event.command.channel_id, UtilityEmbeds::test() };
         }
         else {
             SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
             int match_id = std::get<int64_t>(subcommand.options[0].value);
 
             if (!Match::has_id(db, match_id))
-                return { event.command.channel_id, ScheduleEmbeds::scheduleMatchDoesNotExist(match_id) };
+                return { event.command.channel_id, ScheduleEmbeds::error_not_found(match_id) };
 
-            return { event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(match_id) };
+            return { event.command.channel_id, ScheduleEmbeds::view(match_id) };
         }
     }
     else if (subcommand.name == "edit"){
         int matchID = std::get<int64_t>(subcommand.options[0].value);
 
-        return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+        return { event.command.channel_id, UtilityEmbeds::test() };
     }
 
-    return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::test() };
 }

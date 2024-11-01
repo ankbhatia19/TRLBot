@@ -5,14 +5,14 @@
 #include "ScheduleEmbeds.h"
 
 
-dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
+dpp::embed ScheduleEmbeds::view(int id) {
     SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
 
     if (!Match::has_id(db, id))
-        return MatchEmbeds::matchNotFound(id);
+        return MatchEmbeds::error_not_found(id);
 
     if (Match::get_status(db, id) == Match::status::PLAYED)
-        return MatchEmbeds::matchCompleteEmbed(id);
+        return MatchEmbeds::complete(id);
 
     std::ostringstream matchIDstr;
     std::ostringstream homeTeamPlayers;
@@ -41,7 +41,7 @@ dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
     for (auto player_id : away_players)
         awayTeamPlayers << dpp::find_user(player_id)->get_mention() << "\n";
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title(matchIDstr.str())
             .add_field(
                     "Home",
@@ -62,11 +62,11 @@ dpp::embed ScheduleEmbeds::scheduleViewMatch(int id) {
     return embed;
 }
 
-dpp::embed ScheduleEmbeds::scheduleMatchDoesNotExist(int id) {
+dpp::embed ScheduleEmbeds::error_not_found(int id) {
 
     std::ostringstream matchError;
     matchError << "Match ID " << id << " does not exist.";
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field(
                     matchError.str(),
@@ -78,7 +78,7 @@ dpp::embed ScheduleEmbeds::scheduleMatchDoesNotExist(int id) {
     return embed;
 }
 
-dpp::embed ScheduleEmbeds::scheduleHelpEmbed() {
+dpp::embed ScheduleEmbeds::help() {
     std::ostringstream body;
     body << dpp::utility::slashcommand_mention(Utilities::cmd_map["schedule"], "schedule", "view");
     body << ": View all matches, divided into unplayed and completed groups.\n\n";
@@ -89,18 +89,18 @@ dpp::embed ScheduleEmbeds::scheduleHelpEmbed() {
 
     body << "Commands marked by an asterisk (\\*) are only usable by League Staff.";
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Help Page: Schedule")
             .add_field("Info", body.str(), false);
 
     return embed;
 }
 
-dpp::embed ScheduleEmbeds::scheduleInvalidTime() {
+dpp::embed ScheduleEmbeds::error_invalid_time() {
     std::ostringstream body;
     body << "You have entered an invalid time.";
 
-    dpp::embed embed = UtilityEmbeds::embedTemplate()
+    dpp::embed embed = UtilityEmbeds::base()
             .set_title("Error")
             .add_field(
                     body.str(),

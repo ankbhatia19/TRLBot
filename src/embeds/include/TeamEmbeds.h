@@ -10,21 +10,21 @@
 class TeamEmbeds {
 
 public:
-    static dpp::embed teamHelpEmbed();
+    static dpp::embed help();
 
     // On Error
-    static dpp::embed teamUnregisteredEmbed(dpp::role home, dpp::role away);
-    static dpp::embed teamUnregisteredEmbed(dpp::role team);
-    static dpp::embed teamPlayerAlreadyRegisteredEmbed(dpp::user player, dpp::role team);
-    static dpp::embed teamPlayerUnregisteredEmbed(dpp::user player, dpp::role team);
+    static dpp::embed error_unregistered(dpp::role home, dpp::role away);
+    static dpp::embed error_unregistered(dpp::role team);
+    static dpp::embed error_duplicate_player(dpp::user player, dpp::role team);
+    static dpp::embed error_player_not_on_team(dpp::user player, dpp::role team);
 
     // On Success
-    static dpp::embed teamRegisteredEmbed(dpp::role team);
-    static dpp::embed teamDelistedEmbed(dpp::role team);
-    static dpp::embed teamAddedPlayersEmbed(vector<dpp::user> players, dpp::role team);
-    static dpp::embed teamRemovedPlayerEmbed(dpp::user player, dpp::role team);
-    static dpp::embed teamViewAllEmbed(map<unsigned long long, Team> teams);
-    static dpp::embed teamViewRoleEmbed(dpp::role team);
+    static dpp::embed registered(dpp::role team);
+    static dpp::embed delisted(dpp::role team);
+    static dpp::embed added_players(vector<int64_t> users, int64_t team);
+    static dpp::embed removed_player(dpp::user player, dpp::role team);
+    static dpp::embed view(vector<int64_t> teams);
+    static dpp::embed view(dpp::role team);
 };
 
 

@@ -4,7 +4,7 @@
 
 #include "UtilityEmbeds.h"
 
-dpp::embed UtilityEmbeds::embedTemplate() {
+dpp::embed UtilityEmbeds::base() {
     /* create the embed */
     dpp::embed embed = dpp::embed()
             .set_color(dpp::colors::wrx_blue)
@@ -14,21 +14,21 @@ dpp::embed UtilityEmbeds::embedTemplate() {
     return embed;
 }
 
-dpp::embed UtilityEmbeds::errorEmbed(string msg) {
-    dpp::embed embed = embedTemplate()
+dpp::embed UtilityEmbeds::error(string msg) {
+    dpp::embed embed = base()
             .set_title("Error")
             .add_field(msg, "Contact a dev for details");
 
     return embed;
 }
 
-dpp::embed UtilityEmbeds::loadingEmbed() {
-    return errorEmbed("The user database is still loading. Please retry this command in a few minutes.");
+dpp::embed UtilityEmbeds::loading() {
+    return error("The user database is still loading. Please retry this command in a few minutes.");
 }
 
-dpp::embed UtilityEmbeds::testEmbed() {
+dpp::embed UtilityEmbeds::test() {
 
-    dpp::embed embed = embedTemplate()
+    dpp::embed embed = base()
             .set_title("Coming soon!")
             .add_field(
                     "This command is not yet finished.",
@@ -38,15 +38,15 @@ dpp::embed UtilityEmbeds::testEmbed() {
     return embed;
 }
 
-dpp::embed UtilityEmbeds::pingEmbed(std::string uptime) {
-    dpp::embed embed = embedTemplate()
+dpp::embed UtilityEmbeds::pong(string uptime) {
+    dpp::embed embed = base()
             .set_title("Pong!")
             .add_field("Uptime", uptime);
 
     return embed;
 }
 
-dpp::embed UtilityEmbeds::helpEmbed() {
+dpp::embed UtilityEmbeds::help() {
     std::ostringstream body;
 
     body << "There are four groups of commands available for use:\n\n";
@@ -60,16 +60,16 @@ dpp::embed UtilityEmbeds::helpEmbed() {
     body << "More info: " << dpp::utility::slashcommand_mention(Utilities::cmd_map["schedule"], "schedule", "help") << "\n\n";
     body << "Tip: You can interact with the above mentioned slashcommands to automatically fill the command in for you!";
 
-    dpp::embed embed = embedTemplate()
+    dpp::embed embed = base()
             .set_title("Help Page")
             .add_field("Info", body.str(), false);
 
     return embed;
 }
 
-dpp::embed UtilityEmbeds::insufficientPermsEmbed(dpp::interaction interaction) {
+dpp::embed UtilityEmbeds::error_missing_perms(dpp::interaction interaction) {
 
-    dpp::embed embed = embedTemplate()
+    dpp::embed embed = base()
             .set_title("Error")
             .add_field(
                     "Insufficient Permissions",

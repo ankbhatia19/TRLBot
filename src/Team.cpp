@@ -4,24 +4,6 @@
 
 #include "Team.h"
 
-Team::Team(unsigned long long id) {
-    Team::id = id;
-    wins = 0, losses = 0;
-    differential = 0;
-}
-
-Team::Team() {
-    Team::id = 0;
-    wins = 0, losses = 0;
-    differential = 0;
-}
-
-
-bool Team::operator<(const Team &rhs) const {
-    // Counterintuitive, yes; but a higher ranked team has a higher differential
-    // hence it should be given a smaller index in the sorted vector
-    return (differential > rhs.differential);
-}
 
 void Team::table_init(SQLite::Database &db) {
     db.exec(

@@ -38,7 +38,7 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "help") {
-        return { event.command.channel_id, PlayerEmbeds::playerHelpEmbed() };
+        return { event.command.channel_id, PlayerEmbeds::help() };
     }
     else if (subcommand.name == "info"){
 
@@ -55,9 +55,9 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
             );
 
         if (!Player::has_id(db, profile.id))
-            return { event.command.channel_id, PlayerEmbeds::playerNotFound(profile) };
+            return { event.command.channel_id, PlayerEmbeds::error_not_found(profile) };
 
-        return { event.command.channel_id, PlayerEmbeds::playerView(profile) };
+        return { event.command.channel_id, PlayerEmbeds::view(profile) };
     }
     else if (subcommand.name == "register"){
         string username = std::get<string>(subcommand.options[0].value);
@@ -65,7 +65,7 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
         if (subcommand.options.size() == 2){
             // ensure that permission requirements are met
             if (!Utilities::checkPerms(interaction))
-                return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
+                return { event.command.channel_id, UtilityEmbeds::error_missing_perms(interaction) };
 
             profile = interaction.get_resolved_user(
                     subcommand.get_value<dpp::snowflake>(1)
@@ -78,14 +78,15 @@ dpp::message PlayerCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& 
         SQLite::Database db("rocket_league.db", SQLite::OPEN_READWRITE);
 
         if (Player::add_name(db, profile.id, username))
-            return { event.command.channel_id, PlayerEmbeds::playerAddedUsername(profile, username) };
+            return { event.command.channel_id, PlayerEmbeds::added_username(profile, username) };
         else
-            return { event.command.channel_id, PlayerEmbeds::playerUsernameExists(*dpp::find_user(profile.id), username) };
+            return { event.command.channel_id,
+                     PlayerEmbeds::error_duplicate_username(*dpp::find_user(profile.id), username) };
     }
     else if (subcommand.name == "unregister"){
 
-        return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+        return { event.command.channel_id, UtilityEmbeds::test() };
     }
 
-    return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::test() };
 }

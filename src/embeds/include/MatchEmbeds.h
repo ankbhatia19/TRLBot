@@ -6,23 +6,24 @@
 #define TRLBOT_MATCHEMBEDS_H
 
 #include "UtilityEmbeds.h"
+#include "Game.h"
 
 class MatchEmbeds {
 
 public:
 
-    static dpp::embed matchHelpEmbed();
+    static dpp::embed help();
 
     // On success
-    static dpp::embed matchReplayProcessing(int matchID);
-    static dpp::embed matchCompleteEmbed(int matchID);
-    static dpp::embed matchRemoved(int matchID);
+    static dpp::embed replay_processing(int matchID);
+    static dpp::embed complete(int matchID);
+    static dpp::embed removed(int matchID);
 
     // On Error
-    static dpp::embed matchNotFound(int matchID);
-    static dpp::embed matchAlreadyPlayed(int matchID);
-    static dpp::embed matchPlayersNotRegistered(vector<string> unregistered);
-    static dpp::embed matchPlayersNotOnTeam(vector<int64_t> teamless, int matchID);
+    static dpp::embed error_not_found(int matchID);
+    static dpp::embed error_duplicate_submission(int matchID);
+    static dpp::embed error_missing_username(vector<string> unregistered);
+    static dpp::embed error_missing_team(vector<int64_t> teamless, int matchID);
 };
 
 

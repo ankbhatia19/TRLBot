@@ -17,17 +17,17 @@ using namespace std;
 
 class UtilityEmbeds {
 public:
-    static dpp::embed pingEmbed(string uptime);
+    static dpp::embed pong(string uptime);
 
-    static dpp::embed helpEmbed();
+    static dpp::embed help();
 
-    static dpp::embed insufficientPermsEmbed(dpp::interaction interaction);
+    static dpp::embed error_missing_perms(dpp::interaction interaction);
 
-    static dpp::embed loadingEmbed();
-    static dpp::embed errorEmbed(string msg);
-    static dpp::embed testEmbed();
+    static dpp::embed loading();
+    static dpp::embed error(string msg);
+    static dpp::embed test();
 
-    static dpp::embed embedTemplate();
+    static dpp::embed base();
 };
 
 

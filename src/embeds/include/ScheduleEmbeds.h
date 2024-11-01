@@ -11,16 +11,16 @@
 class ScheduleEmbeds {
 
 public:
-    static dpp::embed scheduleHelpEmbed();
+    static dpp::embed help();
 
     // On Success
-    static dpp::embed scheduleViewAllMatches();
-    static dpp::embed scheduleViewMatch(int id);
-    static dpp::embed scheduleViewTeamMatches(unsigned long long role);
+    static dpp::embed view();
+    static dpp::embed view(int id);
+    static dpp::embed view_team(unsigned long long role);
 
     // On Error
-    static dpp::embed scheduleMatchDoesNotExist(int id);
-    static dpp::embed scheduleInvalidTime();
+    static dpp::embed error_not_found(int id);
+    static dpp::embed error_invalid_time();
 };
 
 

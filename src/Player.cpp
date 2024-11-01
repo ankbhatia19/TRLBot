@@ -4,111 +4,16 @@
 
 #include "Player.h"
 
-Player::Player(unsigned long long id) {
-    Player::id = id;
-    Player::teamID = 0;
-}
-
-Player::Player() {
-    Player::id = 0;
-    Player::teamID = 0;
-}
-
-Player::Player(nlohmann::json json) {
-    id = json["id"];
-    teamID = json["teamID"];
-    for (auto stat: json["stats"]) {
-        stats.emplace_back(MatchStatistic{
-                stat["matchID"],
-                stat["shots"],
-                stat["goals"],
-                stat["saves"],
-                stat["assists"]
-        });
-    }
-
-    for (std::string alias: json["aliases"]) {
-        aliases.emplace_back(alias);
-    }
-}
-
-int Player::getStatistic(Player::statistic stat) {
-    double total = 0;
-
-    switch (stat) {
-        case (GOALS):
-            for (auto game: stats)
-                total += game.goals;
-            return (int) total;
-        case (ASSISTS):
-            for (auto game: stats)
-                total += game.assists;
-            return (int) total;
-        case (SAVES):
-            for (auto game: stats)
-                total += game.saves;
-            return (int) total;
-        case (SHOTS):
-            for (auto game: stats)
-                total += game.shots;
-            return (int) total;
-        case (NUM_GAMES):
-            return (int) stats.size();
-        case (AVG_MVPR):
-            // (Goals) + (Assists * 0.75) + (Saves * 0.6) + (Shots / 3) ) / Games Played
-            for (auto game: stats)
-                total += 250 + (250 * (game.goals + (game.assists * 0.75) + (game.saves * 0.6) + (game.shots / 3.0)));
-            return (int) total;
-    }
-    return 0;
-}
-
-double Player::getStatisticAvg(Player::statistic stat) {
-    return ((double) getStatistic(stat) / stats.size());
-}
-
-bool Player::containsAlias(string alias) {
-    for (string username: aliases) {
-        if (alias == username)
-            return true;
-    }
-    return false;
-}
-
-nlohmann::json Player::to_json() {
-    nlohmann::json json;
-    json["id"] = id;
-    json["teamID"] = teamID;
-    for (int i = 0; i < stats.size(); i++) {
-        json["stats"][i]["matchID"] = stats[i].matchID;
-        json["stats"][i]["shots"] = stats[i].shots;
-        json["stats"][i]["goals"] = stats[i].goals;
-        json["stats"][i]["saves"] = stats[i].saves;
-        json["stats"][i]["assists"] = stats[i].assists;
-    }
-
-    for (int i = 0; i < aliases.size(); i++) {
-        json["aliases"][i] = aliases[i];
-    }
-
-    return json;
-}
 
 void Player::table_init(SQLite::Database &db) {
-    try {
-        db.exec(
-                "CREATE TABLE IF NOT EXISTS player_ids ("
-                "player_id INTEGER NOT NULL, "
-                "team_id INTEGER, "
-                "usernames TEXT, "
-                "PRIMARY KEY (player_id));"
-        );
-        std::cout << "player_ids table initialized successfully." << std::endl;
-    } catch (const SQLite::Exception &e) {
-        std::cerr << "SQLite error while initializing table: " << e.what() << std::endl;
-    } catch (const std::exception &e) {
-        std::cerr << "Standard error while initializing table: " << e.what() << std::endl;
-    }
+
+    db.exec(
+            "CREATE TABLE IF NOT EXISTS player_ids ("
+            "player_id INTEGER NOT NULL, "
+            "team_id INTEGER, "
+            "usernames TEXT, "
+            "PRIMARY KEY (player_id));"
+    );
 }
 
 Utilities::ErrorCode Player::add_team(SQLite::Database &db, int64_t player_id, int64_t team_id) {
@@ -188,17 +93,17 @@ Utilities::ErrorCode Player::add_name(SQLite::Database &db, int64_t player_id, c
 int64_t Player::get_id(SQLite::Database &db, const string &username) {
 
     // Prepare the statement
-    SQLite::Statement queryStmt(db, R"(
+    SQLite::Statement query(db, R"(
             SELECT player_id
             FROM player_ids
             JOIN json_each(player_ids.usernames) AS username
             WHERE username.value = ?
         )");
-    queryStmt.bind(1, username); // Bind the input username
+    query.bind(1, username); // Bind the input username
 
     // Execute the query and retrieve results
-    if (queryStmt.executeStep())
-        return queryStmt.getColumn(0).getInt64();
+    if (query.executeStep())
+        return query.getColumn(0).getInt64();
 
     return 0;
 }

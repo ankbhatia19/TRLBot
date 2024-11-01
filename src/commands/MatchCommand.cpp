@@ -45,7 +45,7 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
     auto subcommand = cmd_data.options[0];
 
     if (subcommand.name == "help") {
-        return { event.command.channel_id, MatchEmbeds::matchHelpEmbed() };
+        return { event.command.channel_id, MatchEmbeds::help() };
     }
     else if (subcommand.name == "create") {
 
@@ -62,17 +62,17 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
 
         std::cout << "Created id: " << id << std::endl;
 
-        return { event.command.channel_id, ScheduleEmbeds::scheduleViewMatch(id) };
+        return { event.command.channel_id, ScheduleEmbeds::view(id) };
 
     }
     else if (subcommand.name == "remove"){
 
         if (!Utilities::checkPerms(interaction))
-            return { event.command.channel_id, UtilityEmbeds::insufficientPermsEmbed(interaction) };
+            return { event.command.channel_id, UtilityEmbeds::error_missing_perms(interaction) };
 
         int matchID = std::get<int64_t>(subcommand.options[0].value);
 
-        return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+        return { event.command.channel_id, UtilityEmbeds::test() };
     }
     else if (subcommand.name == "submit"){
 
@@ -129,13 +129,19 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                 vector<string> unregistered;
                 vector<int64_t> teamless;
 
+                std::pair<int64_t, int64_t> team_ids {
+                    Match::get_team(db, matchID, Match::HOME),
+                    Match::get_team(db, matchID, Match::AWAY)
+                };
+
                 // Insert match data to db
                 for (auto player_json: replayData["blue"]["players"]) {
                     auto player_id = Player::get_id(db, player_json["name"]);
+                    auto player_team = Player::get_team(db, player_id);
 
                     if (player_id == 0)
                         unregistered.emplace_back(player_json["name"]);
-                    else if (Player::get_team(db, player_id) == 0)
+                    else if (player_team != team_ids.first && player_team != team_ids.second)
                         teamless.emplace_back(player_id);
                     else
                         Game::insert(db, player_id, matchID, replayNum, player_json["stats"]);
@@ -143,10 +149,11 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
 
                 for (auto player_json: replayData["orange"]["players"]) {
                     auto player_id = Player::get_id(db, player_json["name"]);
+                    auto player_team = Player::get_team(db, player_id);
 
                     if (player_id == 0)
                         unregistered.emplace_back(player_json["name"]);
-                    else if (Player::get_team(db, player_id) == 0)
+                    else if (player_team != team_ids.first && player_team != team_ids.second)
                         teamless.emplace_back(player_id);
                     else
                         Game::insert(db, player_id, matchID, replayNum, player_json["stats"]);
@@ -156,27 +163,27 @@ dpp::message MatchCommand::msg(const dpp::slashcommand_t &event, dpp::cluster& b
                     if (!unregistered.empty()) {
                         bot.interaction_response_edit(
                                 interaction_token,
-                                {event.command.channel_id, MatchEmbeds::matchPlayersNotRegistered(unregistered)}
+                                {event.command.channel_id, MatchEmbeds::error_missing_username(unregistered)}
                         );
                     }
                     else if (!teamless.empty()){
                         bot.interaction_response_edit(
                                 interaction_token,
-                                {event.command.channel_id, MatchEmbeds::matchPlayersNotOnTeam(teamless, matchID)}
+                                {event.command.channel_id, MatchEmbeds::error_missing_team(teamless, matchID)}
                         );
                     }
                     else {
                         Match::set_status(db, matchID, Match::status::PLAYED);
                         bot.interaction_response_edit(
                                 interaction_token,
-                                {event.command.channel_id, MatchEmbeds::matchCompleteEmbed(matchID)}
+                                {event.command.channel_id, MatchEmbeds::complete(matchID)}
                         );
                     }
                 }
                 // Replay processing finished
             });
         }
-        return { event.command.channel_id, MatchEmbeds::matchReplayProcessing(matchID) };
+        return { event.command.channel_id, MatchEmbeds::replay_processing(matchID) };
     }
-    return { event.command.channel_id, UtilityEmbeds::testEmbed() };
+    return { event.command.channel_id, UtilityEmbeds::test() };
 }

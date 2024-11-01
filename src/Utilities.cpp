@@ -76,3 +76,7 @@ void Utilities::bind_val(SQLite::Statement& stmt, int index, const json& value) 
     }
 }
 
+SQLite::Database Utilities::get_db() {
+    return {getBallchasingGroup() + ".db", SQLite::OPEN_READWRITE};
+}
+
