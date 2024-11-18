@@ -1,4 +1,7 @@
 # TRLBot
+
+# This repository is officially deprecated. See: https://github.com/ankbhatia19/TRLBot2
+
 ![trl_bg](assets/TritonRocketLeague.jpg)
 ### A discord bot designed to assist in Triton Rocket League community tournaments.
 
